@@ -9,7 +9,7 @@
 Pod::Spec.new do |s|
   s.name             = 'AdaptiveSkeletonClimbing'
   s.version          = '0.1.0'
-  s.summary          = 'A short description of AdaptiveSkeletonClimbing.'
+  s.summary          = 'Swift implementation of Adaptive Skeleton Climbing.'
 
 # This description is used to generate tags and improve search results.
 #   * Think: What does it do? Why did you write it? What is the focus?
@@ -18,15 +18,15 @@ Pod::Spec.new do |s|
 #   * Finally, don't worry about the indent, CocoaPods strips it!
 
   s.description      = <<-DESC
-TODO: Add long description of the pod here.
-                       DESC
+Adaptive Skeleton Climbing implementation in Swift based on the paper by Tim Postony, Tien-Tsin Wongz and Pheng-Ann Hengz. Allows for generating isosurfaces from voxel data. 
+DESC
 
-  s.homepage         = 'https://github.com/admin@voucherpoint.uk/AdaptiveSkeletonClimbing'
+  s.homepage         = 'https://github.com/andygeers/AdaptiveSkeletonClimbing'
   # s.screenshots     = 'www.example.com/screenshots_1', 'www.example.com/screenshots_2'
   s.license          = { :type => 'MIT', :file => 'LICENSE' }
-  s.author           = { 'admin@voucherpoint.uk' => 'andy@hubbub.co.uk' }
-  s.source           = { :git => 'https://github.com/admin@voucherpoint.uk/AdaptiveSkeletonClimbing.git', :tag => s.version.to_s }
-  # s.social_media_url = 'https://twitter.com/<TWITTER_USERNAME>'
+  s.author           = { 'Andy Geers' }
+  s.source           = { :git => 'https://github.com/andygeers/AdaptiveSkeletonClimbing.git', :tag => s.version.to_s }
+  s.social_media_url = 'https://twitter.com/andygeers'
 
   s.ios.deployment_target = '8.0'
 
