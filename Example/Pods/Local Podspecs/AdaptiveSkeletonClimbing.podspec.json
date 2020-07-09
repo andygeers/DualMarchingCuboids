@@ -1,22 +1,26 @@
 {
   "name": "AdaptiveSkeletonClimbing",
   "version": "0.1.0",
-  "summary": "A short description of AdaptiveSkeletonClimbing.",
-  "description": "TODO: Add long description of the pod here.",
-  "homepage": "https://github.com/admin@voucherpoint.uk/AdaptiveSkeletonClimbing",
+  "summary": "Swift implementation of Adaptive Skeleton Climbing.",
+  "description": "Adaptive Skeleton Climbing implementation in Swift based on the paper by Tim Postony, Tien-Tsin Wongz and Pheng-Ann Hengz. Allows for generating isosurfaces from voxel data.",
+  "homepage": "https://github.com/andygeers/AdaptiveSkeletonClimbing",
   "license": {
     "type": "MIT",
     "file": "LICENSE"
   },
-  "authors": {
-    "admin@voucherpoint.uk": "andy@hubbub.co.uk"
-  },
+  "authors": "Andy Geers",
   "source": {
-    "git": "https://github.com/admin@voucherpoint.uk/AdaptiveSkeletonClimbing.git",
+    "git": "https://github.com/andygeers/AdaptiveSkeletonClimbing.git",
     "tag": "0.1.0"
   },
+  "social_media_url": "https://twitter.com/andygeers",
   "platforms": {
-    "ios": "8.0"
+    "ios": "10.0"
   },
-  "source_files": "AdaptiveSkeletonClimbing/Classes/**/*"
+  "source_files": "AdaptiveSkeletonClimbing/Classes/**/*",
+  "dependencies": {
+    "Euclid": [
+      "~> 0.3.0"
+    ]
+  }
 }

@@ -1,6 +1,9 @@
-
-struct Block {
-}
+//
+//  AdaptiveSkeletonClimber.swift
+//  AdaptiveSkeletonClimbing
+//
+//  Created by Andy Geers on 08/07/2020.
+//
 
 struct DataBlock {
     
@@ -10,7 +13,21 @@ class AdaptiveSkeletonClimber {
     private let bkwidth : Int
     private let bkdepth : Int
     private let bkheight : Int
-    private let N = 8
+    
+    internal static let NLEVEL = 4  /*  number of level of the binary structure */
+    internal static let N = 16  /* (1<<NLEVEL),number of intervals along 1 lign         */
+    internal static let SIZE = 32  /* (1<<(NLEVEL+1)), number of dikes in binary tree stucture  */
+    internal static let DSIZE = 64 /* (1<<(NLEVEL+2)), double of SIZE */
+
+    static let G_Threshold = 50.0
+    static let G_WidthScale = 1.0
+    static let G_HeightScale = 1.0
+    static let G_DepthScale = 1.0
+    static let G_WidthScale_2 = G_WidthScale / 2
+    static let G_HeightScale_2 = G_HeightScale / 2
+    static let G_DepthScale_2 = G_DepthScale / 2
+    static let G_AngleThresh = 15.0 * Double.pi / 180.0
+    static let G_CosAngleThresh = cos(G_AngleThresh);
     
     private let indexData : [DataBlock]
     
@@ -31,9 +48,11 @@ class AdaptiveSkeletonClimber {
         var layer : [[Block]]
         var idxcnt = [0, 0, 0]
         let layersize = bkwidth * bkdepth
+        
+        let blockData = VOXELDT(dataDimX: 10, dataDimY: 10, dataDimZ: 10)
 
         for i in 0 ..< 3 {  // 3 layers of blocks should be hold in memory
-            layer[i] = [Block](repeating: Block(), count: layersize)
+            layer[i] = [Block](repeating: Block(BlockData: blockData), count: layersize)
             idxlayer[i] = [Int](repeating: 0, count: layersize)
         }
         for k in 0 ..< bkheight + 2 { // process in a layer-by-layer fashion
@@ -52,7 +71,7 @@ class AdaptiveSkeletonClimber {
                 }
                 
                 idxcnt[k_0] = 0
-                QueryKdTree(kdtree, k, NLEVEL, G_Threshold, idxlayer[k_0], layersize, idxcnt[k_0])
+                QueryKdTree(kdtree, k, NLEVEL, AdaptiveSkeletonClimber.G_Threshold, idxlayer[k_0], layersize, idxcnt[k_0])
                 
                 // process each non empty block
                 for i in 0 ..< idxcnt[k_0] {

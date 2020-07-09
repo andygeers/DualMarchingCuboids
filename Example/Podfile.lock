@@ -1,5 +1,7 @@
 PODS:
-  - AdaptiveSkeletonClimbing (0.1.0)
+  - AdaptiveSkeletonClimbing (0.1.0):
+    - Euclid (~> 0.3.0)
+  - Euclid (0.3.4)
   - Nimble (7.3.4)
   - Quick (1.2.0)
 
@@ -10,6 +12,7 @@ DEPENDENCIES:
 
 SPEC REPOS:
   trunk:
+    - Euclid
     - Nimble
     - Quick
 
@@ -18,10 +21,11 @@ EXTERNAL SOURCES:
     :path: "../"
 
 SPEC CHECKSUMS:
-  AdaptiveSkeletonClimbing: 0f1a2515ad25673069d8a1c6bf993eea0122a5d9
+  AdaptiveSkeletonClimbing: b2ec15879f16b7de36650c0d01bdd783856641f1
+  Euclid: 94a24caf55d4b251f4d5070c884b3258e6c0fb0a
   Nimble: 051e3d8912d40138fa5591c78594f95fb172af37
   Quick: 58d203b1c5e27fff7229c4c1ae445ad7069a7a08
 
-PODFILE CHECKSUM: 6a8205e3c54967a4e1e7f8717953c6c816b60b17
+PODFILE CHECKSUM: d63cffda32d1084c3bdd7d4c48fc6164da13582f
 
 COCOAPODS: 1.9.1

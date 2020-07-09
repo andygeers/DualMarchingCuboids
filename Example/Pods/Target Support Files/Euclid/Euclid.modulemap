@@ -1,0 +1,6 @@
+framework module Euclid {
+  umbrella header "Euclid-umbrella.h"
+
+  export *
+  module * { export * }
+}
