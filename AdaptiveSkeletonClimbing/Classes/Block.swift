@@ -16,12 +16,6 @@ internal struct Slab {
     
 }
 
-internal struct Farm {
-    static let XDIM = 0
-    static let YDIM = 1
-    static let ZDIM = 2
-}
-
 internal class VOXELDT {
     let dataDimX : Int
     let dataDimY : Int
@@ -384,12 +378,12 @@ internal struct Block {
             let yzdike = curr.dike[LEFT]
             // init simple[] of xyfarm
             for j in xznear ..< xzfar {
-                xyfarm[curr->bottom].xlign[j].simple[xzdikestart] = xzdike
-                hzfarm[curr->top+1 ].xlign[j].simple[xzdikestart] = xzdike
+                xyfarm[curr.bottom].xlign[j].simple[xzdikestart] = xzdike
+                hzfarm[curr.top+1 ].xlign[j].simple[xzdikestart] = xzdike
                 let N_l = AdaptiveSkeletonClimber.N - (xzfar - j)
                 for i in yznear ..< yzfar {
-                    xyfarm[curr->bottom].ylign[i].simple[j] = MAX(N_l,xyfarm[curr->bottom].ylign[i].simple[j]);
-                    xyfarm[curr->top+1 ].ylign[i].simple[j] = MAX(N_l,xyfarm[curr->top+1 ].ylign[i].simple[j]);
+                    xyfarm[curr.bottom].ylign[i].simple[j] = MAX(N_l,xyfarm[curr.bottom].ylign[i].simple[j]);
+                    xyfarm[curr.top+1 ].ylign[i].simple[j] = MAX(N_l,xyfarm[curr->top+1 ].ylign[i].simple[j]);
                 }
             }
 
