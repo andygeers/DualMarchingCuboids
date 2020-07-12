@@ -43,10 +43,6 @@ struct Strip {
     
 }
 
-struct Padi {
-    
-}
-
 enum Dimension : CUnsignedChar {
     case x = 0
     case y = 1
@@ -55,8 +51,8 @@ enum Dimension : CUnsignedChar {
 
 internal struct Farm {
   
-    private var FixDimVal : Int   // The value of the fixed dimension
-    private var EDimIs : CUnsignedChar
+    private var FixDimVal : Int = 0  // The value of the fixed dimension
+    private var EDimIs : UInt = 0
     // bit   7       6   5 4     3 2  1 0
     // mean  empty?      FixDim  Yis  Xis
     // tells you what "x" and "y" actually are.
@@ -138,16 +134,20 @@ internal struct Farm {
         EDimIs |= 0x80
     }
     
-    public func XisV() -> CUnsignedChar {
-        return EDimIs & 0x03
+    public func XisV() -> PadiSide {
+        return PadiSide(rawValue: Int((EDimIs & 0x03)))!
     }
     
-    public func YisV() -> CUnsignedChar {
-        return (EDimIs >> 2) & 0x03
+    public func YisV() -> PadiSide {
+        return PadiSide(rawValue: Int((EDimIs >> 2) & 0x03))!
     }
     
-    public func FixDimV() -> CUnsignedChar {
-        return (EDimIs >> 4) & 0x03
+    public func FixDimV() -> PadiSide {
+        return PadiSide(rawValue: Int((EDimIs >> 4) & 0x03))!
+    }
+    
+    public func fixDimValV() -> Int {
+        return FixDimVal
     }
     
     func TagXStrip(padi : Padi)

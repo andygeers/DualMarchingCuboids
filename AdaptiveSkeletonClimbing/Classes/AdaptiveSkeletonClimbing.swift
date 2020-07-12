@@ -28,6 +28,7 @@ class AdaptiveSkeletonClimber {
     static let G_DepthScale_2 = G_DepthScale / 2
     static let G_AngleThresh = 15.0 * Double.pi / 180.0
     static let G_CosAngleThresh = cos(G_AngleThresh);
+    static let G_HandleAmbiguity = true
     
     private let indexData : [DataBlock]
     
@@ -44,17 +45,18 @@ class AdaptiveSkeletonClimber {
     }
     
     func climb() {
-        var idxlayer : [[Int]]
-        var layer : [[Block]]
         var idxcnt = [0, 0, 0]
         let layersize = bkwidth * bkdepth
         
-        let blockData = VOXELDT(dataDimX: 10, dataDimY: 10, dataDimZ: 10)
+        let blockData = [CUnsignedChar](repeating: 0, count: 10 * 10 * 10)
 
-        for i in 0 ..< 3 {  // 3 layers of blocks should be hold in memory
-            layer[i] = [Block](repeating: Block(BlockData: blockData), count: layersize)
-            idxlayer[i] = [Int](repeating: 0, count: layersize)
-        }
+        // 3 layers of blocks should be hold in memory
+        var layer = [[Block]](repeating: [Block](repeating: Block(blockData: blockData, dataDimX: 10, dataDimY: 10, dataDimZ: 10), count: layersize), count: 3)
+        
+        #if KDTREE
+        
+        var idxlayer = [[Int]](repeating: [Int](repeating: 0, count: layersize), count: 3)
+        
         for k in 0 ..< bkheight + 2 { // process in a layer-by-layer fashion
             let k_0 = modulo(k, 3)
             let k_1 = modulo(k - 1, 3)
@@ -65,13 +67,13 @@ class AdaptiveSkeletonClimber {
             let kminus2 = layer[k_2] // layer k-2
 
             if (k < bkheight) {
-                print("Processing layer %d ...\n", k * N)
+                print("Processing layer %d ...\n", k * AdaptiveSkeletonClimber.N)
                 for i in 0 ..< layersize {
                     kminus0[i].setEmpty()  // Set all block in current layer to empty
                 }
                 
                 idxcnt[k_0] = 0
-                QueryKdTree(kdtree, k, NLEVEL, AdaptiveSkeletonClimber.G_Threshold, idxlayer[k_0], layersize, idxcnt[k_0])
+                QueryKdTree(kdtree, k, AdaptiveSkeletonClimber.NLEVEL, AdaptiveSkeletonClimber.G_Threshold, idxlayer[k_0], layersize, idxcnt[k_0])
                 
                 // process each non empty block
                 for i in 0 ..< idxcnt[k_0] {
@@ -79,9 +81,9 @@ class AdaptiveSkeletonClimber {
                     let cx = db.XisQ()
                     let cy = db.YisQ()
                     let cz = db.ZisQ()
-                    let currxy = cy*bkwidth + cx;
-                    kminus0[currxy].unsetEmpty(); // set it to non empty block
-                    kminus0[currxy].Init(G_data1, XDIM, YDIM, ZDIM, N*cx, N*cy, N*cz, G_DataWidth, G_DataDepth, G_DataHeight);
+                    let currxy = cy * bkwidth + cx
+                    kminus0[currxy].unsetEmpty() // set it to non empty block
+                    kminus0[currxy].Init(G_data1, XDIM, YDIM, ZDIM, AdaptiveSkeletonClimber.N * cx, AdaptiveSkeletonClimber.N * cy, AdaptiveSkeletonClimber.N * cz, G_DataWidth, G_DataDepth, G_DataHeight)
                     kminus0[currxy].buildHighRice()  // skip when empty
                 }
             }
@@ -91,13 +93,13 @@ class AdaptiveSkeletonClimber {
                     let cx = db.XisQ()
                     let cy = db.YisQ()
                     let cz = db.ZisQ()
-                    let currxy = cy*bkwidth + cx;
-                    let bottom = (k==1) ?          nil : kminus2[currxy]
-                    let top    = (k==bkheight) ?   nil : kminus0[currxy]
-                    let nearxz = (cy==0) ?         nil : kminus1[(cy-1) * bkwidth + cx]
-                    let farxz  = (cy==bkdepth-1) ? nil : kminus1[(cy+1) * bkwidth + cx]
-                    let nearyz = (cx==0) ?         nil : kminus1[cy * bkwidth + (cx - 1)]
-                    let faryz  = (cx==bkwidth-1) ? nil : kminus1[cy * bkwidth + (cx + 1)]
+                    let currxy = cy * bkwidth + cx
+                    let bottom = (k == 1) ?             nil : kminus2[currxy]
+                    let top    = (k == bkheight) ?      nil : kminus0[currxy]
+                    let nearxz = (cy == 0) ?            nil : kminus1[(cy-1) * bkwidth + cx]
+                    let farxz  = (cy == bkdepth - 1) ?  nil : kminus1[(cy+1) * bkwidth + cx]
+                    let nearyz = (cx == 0) ?            nil : kminus1[cy * bkwidth + (cx - 1)]
+                    let faryz  = (cx == bkwidth - 1) ?  nil : kminus1[cy * bkwidth + (cx + 1)]
                     kminus1[currxy].communicateSimple(bottom, top, nearxz, farxz, nearyz, faryz)
                     kminus1[currxy].generateTriangle(format, withnormal, fptr)
                 }
@@ -112,5 +114,42 @@ class AdaptiveSkeletonClimber {
                 }
             }
         }
+#else
+        for k in 0 ..< bkheight + 2 {
+            let kminus0 = layer[modulo(k, 3)]       // layer k
+            let kminus1 = layer[modulo(k - 1, 3)]   // layer k-1
+            let kminus2 = layer[modulo(k - 2, 3)]   // layer k-2
+            if (k < bkheight) {
+                print("Processing layer %d ...\n", k * AdaptiveSkeletonClimber.N)
+            }
+            for j in 0 ..< bkdepth {
+                for i in 0 ..< bkwidth {
+                    let currij = j * bkwidth + i
+                    if (k < bkheight) {
+                        kminus0[currij].Init(G_data1, XDIM, YDIM, ZDIM, AdaptiveSkeletonClimber.N * i, AdaptiveSkeletonClimber.N * j, AdaptiveSkeletonClimber.N * k, G_DataWidth, G_DataDepth, G_DataHeight)
+                        if (!kminus0[currij].emptyQ()) {
+                            // skip when empty
+                            kminus0[currij].buildHighRice()
+                        }
+                    }
+                    if (k >= 1 && k - 1 < bkheight && !kminus1[currij].emptyQ()) {
+                        let bottom = (k == 1) ?         nil : &(kminus2[currij])
+                        let top    = (k == bkheight) ?  nil : &(kminus0[currij])
+                        let nearxz = (j == 0) ?         nil : &(kminus1[(j - 1) * bkwidth + i])
+                        let farxz  = (j == bkdepth - 1) ? nil : &(kminus1[(j + 1) * bkwidth + i])
+                        let nearyz = (i == 0) ?         nil : &(kminus1[j * bkwidth + i - 1])
+                        let faryz  = (i == bkwidth - 1) ? nil : &(kminus1[j * bkwidth + i + 1])
+                        kminus1[currij].communicateSimple(bottom, top, nearxz, farxz, nearyz, faryz)
+                        kminus1[currij].generateTriangle(format, withnormal, fptr)
+                    }
+
+                    if (k >= 2 && !kminus2[currij].emptyQ()) {
+                        // skip when empty, assume Init() do not allocate memory
+                        kminus2[currij].cleanup()
+                    }
+                }
+            }
+        }
+#endif
     }
 }

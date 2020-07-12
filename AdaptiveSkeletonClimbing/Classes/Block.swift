@@ -8,24 +8,12 @@
 import Foundation
 import Euclid
 
-internal struct HighRice {
+public struct HighRice {
     
 }
 
 internal struct Slab {
     
-}
-
-internal class VOXELDT {
-    let dataDimX : Int
-    let dataDimY : Int
-    let dataDimZ : Int
-    
-    public init(dataDimX : Int, dataDimY : Int, dataDimZ : Int) {
-        self.dataDimX = dataDimX
-        self.dataDimY = dataDimY
-        self.dataDimZ = dataDimZ
-    }
 }
 
 internal struct VoxelData {
@@ -57,7 +45,10 @@ internal struct Block {
         print(" %d x %d x [%d,%d]\n", h.dike[0], h.dike[1], h.bottom, h)
     }
 
-    let BlockData : VOXELDT
+    public let blockData : [CUnsignedChar]
+    public let dataDimX : Int
+    public let dataDimY : Int
+    public let dataDimZ : Int
     
     public var OffX : Int = 0
     public var OffY : Int = 0
@@ -72,12 +63,12 @@ internal struct Block {
     // A "global" way to store ver[] and occ[]
     // for all ligns. If ver[] and occ[] belongs to
     // lign, then each ver[] will be duplicated twice.
-    public var xver = [Int](repeating: 0, count: (AdaptiveSkeletonClimber.N+1)*(AdaptiveSkeletonClimber.N+1) * AdaptiveSkeletonClimber.SIZE)
-    public var yver = [Int](repeating: 0, count: (AdaptiveSkeletonClimber.N+1)*(AdaptiveSkeletonClimber.N+1) * AdaptiveSkeletonClimber.SIZE)
-    public var zver = [Int](repeating: 0, count: (AdaptiveSkeletonClimber.N+1)*(AdaptiveSkeletonClimber.N+1) * AdaptiveSkeletonClimber.SIZE)
-    public var xocc = [CChar](repeating: 0, count: (AdaptiveSkeletonClimber.N+1)*(AdaptiveSkeletonClimber.N+1) * AdaptiveSkeletonClimber.SIZE)
-    public var yocc = [CChar](repeating: 0, count: (AdaptiveSkeletonClimber.N+1)*(AdaptiveSkeletonClimber.N+1) * AdaptiveSkeletonClimber.SIZE)
-    public var zocc = [CChar](repeating: 0, count: (AdaptiveSkeletonClimber.N+1)*(AdaptiveSkeletonClimber.N+1) * AdaptiveSkeletonClimber.SIZE)
+    public var xver = [Int](repeating: 0, count: (AdaptiveSkeletonClimber.N + 1) * (AdaptiveSkeletonClimber.N + 1) * AdaptiveSkeletonClimber.SIZE)
+    public var yver = [Int](repeating: 0, count: (AdaptiveSkeletonClimber.N + 1) * (AdaptiveSkeletonClimber.N + 1) * AdaptiveSkeletonClimber.SIZE)
+    public var zver = [Int](repeating: 0, count: (AdaptiveSkeletonClimber.N + 1) * (AdaptiveSkeletonClimber.N + 1) * AdaptiveSkeletonClimber.SIZE)
+    public var xocc = [CChar](repeating: 0, count: (AdaptiveSkeletonClimber.N + 1) * (AdaptiveSkeletonClimber.N + 1) * AdaptiveSkeletonClimber.SIZE)
+    public var yocc = [CChar](repeating: 0, count: (AdaptiveSkeletonClimber.N + 1) * (AdaptiveSkeletonClimber.N + 1) * AdaptiveSkeletonClimber.SIZE)
+    public var zocc = [CChar](repeating: 0, count: (AdaptiveSkeletonClimber.N + 1) * (AdaptiveSkeletonClimber.N + 1) * AdaptiveSkeletonClimber.SIZE)
 
     
     // 4 small info are packed in one byte:
@@ -134,17 +125,17 @@ internal struct Block {
 
         // init x y z occ[] and ver[]
         var nonempty : CChar = 0
-        let mydata = VoxelData(BlockData, -1, 0, 0, OffX, OffY, OffZ)
+        let mydata = VoxelData(blockData, -1, 0, 0, OffX, OffY, OffZ)
         for j in 0 ..< AdaptiveSkeletonClimber.N + 1 {
             for i in 0 ..< AdaptiveSkeletonClimber.N + 1 {
                 let pos = (j * (AdaptiveSkeletonClimber.N + 1) + i) * AdaptiveSkeletonClimber.SIZE
-                mydata.ReInit(BlockData, -1, i, j, OffX, OffY, OffZ)
+                mydata.ReInit(blockData, -1, i, j, OffX, OffY, OffZ)
                 Initocc(mydata, &xocc, pos)
                 Initver(occ: xocc, ver: &xver, offset: pos)
-                mydata.ReInit(BlockData, i, -1, j, OffX, OffY, OffZ)
+                mydata.ReInit(blockData, i, -1, j, OffX, OffY, OffZ)
                 Initocc(mydata, &yocc, pos)
                 Initver(occ: yocc, ver: &yver, offset: pos)
-                mydata.ReInit(BlockData, i, j, -1, OffX, OffY, OffZ)
+                mydata.ReInit(blockData, i, j, -1, OffX, OffY, OffZ)
                 Initocc(mydata, &zocc, pos)
                 Initver(occ: zocc, ver: &zver, offset: pos)
                 nonempty |= (xocc[pos+1] | yocc[pos+1] | zocc[pos+1])
@@ -467,14 +458,14 @@ internal struct Block {
 
             xyfarm[i].producePadi(self)
             #if DEBUG
-            out2DPadiPS(BlockData, &(xyfarm[i]), OffX, OffY, OffZ, BlockData.dataDimX, BlockData.dataDimY, BlockData.dataDimZ);
+            out2DPadiPS(BlockData, &(xyfarm[i]), OffX, OffY, OffZ, dataDimX, dataDimY, dataDimZ);
             #endif
             xyfarm[i].initSimpleByPadi()
         }
         highricelist = produceHighRice(xyfarm)
         #if DEBUG
         HighRiceStatistic(highricelist)
-        Out3DHighRice(BlockData, xyfarm, highricelist, OffX, OffY, OffZ, BlockData.dataDimX, BlockData.dataDimY, BlockData.dataDimZ)
+        Out3DHighRice(BlockData, xyfarm, highricelist, OffX, OffY, OffZ, dataDimX, dataDimY, dataDimZ)
         #endif
         // Construct vertical farms
         initSimpleByHighRice()
@@ -493,9 +484,9 @@ internal struct Block {
             xzfarm[i].producePadi(self, Block.PP_HRICECONSTR);
             yzfarm[i].producePadi(self, Block.PP_HRICECONSTR);
             #if DEBUG
-            Out2DPadiPS(Data, &(xyfarm[i]), OffX, OffY, OffZ, BlockData.dataDimX, BlockData.dataDimY, BlockData.dataDimZ)
-            Out2DPadiPS(Data, &(xzfarm[i]), OffX, OffY, OffZ, BlockData.dataDimX, BlockData.dataDimY, BlockData.dataDimZ)
-            Out2DPadiPS(Data, &(yzfarm[i]), OffX, OffY, OffZ, BlockData.dataDimX, BlockData.dataDimY, BlockData.dataDimZ)
+            Out2DPadiPS(Data, &(xyfarm[i]), OffX, OffY, OffZ, dataDimX, dataDimY, dataDimZ)
+            Out2DPadiPS(Data, &(xzfarm[i]), OffX, OffY, OffZ, dataDimX, dataDimY, dataDimZ)
+            Out2DPadiPS(Data, &(yzfarm[i]), OffX, OffY, OffZ, dataDimX, dataDimY, dataDimZ)
             #endif
         }
         for hrice in highricelist {
@@ -553,15 +544,15 @@ internal struct Block {
                     switch(side)
                     {
                     case Farm.XDIM:
-                        if (cell[side] + OffX < BlockData.dataDimX) {
+                        if (cell[side] + OffX < dataDimX) {
                             cell[side] += 1
                         }
                     case Farm.YDIM:
-                        if (cell[side] + OffY < BlockData.dataDimY) {
+                        if (cell[side] + OffY < dataDimY) {
                             cell[side] += 1
                         }
                       case Farm.ZDIM:
-                        if (cell[side] + OffZ < BlockData.dataDimZ) {
+                        if (cell[side] + OffZ < dataDimZ) {
                             cell[side] += 1
                         }
                         
@@ -718,7 +709,7 @@ internal struct Block {
     
         assert(side >= 0 && side <= 2, "[Block::CalVertex]: invalud input value\n")
     
-        let l = Data(BlockData, -1,  0,  0, OffX, OffY, OffZ, BlockData.dataDimX, BlockData.dataDimY, BlockData.dataDimZ)
+        let l = Data(BlockData, -1,  0,  0, OffX, OffY, OffZ, dataDimX, dataDimY, dataDimZ)
 
         let x = cell[Farm.XDIM]
         let y = cell[Farm.YDIM]
@@ -771,9 +762,9 @@ internal struct Block {
     // The true and exact gradient is not calculated in order to speed up
     // by reducing no of multiplication and division.
     func calFastGradient(gradient : inout Vector, cell : [Int]) {
-        let xl = Data(BlockData, -1,  0,  0, OffX, OffY, OffZ, BlockData.dataDimX, BlockData.dataDimY, BlockData.dataDimZ)
-        let yl = Data(BlockData, -1,  0,  0, OffX, OffY, OffZ, BlockData.dataDimX, BlockData.dataDimY, BlockData.dataDimZ)
-        let zl = Data(BlockData, -1,  0,  0, OffX, OffY, OffZ, BlockData.dataDimX, BlockData.dataDimY, BlockData.dataDimZ)
+        let xl = Data(BlockData, -1,  0,  0, OffX, OffY, OffZ, dataDimX, dataDimY, dataDimZ)
+        let yl = Data(BlockData, -1,  0,  0, OffX, OffY, OffZ, dataDimX, dataDimY, dataDimZ)
+        let zl = Data(BlockData, -1,  0,  0, OffX, OffY, OffZ, dataDimX, dataDimY, dataDimZ)
 
         let x = cell[Farm.XDIM] + OffX
         let y = cell[Farm.YDIM] + OffY
@@ -781,12 +772,12 @@ internal struct Block {
         let xprev = (x == 0) ? 0 : x - 1
         let yprev = (y == 0) ? 0 : y - 1
         let zprev = (z == 0) ? 0 : z - 1
-        let xnext = (x == BlockData.dataDimX - 1) ? x : x + 1
-        let ynext = (y == BlockData.dataDimY - 1) ? y : y + 1
-        let znext = (z == BlockData.dataDimZ - 1) ? z : z + 1
-        xl.reInit(BlockData, -1, y, z, 0, 0, 0, BlockData.dataDimX, BlockData.DataDimY, BlockData.dataDimZ)
-        yl.reInit(BlockData, x, -1, z, 0, 0, 0, BlockData.dataDimX, BlockData.dataDimY, BlockData.dataDimZ)
-        zl.reInit(BlockData, x, y, -1, 0, 0, 0, BlockData.dataDimX, BlockData.dataDimY, BlockData.dataDimZ)
+        let xnext = (x == dataDimX - 1) ? x : x + 1
+        let ynext = (y == dataDimY - 1) ? y : y + 1
+        let znext = (z == dataDimZ - 1) ? z : z + 1
+        xl.reInit(BlockData, -1, y, z, 0, 0, 0, dataDimX, dataDimY, dataDimZ)
+        yl.reInit(BlockData, x, -1, z, 0, 0, 0, dataDimX, dataDimY, dataDimZ)
+        zl.reInit(BlockData, x, y, -1, 0, 0, 0, dataDimX, dataDimY, dataDimZ)
 
         // The correct gradient is calculated in the following manner
         // gradient[XDIM] = (xl.Value(xnext) - xl.Value(xprev))/2.0 * G_WidthScale;
