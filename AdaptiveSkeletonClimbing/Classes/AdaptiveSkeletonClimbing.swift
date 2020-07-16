@@ -9,6 +9,11 @@ struct DataBlock {
     
 }
 
+internal func modulo<T: BinaryInteger>(_ lhs: T, _ rhs: T) -> T {
+    let rem = lhs % rhs // -rhs <= rem <= rhs
+    return rem >= 0 ? rem : rem + rhs
+}
+
 class AdaptiveSkeletonClimber {
     private let bkwidth : Int
     private let bkdepth : Int
@@ -31,11 +36,6 @@ class AdaptiveSkeletonClimber {
     static let G_HandleAmbiguity = true
     
     private let indexData : [DataBlock]
-    
-    private func modulo<T: BinaryInteger>(_ lhs: T, _ rhs: T) -> T {
-        let rem = lhs % rhs // -rhs <= rem <= rhs
-        return rem >= 0 ? rem : rem + rhs
-    }
     
     init(indexData : [DataBlock]) {
         bkwidth = 16

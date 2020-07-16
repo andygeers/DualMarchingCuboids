@@ -63,25 +63,28 @@ class Padi {
     var next : Padi?
     var previous : Padi?
     
-    func initialize(xdike : Int, ydike : Int, farm : Farm?, block : Block?) {
+    internal init(xdike : Int, ydike : Int, farm : Farm?, block : Block?) {
     
         assert(!(xdike < 1 || xdike >= AdaptiveSkeletonClimber.SIZE || ydike < 1 || ydike >= AdaptiveSkeletonClimber.SIZE), "[Padi::Init]: invalid input valid\n")
             
-        dike[PadiSide.right.rawValue] = ydike
-        dike[PadiSide.left.rawValue] = ydike
-        dike[PadiSide.top.rawValue] = xdike
-        dike[PadiSide.bottom.rawValue] = xdike
+        dike = [
+            ydike, //right
+            xdike, //top
+            ydike, //left
+            xdike  //bottom
+        ]
 
-        if (farm != nil) {
-            lignavail = true
-        } else {
-            return
-        }
-
-        lign[.right.rawValue]  = &(farm.ylign[End(xdike)]);   //right
-        lign[.top.rawValue]    = &(farm.xlign[End(ydike)]);   //top
-        lign[.left.rawValue]   = &(farm.ylign[Start(xdike)]); //left;
-        lign[.bottom.rawValue] = &(farm.xlign[Start(ydike)]); //bottom;
+        guard let theFarm = farm else { return }
+        
+        lignavail = true
+        
+        lign = [
+            &(farm.ylign[End(xdike)]);   //right
+            &(farm.xlign[End(ydike)]);   //top
+            &(farm.ylign[Start(xdike)]); //left;
+            &(farm.xlign[Start(ydike)]); //bottom;
+        ]
+        
         for i in 0 ..< 4 {
             occ[i] = lign[i].occ[dike[i]]
         }
@@ -93,12 +96,12 @@ class Padi {
     
         lookupidx = 0;
         for i in 0 ..< 4 {
-            lookupidx = (lookupidx << 2) | (3 & (UInt(occ[i])))
+            lookupidx = (lookupidx << 2) | (3 & (Int(occ[i])))
         }
-        if (AdaptiveSkeletonClimber.G_HandleAmbiguity && (lookupidx == 0x99 || lookupidx == 0x66)) {
+        if let theBlock = block, (AdaptiveSkeletonClimber.G_HandleAmbiguity && (lookupidx == 0x99 || lookupidx == 0x66)) {
             
             // ambiguous cases
-            resolveAmbiguity(xdike, ydike, farm, block);
+            resolveAmbiguity(xdike: xdike, ydike: ydike, farm: theFarm, block: theBlock)
 
         }
  
@@ -115,7 +118,7 @@ class Padi {
         let yodd = Length(ydike) & 1 > 0
         // get bl and br
         var dim = [PadiSide](repeating: .invalid, count: 3)
-        dim[farm.FixDimV().rawValue] = farm.FixDimValV()
+        dim[farm.fixDimV().rawValue] = farm.fixDimValV()
         dim[xis.rawValue] = .invalid
         dim[yis.rawValue] = ymidpt
         let data = Data(G_data1, dim[0], dim[1], dim[2],
@@ -216,7 +219,7 @@ class Padi {
         }
     }
     
-    func genEdge(edgearr : inout [PadiSide], cnt : inout Int) {
+    func genEdge(edgearr : inout [PadiSide]) {
     
         guard lignavail else {
             print("[PAdi::GenEdge]: no lign info avail to gen edge\n")
@@ -228,10 +231,8 @@ class Padi {
             let k = Padi.edgetable[lookupidx][i]
             let l = Padi.edgetable[lookupidx][i + 1]
             if (k != .invalid && l != .invalid) {
-                edgearr[cnt] = k
-                cnt += 1
-                edgearr[cnt] = l
-                cnt += 1
+                edgearr.append(k)
+                edgearr.append(l)                
             }
         }
     }
@@ -257,7 +258,7 @@ class Padi {
 
 
     // test whether the input padi overlap with this one
-    func OverlapQ(padi : Padi) -> Bool {
+    func overlapQ(padi : Padi) -> Bool {
     
         for i in PadiSide.right.rawValue ... PadiSide.top.rawValue {
             // 1st round: check along y
@@ -303,13 +304,11 @@ class Padi {
     // "this" will not not affected
     // 1) holder    The clipped padi will be appended into holder array.
     // 2) cnt       The amount of element in holder array.
-    func ClipBy(clipper : Padi, holder : [[Padi]], cnt : inout Int, farm : Farm?, block : Block) {
-    
-      assert(cnt >= 0, "[Padi::CliBy]: invalid input value\n")
+    func clipBy(clipper : Padi, holder : inout [Padi], farm : Farm?, block : Block?) {
                     
         let dikeset = [Int](repeating: 0, count: AdaptiveSkeletonClimber.N)
         var dikecnt = 0
-        
+                
         let ligngiven = lignavail && farm != nil
         let clipxstart = Start(clipper.dike[3])
         let clipxend   = End(clipper.dike[3])
@@ -327,13 +326,11 @@ class Padi {
                 MinDikeSet(thisxstart, clipxstart - 1, dikeset, dikecnt)
                 for i in 0 ..< dikecnt {
                     // append into the holder array
-                    holder[cnt] = Padi()
                     if (!ligngiven) {
-                        holder[cnt].initialize(dikeset[i], dike[PadiSide.left.rawValue])
+                        holder.append(Padi(dikeset[i], dike[PadiSide.left.rawValue]))
                     } else {
-                        holder[cnt].initialize(dikeset[i], dike[PadiSide.left.rawValue], farm, block)
+                        holder.append(Padi(dikeset[i], dike[PadiSide.left.rawValue], farm, block))
                     }
-                    cnt += 1
                 }
             }
             if (thisxend > clipxend) {
@@ -341,14 +338,11 @@ class Padi {
                 MinDikeSet(clipxend, thisxend - 1, dikeset, dikecnt)
                 for i in 0 ..< dikecnt {
                     // append into the holder array
-                    holder[cnt] = Padi()
-                    
                     if (!ligngiven) {
-                        holder[cnt].initialize(dikeset[i], dike[PadiSide.left.rawValue])
+                        holder.append(Padi(dikeset[i], dike[PadiSide.left.rawValue]))
                     } else {
-                        holder[cnt].initialize(dikeset[i], dike[PadiSide.left.rawValue], farm, block)
+                        holder.append(Padi(dikeset[i], dike[PadiSide.left.rawValue], farm, block))
                     }
-                    cnt += 1
                 }
             }
         }
@@ -359,13 +353,11 @@ class Padi {
                 MinDikeSet(thisystart, clipystart-1, dikeset,dikecnt);
                 for i in 0 ..< dikecnt {
                     // append into the holder array
-                    holder[cnt] = Padi()
                     if (!ligngiven) {
-                        holder[cnt].initialize(dike[PadiSide.bottom.rawValue], dikeset[i])
+                        holder.append(Padi(dike[PadiSide.bottom.rawValue], dikeset[i]))
                     } else {
-                        holder[cnt].initialize(dike[PadiSide.bottom.rawValue], dikeset[i], farm, block)
+                        holder.append(Padi(dike[PadiSide.bottom.rawValue], dikeset[i], farm, block))
                     }
-                    cnt += 1
                 }
             }
             if (thisyend > clipyend) {
@@ -373,23 +365,20 @@ class Padi {
                 MinDikeSet(clipyend, thisyend - 1, dikeset, dikecnt)
                 for i in 0 ..< dikecnt {
                     // append into the holder array
-                    holder[cnt] = Padi()
-                      
                     if (!ligngiven) {
-                        holder[cnt].initialize(dike[PadiSide.bottom.rawValue], dikeset[i]);
+                        holder.append(Padi(dike[PadiSide.bottom.rawValue], dikeset[i]))
                     } else {
-                        holder[cnt].initialize(dike[PadiSide.bottom.rawValue], dikeset[i], farm, block)
+                        holder.append(Padi(dike[PadiSide.bottom.rawValue], dikeset[i], farm, block))
                     }
-                    cnt += 1
                 }
             }
-        }
+        }     
     }
 
 
 
     /// output the 2D slice and padi as a postscript image  *
-    func Out2DPadiPS(data1 : [CUnsignedChar], farm : Farm, offx : Int, offy : Int, offz : Int, datadimx : Int, datadimy : Int, datadimz : Int) {
+    static func out2DPadiPS(data data1 : [CUnsignedChar], farm : Farm, offx : Int, offy : Int, offz : Int, datadimx : Int, datadimy : Int, datadimz : Int) {
             
         let radius = 1 * 5.0
         let spacing = 10 * 5.0
@@ -400,10 +389,10 @@ class Padi {
         let xis = farm.XisV()
         let yis = farm.YisV()
         
-        var dim = [PadiSide](repeating: .invalid, count: 3)
+        var dim = [Int](repeating: -1, count: 3)
         dim[farm.fixDimV().rawValue] = farm.fixDimValV()
-        dim[xis.rawValue] = .invalid
-        dim[yis.rawValue] = .right
+        dim[xis.rawValue] = -1
+        dim[yis.rawValue] = 0
         let data = Data(data1, dim[0], dim[1], dim[2], offx, offy, offz, datadimx, datadimy, datadimz);
         for j in 0 ..< AdaptiveSkeletonClimber.N + 1 {
             dim[yis.rawValue] = j

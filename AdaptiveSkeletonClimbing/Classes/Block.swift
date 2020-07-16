@@ -8,10 +8,6 @@
 import Foundation
 import Euclid
 
-public struct HighRice {
-    
-}
-
 internal struct Slab {
     
 }
@@ -39,6 +35,22 @@ internal struct Block {
     static var G_Stat_TriangleCnt = 0
     
     static var G_HandleBeauty = true
+    
+    static var edge : [Int] = [] {
+        didSet {
+            // TODO: Check if this works
+            print("Reserving capacity for edge")
+            edge.reserveCapacity(2 * 4 * 3 * AdaptiveSkeletonClimber.N * AdaptiveSkeletonClimber.N)
+        }
+    }
+    static var pathcnt = [Int](repeating: 0, count: 8)
+    static var path : [Int] = [] {
+        didSet {
+            // TODO: Check if this works
+            print("Reserving capacity for path")
+            path.reserveCapacity(2 * 6 * AdaptiveSkeletonClimber.N*AdaptiveSkeletonClimber.N + 1)
+        }
+    }
     
     func HIGHRICEDIM(s : String, h : HighRice) {
         print(s)
@@ -452,13 +464,13 @@ internal struct Block {
 
     mutating func buildHighRice() {
         for i in 0 ..< AdaptiveSkeletonClimber.N + 1 {
-            xyfarm[i].initialize(XisQ(), YisQ(), i, xocc, yocc, xver, yver);
+            xyfarm[i].initialize(xis: XisQ(), yis: YisQ(), fixdimval: i, xocc: xocc, yocc: yocc, xver: xver, yver: yver);
             xzfarm[i].initialize(XisQ(), ZisQ(), i, xocc, zocc, xver, zver);
             yzfarm[i].initialize(YisQ(), ZisQ(), i, yocc, zocc, yver, zver);
 
             xyfarm[i].producePadi(self)
             #if DEBUG
-            out2DPadiPS(BlockData, &(xyfarm[i]), OffX, OffY, OffZ, dataDimX, dataDimY, dataDimZ);
+            out2DPadiPS(data: blockData, farm: xyfarm[i], offx: OffX, offy: OffY, offz: OffZ, datadimx: dataDimX, datadimy: dataDimY, datadimz: dataDimZ)
             #endif
             xyfarm[i].initSimpleByPadi()
         }
@@ -474,30 +486,26 @@ internal struct Block {
 
 
     func generateTriangle(withnormal : Bool, file : inout File) {
-            
-        static let edge = [Int](repeating: 0, count: 2*4*3*AdaptiveSkeletonClimber.N*AdaptiveSkeletonClimber.N)
-        static let pathcnt = [Int](repeating: 0, count: 8)
-        static var path = [Int](repeating: 0, count: 2*6*AdaptiveSkeletonClimber.N*AdaptiveSkeletonClimber.N + 1)
 
         for i in 0 ..< AdaptiveSkeletonClimber.N + 1 {
-            xyfarm[i].producePadi(self, Block.PP_HRICECONSTR);
-            xzfarm[i].producePadi(self, Block.PP_HRICECONSTR);
-            yzfarm[i].producePadi(self, Block.PP_HRICECONSTR);
+            xyfarm[i].producePadi(block: self, constrain: Block.PP_HRICECONSTR);
+            xzfarm[i].producePadi(block: self, constrain: Block.PP_HRICECONSTR);
+            yzfarm[i].producePadi(block: self, constrain: Block.PP_HRICECONSTR);
             #if DEBUG
-            Out2DPadiPS(Data, &(xyfarm[i]), OffX, OffY, OffZ, dataDimX, dataDimY, dataDimZ)
-            Out2DPadiPS(Data, &(xzfarm[i]), OffX, OffY, OffZ, dataDimX, dataDimY, dataDimZ)
-            Out2DPadiPS(Data, &(yzfarm[i]), OffX, OffY, OffZ, dataDimX, dataDimY, dataDimZ)
+            Padi.out2DPadiPS(Data, &(xyfarm[i]), OffX, OffY, OffZ, dataDimX, dataDimY, dataDimZ)
+            Padi.out2DPadiPS(Data, &(xzfarm[i]), OffX, OffY, OffZ, dataDimX, dataDimY, dataDimZ)
+            Padi.out2DPadiPS(Data, &(yzfarm[i]), OffX, OffY, OffZ, dataDimX, dataDimY, dataDimZ)
             #endif
         }
         for hrice in highricelist {
             // in order to minimize memory requirement, a global edge table from class block is reused for each highrice
-            hrice.setupEdgeTable(xyfarm, xzfarm, yzfarm, edge)
+            hrice.setupEdgeTable(xyfarm: xyfarm, xzfarm: xzfarm, yzfarm: yzfarm, edge: &Block.edge)
             
-            var pathno = 0
-            hrice.generatePath(path, pathcnt, &pathno, edge)
-            if (pathno > 0) {
+            Block.pathcnt.removeAll(keepingCapacity: true)
+            hrice.generatePath(path: &Block.path, pathcnt: &Block.pathcnt, edge: &Block.edge)
+            if !Block.path.isEmpty {
                 // nonzero no of path
-                outTriangle(hrice, &path, pathcnt, pathno, withnormal, file)
+                outTriangle(hrice, &Block.path, Block.pathcnt, pathno, withnormal, file)
             }
         }
     }
@@ -534,8 +542,8 @@ internal struct Block {
         for k in 0 ..< pathno {
             for i in start ..< start + pathcnt[k] {
                 assert(3 * i <= 3 * elementno, "[Block::OutTriangle]: too little memory allocated for vert and grad\n")
-                var side = 0
-                hrice.indexToCoord(path[i], &cell, &side)
+                var side = Dimension.x
+                hrice.indexToCoord(idx: &path[i], coord: &cell, xyz: &side)
                 calVertex(coord: &vert[vv], cell: cell, side: side, ratio: &ratio)
                 calFastGradient(gradient: &gradient1, cell: cell)
                 if (ratio > 0) {
@@ -543,17 +551,17 @@ internal struct Block {
                 
                     switch(side)
                     {
-                    case Farm.XDIM:
-                        if (cell[side] + OffX < dataDimX) {
-                            cell[side] += 1
+                    case .x:
+                        if (cell[side.rawValue] + OffX < dataDimX) {
+                            cell[side.rawValue] += 1
                         }
-                    case Farm.YDIM:
-                        if (cell[side] + OffY < dataDimY) {
-                            cell[side] += 1
+                    case .y:
+                        if (cell[side.rawValue] + OffY < dataDimY) {
+                            cell[side.rawValue] += 1
                         }
-                      case Farm.ZDIM:
-                        if (cell[side] + OffZ < dataDimZ) {
-                            cell[side] += 1
+                    case .z:
+                        if (cell[side.rawValue] + OffZ < dataDimZ) {
+                            cell[side.rawValue] += 1
                         }
                         
                     default:
@@ -705,15 +713,13 @@ internal struct Block {
     }
 
 
-    func calVertex(coord : inout Vector, cell : [Int], side : Int, ratio : inout Double) {
-    
-        assert(side >= 0 && side <= 2, "[Block::CalVertex]: invalud input value\n")
-    
+    func calVertex(coord : inout Vector, cell : [Int], side : Dimension, ratio : inout Double) {
+            
         let l = Data(BlockData, -1,  0,  0, OffX, OffY, OffZ, dataDimX, dataDimY, dataDimZ)
 
-        let x = cell[Farm.XDIM]
-        let y = cell[Farm.YDIM]
-        let z = cell[Farm.ZDIM]
+        let x = cell[Dimension.x.rawValue]
+        let y = cell[Dimension.y.rawValue]
+        let z = cell[Dimension.z.rawValue]
     
         assert(!(x < 0 || x > AdaptiveSkeletonClimber.N + 1 || y < 0 || y > AdaptiveSkeletonClimber.N + 1 || z < 0 || z > AdaptiveSkeletonClimber.N + 1), "[Block::CalVertex]: IndexCoord map to wrong coordinate\n")
         
@@ -722,32 +728,29 @@ internal struct Block {
         coord.z = Double(OffZ + z)
         // linearly interpolate the vertex position
     
-        assert(cell[side] <= AdaptiveSkeletonClimber.N, "[Block::OutTriangle]: index out of bound\n");
+        assert(cell[side.rawValue] <= AdaptiveSkeletonClimber.N, "[Block::OutTriangle]: index out of bound\n")
               
         switch (side) {
-        case Farm.XDIM:
+        case .x:
             l.reInit(BlockData, -1, y, z, OffX, OffY, OffZ, BlockData.DataDimX, BlockData.DataDimY, BlockData.DataDimZ);
             let x1 = l.Value(x)
             let x2 = l.Value(x+1)
             ratio = Double(AdaptiveSkeletonClimber.G_Threshold - x1) / (x2 - x1)
             coord.x += ratio
           
-        case Farm.YDIM:
+        case .y:
             l.reInit(BlockData, x, -1, z, OffX, OffY, OffZ, BlockData.DataDimX, BlockData.DataDimY, BlockData.DataDimZ);
             let y1 = l.Value(y)
             let y2 = l.Value(y + 1)
             ratio = Double(AdaptiveSkeletonClimber.G_Threshold - y1) / (y2 - y1)
             coord.y += ratio;
           
-        case Farm.ZDIM:
+        case .z:
             l.reInit(BlockData, x, y, -1, OffX, OffY, OffZ, BlockData.DataDimX, BlockData.DataDimY, BlockData.DataDimZ);
             let z1 = l.Value(z)
             let z2 = l.Value(z + 1)
             ratio = Double(AdaptiveSkeletonClimber.G_Threshold - z1) / (z2 - z1)
             coord.z += ratio
-          
-        default:
-            break
         }
         
         coord.x *= AdaptiveSkeletonClimber.G_WidthScale

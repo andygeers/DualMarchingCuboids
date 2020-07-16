@@ -43,7 +43,7 @@ struct Strip {
     
 }
 
-enum Dimension : CUnsignedChar {
+enum Dimension : Int {
     case x = 0
     case y = 1
     case z = 2
@@ -142,7 +142,7 @@ internal struct Farm {
         return PadiSide(rawValue: Int((EDimIs >> 2) & 0x03))!
     }
     
-    public func FixDimV() -> PadiSide {
+    public func fixDimV() -> PadiSide {
         return PadiSide(rawValue: Int((EDimIs >> 4) & 0x03))!
     }
     
@@ -180,11 +180,9 @@ internal struct Farm {
     }
 
     func producePadi(block : Block, constrain : CUnsignedChar) -> DoublyLinkedList<Padi> {
-      int competecnt;
-        var ydike = [Dyke](repeating: Dyke(), count: AdaptiveSkeletonClimber.N)
-        var holder = [Padi](repeating: Padi(), count: AdaptiveSkeletonClimber.N * AdaptiveSkeletonClimber.N)
       
-        let competitor = [Padi](repeating: Padi(), count: max(1, AdaptiveSkeletonClimber.N * AdaptiveSkeletonClimber.NLEVEL))
+        var ydike : [Dyke] = []
+        ydike.reserveCapacity(AdaptiveSkeletonClimber.N)
 
       // Init xstrip
         for i in 0 ..< AdaptiveSkeletonClimber.N {
@@ -194,7 +192,7 @@ internal struct Farm {
         if (!padilist.isEmpty) {
             padilist.removeAll()
         }
-        
+
         // from bottom to top xstrip
         for j in 0 ..< AdaptiveSkeletonClimber.N {
             // TODO: Write an iterator for 'simple'
@@ -238,72 +236,70 @@ internal struct Farm {
                 // for each candidate ydike
                 for jj in 0 ..< ydikecnt {
                 
-                    var holdercnt = 0
-                    var currpadi = Padi()
-                    
-                    currpadi.initialize(i, ydike[jj], self, block)
+                    var holder : [Padi] = []
+                    holder.reserveCapacity(AdaptiveSkeletonClimber.N * AdaptiveSkeletonClimber.N)
+                    var currpadi = Padi(i, ydike[jj], self, block)
 
                     // for each padi which is broken up by existing padi
                     repeat {
                                             
                         // consider clipped padi
-                        if (holdercnt > 0) {
-                            holdercnt -= 1   // decrement counter
-                            currpadi = holder[holdercnt] // pick one element from array
-                            //holder[holdercnt] = nil
+                        if (!holder.isEmpty) {
+                            // pick one element from array
+                            currpadi = holder.popLast()!                            
                         }
 
                         // Check whether it is already occupied. And find out competitors.
+                        var competitors : [Padi] = []
+                        competitors.reserveCapacity(max(1, AdaptiveSkeletonClimber.N * AdaptiveSkeletonClimber.NLEVEL))
+                        
     #if PADISEARCH
                         // Using straighforward linear search all existing padi
-                        var competecnt = 0
                         for tmppadi in padilist {
-                            if (tmppadi.OverlapQ(currpadi)) {
-                                competitor[competecnt] = tmppadi
-                                competecnt += 1
+                            if (tmppadi.overlapQ(currpadi)) {
+                                competitors.append(tmppadi)
                             }
                         }
     #else
                         // This method of searching competitor may not be very efficient
-                        var competecnt = 0
-                        for k in Start(currpadi.dike[LEFT]) ..< End(currpadi.dike[LEFT]) {
-                            xstrip[k].UsedBy(currpadi.dike[BOTTOM], competitor, competecnt)
+                        for k in Start(currpadi.dike[PadiSide.left.rawValue]) ..< End(currpadi.dike[PadiSide.left.rawValue]) {
+                            xstrip[k].UsedBy(currpadi.dike[PadiSide.bottom.rawValue], competitors)
                         }
     #endif
                         var padisuccess = true
-                        for k in 0 ..< competecnt {
+                        for competitor in competitors {
                             // Check whether currpadi is enclosed by any competitor
-                            if (currpadi.enclosedByQ(competitor[k])) {
+                            if (currpadi.enclosedByQ(competitor)) {
                                 // no need to continue, simply delete current padi
     #if DEBUG
-                                print("remove current padi %d x %d\n", currpadi.dike[BOTTOM], currpadi.dike[LEFT])
+                                print("remove current padi %d x %d\n", currpadi.dike[PadiSide.bottom.rawValue], currpadi.dike[PadiSide.left.rawValue])
     #endif
                                 //currpadi = nil
                                 padisuccess = false
                                 break
                                                         
-                            } else if (competitor[k].enclosedByQ(currpadi)) {
+                            } else if (competitor.enclosedByQ(currpadi)) {
                                 // If currpadi enclose competitor padi, just throw competitor away
     #if DEBUG
-                                print("remove competitor padi %d x %d\n", competitor[k].dike[BOTTOM], competitor[k].dike[LEFT])
+                                print("remove competitor padi %d x %d\n", competitor[k].dike[PadiSide.bottom.rawValue], competitor[k].dike[PadiSide.left.rawValue])
     #endif
-                                UntagXStrip(competitor[k]);
-                                padilist->Remove(competitor[k]);
-                                delete competitor[k];
-                                competitor[k] = NULL;
+                                UntagXStrip(competitor);
+                                padilist.remove(competitor);
+//                                delete competitor[k];
+//                                competitor[k] = NULL;
                             } else {
                                 // only partial overlaid, break the current padi
                 
     #if DEBUG
-                                print("before: break current padi %d x %d\n", currpadi.dike[BOTTOM], currpadi.dike[LEFT]);
-                                print("clipped by padi %d x %d\n", competitor[k].dike[BOTTOM], competitor[k].dike[LEFT])
+                                print("before: break current padi %d x %d\n", currpadi.dike[PadiSide.bottom.rawValue], currpadi.dike[PadiSide.left.rawValue]);
+                                print("clipped by padi %d x %d\n", competitor[k].dike[PadiSide.bottom.rawValue], competitor[k].dike[PadiSide.left.rawValue])
     #endif
-                                currpadi.ClipBy(competitor[k], holder, holdercnt, self, block)
+                                currpadi.clipBy(competitor, &holder, self, block)
                                 //delete currpadi;
                                 //currpadi = NULL;
                                 padisuccess = false
     #if DEBUG
-                                print("after: break current padi %d x %d\n", currpadi.dike[BOTTOM], currpadi.dike[LEFT]);
+                                print("after: break current padi %d x %d\n", currpadi.dike[PadiSide.bottom.rawValue], currpadi.dike[PadiSide.left.rawValue])
     #endif
                   
                                 // no need to continue, since the clipped portion have to go through the whole test
@@ -317,10 +313,10 @@ internal struct Farm {
                             // Insert the current padi into the doubly linked list
                             padilist.append(currpadi)
     #if DEBUG
-                            print("current padi born %d x %d\n", currpadi.dike[BOTTOM], currpadi.dike[LEFT]);
+                            print("current padi born %d x %d\n", currpadi.dike[PadiSide.bottom.rawValue], currpadi.dike[PadiSide.left.rawValue]);
     #endif
                         }
-                    } while (holdercnt > 0)
+                    } while (!holder.isEmpty)
                 }
                 i = xstrip[j].NextSimple(i)
             }
