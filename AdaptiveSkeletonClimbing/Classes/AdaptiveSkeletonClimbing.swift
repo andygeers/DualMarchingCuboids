@@ -42,6 +42,9 @@ class AdaptiveSkeletonClimber {
         bkdepth = 16
         bkheight = 16
         self.indexData = indexData
+        
+        Dike.DikeTableInit()
+        Padi.PadiInitEdgeTable()
     }
     
     func climb() {

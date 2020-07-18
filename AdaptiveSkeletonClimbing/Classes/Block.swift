@@ -251,8 +251,8 @@ internal struct Block {
                 let x = xydike[0]
                 let y = xydike[1]
                 var jj = j + 1  // Search for max J
-                while (jj < AdaptiveSkeletonClimber.N && slab[jj].xlign[start(y)].simple[x] == x
-                    && slab[jj].ylign[start(x)].simple[y] == y) {
+                while (jj < AdaptiveSkeletonClimber.N && slab[jj].xlign[Dike.start(y)].simple[x] == x
+                    && slab[jj].ylign[Dike.start(x)].simple[y] == y) {
                         
                         jj += 1
                 }
@@ -371,10 +371,10 @@ internal struct Block {
         }
 
         for curr in highricelist {
-            let xznear = start(curr.dike[LEFT])
-            let xzfar  = end(curr.dike[LEFT])
-            let yznear = start(curr.dike[TOP])
-            let yzfar  = end(curr.dike[TOP])
+            let xznear = Dike.start(curr.dike[LEFT])
+            let xzfar  = Dike.end(curr.dike[LEFT])
+            let yznear = Dike.start(curr.dike[TOP])
+            let yzfar  = Dike.end(curr.dike[TOP])
             let xzdikestart = AdaptiveSkeletonClimber.N+yznear;
             let yzdikestart = AdaptiveSkeletonClimber.N+xznear;
             let xzdike = curr.dike[TOP]

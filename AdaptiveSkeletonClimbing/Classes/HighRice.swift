@@ -28,7 +28,7 @@ class HighRice : Padi {
     private var offset = [Int](repeating: 0, count: 6)   // offset pointer to the 1st entry of each face of highrice
     private var width : Int {
         get {
-            return Length(dike[PadiSide.top.rawValue])
+            return Dike.length(dike[PadiSide.top.rawValue])
         }
     }
     private var height : Int {
@@ -38,7 +38,7 @@ class HighRice : Padi {
     }
     private var depth : Int {
         get {
-            return Length(dike[PadiSide.left.rawValue])
+            return Dike.length(dike[PadiSide.left.rawValue])
         }
     }
     
@@ -159,35 +159,35 @@ class HighRice : Padi {
             case .bottom:
                 currfarm = xyfarm[bottom]
                 face = "bottom: "
-                ybottom = Start(dike[PadiSide.left.rawValue])
-                ytop = End(dike[PadiSide.left.rawValue]) - 1
+                ybottom = Dike.start(dike[PadiSide.left.rawValue])
+                ytop = Dike.end(dike[PadiSide.left.rawValue]) - 1
                 xdike = dike[PadiSide.top.rawValue]
             case .top:
                 currfarm = xyfarm[top + 1]
                 face = "top: "
-                ybottom = Start(dike[PadiSide.left.rawValue])
-                ytop = End(dike[PadiSide.left.rawValue]) - 1
+                ybottom = Dike.start(dike[PadiSide.left.rawValue])
+                ytop = Dike.end(dike[PadiSide.left.rawValue]) - 1
                 xdike = dike[PadiSide.top.rawValue]
             case .nearXZ:
-                currfarm = xzfarm[Start(dike[PadiSide.left.rawValue])]
+                currfarm = xzfarm[Dike.start(dike[PadiSide.left.rawValue])]
                 face = "near xz: "
                 ybottom = bottom
                 ytop = top
                 xdike = dike[PadiSide.top.rawValue]
             case .farXZ:
-                currfarm = xzfarm[End(dike[PadiSide.left.rawValue])]
+                currfarm = xzfarm[Dike.end(dike[PadiSide.left.rawValue])]
                 face = "far xz: "
                 ybottom = bottom
                 ytop = top
                 xdike = dike[PadiSide.top.rawValue]
             case .nearYZ:
-                currfarm = yzfarm[Start(dike[PadiSide.top.rawValue])]
+                currfarm = yzfarm[Dike.start(dike[PadiSide.top.rawValue])]
                 face = "near yz: "
                 ybottom = bottom
                 ytop = top
                 xdike = dike[PadiSide.left.rawValue]
             case .farYZ:
-                currfarm = yzfarm[End(dike[PadiSide.top.rawValue])]
+                currfarm = yzfarm[Dike.end(dike[PadiSide.top.rawValue])]
                 face = "far yz: "
                 ybottom = bottom
                 ytop = top
@@ -204,10 +204,10 @@ class HighRice : Padi {
 
             // for each occupy padi
             for occupant in occupiant {
-                if (Start(occupant.dike[PadiSide.top.rawValue]) < Start(xdike)
-                    ||  End(occupant.dike[PadiSide.top.rawValue]) > End(xdike)
-                    ||  Start(occupant.dike[PadiSide.left.rawValue]) < ybottom
-                    ||  End(occupant.dike[PadiSide.left.rawValue]) - 1 > ytop) {
+                if (Dike.start(occupant.dike[PadiSide.top.rawValue]) < Dike.start(xdike)
+                    ||  Dike.end(occupant.dike[PadiSide.top.rawValue]) > Dike.end(xdike)
+                    ||  Dike.start(occupant.dike[PadiSide.left.rawValue]) < ybottom
+                    ||  Dike.end(occupant.dike[PadiSide.left.rawValue]) - 1 > ytop) {
                     print("vvvvvvvvvvvvvvv padi out of highrice face bound\n");
                 }
             #if DEBUG
@@ -281,17 +281,17 @@ class HighRice : Padi {
         // take appropiate coordinate relative to the farm's origin
         switch (side) {
         case .bottom:
-            fx = Start(padi.dike[PadiSide.top.rawValue])
-            fy = Start(padi.dike[PadiSide.left.rawValue])
+            fx = Dike.start(padi.dike[PadiSide.top.rawValue])
+            fy = Dike.start(padi.dike[PadiSide.left.rawValue])
         case .top:
-            fx = Start(padi.dike[PadiSide.top.rawValue])
-            fy = End(padi.dike[PadiSide.left.rawValue])
+            fx = Dike.start(padi.dike[PadiSide.top.rawValue])
+            fy = Dike.end(padi.dike[PadiSide.left.rawValue])
         case .left:
-            fx = Start(padi.dike[PadiSide.top.rawValue])
-            fy = Start(padi.dike[PadiSide.left.rawValue])
+            fx = Dike.start(padi.dike[PadiSide.top.rawValue])
+            fy = Dike.start(padi.dike[PadiSide.left.rawValue])
         case .right:
-            fx = End(padi.dike[PadiSide.top.rawValue])
-            fy = Start(padi.dike[PadiSide.left.rawValue])
+            fx = Dike.end(padi.dike[PadiSide.top.rawValue])
+            fy = Dike.start(padi.dike[PadiSide.left.rawValue])
         default:
             return -1
         }
@@ -320,8 +320,8 @@ class HighRice : Padi {
 
         switch(face) {
         case .bottom:
-            fx -= Start(dike[PadiSide.top.rawValue])
-            fy -= Start(dike[PadiSide.left.rawValue])
+            fx -= Dike.start(dike[PadiSide.top.rawValue])
+            fy -= Dike.start(dike[PadiSide.left.rawValue])
             // transform to highrice face's coordinate
             if (horiz) {
                 // horizontal edge fill the even entries
@@ -342,8 +342,8 @@ class HighRice : Padi {
             }
 
         case .top:
-            fx -= Start(dike[PadiSide.top.rawValue])
-            fy -= Start(dike[PadiSide.left.rawValue])
+            fx -= Dike.start(dike[PadiSide.top.rawValue])
+            fy -= Dike.start(dike[PadiSide.left.rawValue])
             if (horiz) {
                 if (fy == depth) {
                     // pass to HR_FARXZ
@@ -361,7 +361,7 @@ class HighRice : Padi {
             }
 
         case .nearXZ:
-            fx -= Start(dike[PadiSide.top.rawValue])
+            fx -= Dike.start(dike[PadiSide.top.rawValue])
             fy -= bottom
             if (horiz) {
                 if (fy == height) {
@@ -380,7 +380,7 @@ class HighRice : Padi {
             }
 
         case .farXZ:
-            fx -= Start(dike[PadiSide.top.rawValue])
+            fx -= Dike.start(dike[PadiSide.top.rawValue])
             fy -= bottom
             if (horiz) {
                 if (fy==0) {
@@ -399,7 +399,7 @@ class HighRice : Padi {
             }
 
         case .nearYZ:
-            fx -= Start(dike[PadiSide.left.rawValue])
+            fx -= Dike.start(dike[PadiSide.left.rawValue])
             fy -= bottom
             if (horiz) {
                 if (fy == height) {
@@ -418,7 +418,7 @@ class HighRice : Padi {
             }
 
         case .farYZ:
-            fx -= Start(dike[PadiSide.left.rawValue])
+            fx -= Dike.start(dike[PadiSide.left.rawValue])
             fy -= bottom
             if (horiz) {
                 if (fy == 0) {
@@ -533,38 +533,38 @@ class HighRice : Padi {
         {
         case HighRiceSide.bottom.rawValue:
             xyz = vertical ? .y : .x
-            coord[0] = vertical ? modulo(idx, width) + 1 + Start(dike[PadiSide.top]) : modulo(idx, width) + Start(dike[PadiSide.top])
-            coord[1] = vertical ? idx / width + Start(dike[PadiSide.left])  : idx / width + 1 + Start(dike[PadiSide.left])
+            coord[0] = vertical ? modulo(idx, width) + 1 + Dike.start(dike[PadiSide.top]) : modulo(idx, width) + Dike.start(dike[PadiSide.top])
+            coord[1] = vertical ? idx / width + Dike.start(dike[PadiSide.left])  : idx / width + 1 + Dike.start(dike[PadiSide.left])
             coord[2] = bottom
 
         case HighRiceSide.top.rawValue:
             xyz = vertical ? .y : .x
-            coord[0] = modulo(idx, width) + Start(dike[PadiSide.top])
-            coord[1] = idx / width + Start(dike[PadiSide.left])
+            coord[0] = modulo(idx, width) + Dike.start(dike[PadiSide.top])
+            coord[1] = idx / width + Dike.start(dike[PadiSide.left])
             coord[2] = top + 1
 
         case HighRiceSide.nearXZ.rawValue:
             xyz = vertical ? .z : .x
-            coord[0] = modulo(idx, width) + Start(dike[PadiSide.top])
-            coord[1] = Start(dike[PadiSide.left])
+            coord[0] = modulo(idx, width) + Dike.start(dike[PadiSide.top])
+            coord[1] = Dike.start(dike[PadiSide.left])
             coord[2] = idx / width + bottom
 
         case HighRiceSide.farXZ.rawValue:
             xyz = vertical ? .z : .x
-            coord[0] = vertical ? modulo(idx < width) + 1 + Start(dike[PadiSide.top]) : modulo(idx, width) + Start(dike[PadiSide.top])
-            coord[1] = End(dike[PadiSide.left])
+            coord[0] = vertical ? modulo(idx < width) + 1 + Dike.start(dike[PadiSide.top]) : modulo(idx, width) + Dike.start(dike[PadiSide.top])
+            coord[1] = Dike.end(dike[PadiSide.left])
             coord[2] = vertical ? idx / width + bottom : idx / width + 1 + bottom
 
         case HighRiceSide.nearYZ.rawValue:
             xyz = vertical ? .z : .y
-            coord[0] = Start(dike[PadiSide.top]);
-            coord[1] = vertical ? modulo(idx, depth) + 1 + Start(dike[PadiSide.left]) : modulo(idx, depth) + Start(dike[PadiSide.left])
+            coord[0] = Dike.start(dike[PadiSide.top]);
+            coord[1] = vertical ? modulo(idx, depth) + 1 + Dike.start(dike[PadiSide.left]) : modulo(idx, depth) + Dike.start(dike[PadiSide.left])
             coord[2] = idx / depth + bottom
 
         case HighRiceSide.farYZ.rawValue:
             xyz = vertical ? .z : .y
-            coord[0] = End(dike[PadiSide.top]);
-            coord[1] = modulo(idx, depth) + Start(dike[PadiSide.left]);
+            coord[0] = Dike.end(dike[PadiSide.top]);
+            coord[1] = modulo(idx, depth) + Dike.start(dike[PadiSide.left]);
             coord[2] = vertical ? idx / depth + bottom : idx/depth+1 + bottom;
             
         default:
@@ -575,10 +575,10 @@ class HighRice : Padi {
 
     func checkEmpty(xyfarm : Farm) -> Bool {
         var occupied = 0
-        let sx = Start(dike[PadiSide.top.rawValue])
-        let ex = End(dike[PadiSide.top.rawValue])
+        let sx = Dike.start(dike[PadiSide.top.rawValue])
+        let ex = Dike.end(dike[PadiSide.top.rawValue])
         let sy = dike[PadiSide.left.rawValue]
-        let ey = End(dike[PadiSide.left.rawValue])
+        let ey = Dike.end(dike[PadiSide.left.rawValue])
         for i in bottom ... top+1 {
             let farm = xyfarm[i]
             occupied |=   farm.xlign[sy].occ[1]
@@ -653,10 +653,10 @@ class HighRice : Padi {
 
         for highrice in highricelist {
             let height = highrice.top - highrice.bottom + 1
-            let b1 = Start(highrice->dike[LEFT])
-            let e1 = End(highrice->dike[LEFT])
-            let b2 = Start(highrice->dike[TOP])
-            let e2 = End(highrice->dike[TOP])
+            let b1 = Dike.start(highrice->dike[LEFT])
+            let e1 = Dike.end(highrice->dike[LEFT])
+            let b2 = Dike.start(highrice->dike[TOP])
+            let e2 = Dike.end(highrice->dike[TOP])
             for j in b1 ..< e1 {
                 for i in b2 ..< e2 {
                     count[j * AdaptiveSkeletonClimber.N + i] += height
@@ -680,10 +680,10 @@ class HighRice : Padi {
         }
         for highrice in highricelist {
             height = highrice->top - highrice->bottom + 1;
-            b1 = Start(highrice->dike[LEFT]);
-            e1 = End(highrice->dike[LEFT]);
-            b2 = Start(highrice->dike[TOP]);
-            e2 = End(highrice->dike[TOP]);
+            b1 = Dike.start(highrice->dike[LEFT]);
+            e1 = Dike.end(highrice->dike[LEFT]);
+            b2 = Dike.start(highrice->dike[TOP]);
+            e2 = Dike.end(highrice->dike[TOP]);
             for k in highrice.bottom ... highrice.top {
                 for j in b1 ..< e1 {
                     for i in b2 ..< e2 {

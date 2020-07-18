@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import CoreGraphics
 
 struct Dike {
     
@@ -15,14 +16,39 @@ struct Dike {
     static var G_StartTable = [Int](repeating: 0, count: AdaptiveSkeletonClimber.DSIZE)
     static var G_EndTable = [Int](repeating: 0, count: AdaptiveSkeletonClimber.DSIZE)
     
+    static func level(i : Int) -> Int {
+        assert(i < AdaptiveSkeletonClimber.DSIZE, "[Level]: Tablelookup out of bound %d\n")
+        return G_LevelTable[i]
+    }
+
+    static func length(i : Int) -> Int {
+        assert(i < AdaptiveSkeletonClimber.SIZE, "[Length]: Tablelookup out of bound\n")
+        return G_LengthTable[i]
+    }
+
+    static func nextDike(i : Int) -> Int {
+        assert(i < AdaptiveSkeletonClimber.SIZE, "[NextDike]: Tablelookup out of bound\n")
+        return G_NextDikeTable[i]
+    }
+
+    static func start(i : Int) -> Int {
+        assert(i < AdaptiveSkeletonClimber.SIZE, "[Start]: Tablelookup out of bound\n")
+        return G_StartTable[i]
+    }
+
+    static func end(i : Int) -> Int {
+        assert(i < AdaptiveSkeletonClimber.SIZE, "[End]: Tablelookup out of bound\n")
+        return G_EndTable[i]
+    }
+    
     /// Init the various dike lookup table
     internal static func DikeTableInit() {
         for k in 1 ..< AdaptiveSkeletonClimber.DSIZE {
-            G_LevelTable[k]    = (int)floor(log10((double)k)/log10((double)2));
-            G_LengthTable[k]   = 1<<(NLEVEL-G_LevelTable[k]);
-            G_NextDikeTable[k] = (k&(k+1))? k+1 : 0;
-            G_StartTable[k]    = (k<<(NLEVEL-G_LevelTable[k]))-N;
-            G_EndTable[k]      = G_StartTable[k] + G_LengthTable[k];
+            G_LevelTable[k]    = Int(floor(CoreGraphics.log10(Double(k)) / CoreGraphics.log10(2.0)))
+            G_LengthTable[k]   = 1 << (AdaptiveSkeletonClimber.NLEVEL - G_LevelTable[k])
+            G_NextDikeTable[k] = (k & (k + 1)) > 0 ? k + 1 : 0
+            G_StartTable[k]    = (k << (AdaptiveSkeletonClimber.NLEVEL - G_LevelTable[k])) - AdaptiveSkeletonClimber.N
+            G_EndTable[k]      = G_StartTable[k] + G_LengthTable[k]
         }
     }
 
@@ -51,10 +77,10 @@ struct Dike {
             if (currdike & mask > 0) {
                 // odd number
                 dike.append(currdike)
-                minimum += Length(currdike)
+                minimum += Dike.length(currdike)
             } else {
                 // even number
-                t = Length(currdike)
+                t = Dike.length(currdike)
                 // grow the dike until overflow or dike is odd
                 while (minimum + (t << 1) <= maximum && (currdike & mask) != 1) {
                     t <<= 1
@@ -81,14 +107,14 @@ struct Dike {
         var jj = 0
         while jj < ydike.count {
             repeat {
-                for ii in Start(i) ... End(i) {
+                for ii in Dike.start(i) ... Dike.end(i) {
                     if (ylign[ii].occ[ydike[jj]] == COMPLEX) {
                         ydike[jj] <<= 1;       // let this be its left child
                         ydike.append(ydike[jj] + 1)  // append right child at the end
                         break;
                     }
                 }
-            } while (ii <= End(i))  // all simple
+            } while (ii <= Dike.end(i))  // all simple
             jj += 1
         }
     }

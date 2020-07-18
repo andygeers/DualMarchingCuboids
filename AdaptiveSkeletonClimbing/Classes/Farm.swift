@@ -54,8 +54,8 @@ internal struct Farm {
     // tells you what "x" and "y" actually are.
     // and the fixed dimension. Whether the farm has no isosurface crossing
     
-    public var xlign : [Lign]
-    public var ylign : [Lign]
+    public var xlign : [Lign] = []
+    public var ylign : [Lign] = []
     public var xstrip = [Strip](repeating: Strip(), count: AdaptiveSkeletonClimber.N)
     public var padilist = DoublyLinkedList<Padi>()  // hold the generated padis
 
@@ -156,7 +156,7 @@ internal struct Farm {
     
     func TagXStrip(padi : Padi)
     {
-        for j in Start(padi.dike[LEFT]) ..< End(padi.dike[LEFT]) {
+        for j in Dike.start(padi.dike[LEFT]) ..< Dike.end(padi.dike[LEFT]) {
             xstrip[j].usedby[padi.dike[BOTTOM]] = padi;
         }
     //  ShowTagMap(xstrip);
@@ -165,7 +165,7 @@ internal struct Farm {
 
     func UntagXStrip(padi : Padi)
     {
-        for j in Start(padi.dike[LEFT]) ..< End(padi.dike[LEFT]) {
+        for j in Dike.start(padi.dike[LEFT]) ..< Dike.end(padi.dike[LEFT]) {
             if (xstrip[j].usedby[padi.dike[BOTTOM]] == padi) {
                 xstrip[j].usedby[padi.dike[BOTTOM]] = nil
             } else {
@@ -206,13 +206,13 @@ internal struct Farm {
                 var jj = j + 1
                 if (constrain & PP_PADICONSTR) {
                     while (jj < AdaptiveSkeletonClimber.N && xstrip[jj].simple[i] == i
-                && Length(ylign[Start(i)].simple[j + AdaptiveSkeletonClimber.N]) > jj - j) {
+                        && Dike.length(ylign[Dike.start(i)].simple[j + AdaptiveSkeletonClimber.N]) > jj - j) {
                         // additional constrain due to produced padi
                         jj += 1
                     }
                 } else if (constrain & PP_HRICECONSTR) {
                     while (jj < AdaptiveSkeletonClimber.N && xstrip[jj].simple[i] == i
-                        && AdaptiveSkeletonClimber.N - ylign[Start(i)].simple[j] > jj - j) {
+                        && AdaptiveSkeletonClimber.N - ylign[Dike.start(i)].simple[j] > jj - j) {
                             // additional constrain due to produced highrices
                             jj += 1
                     }
@@ -266,7 +266,7 @@ internal struct Farm {
                         }
     #else
                         // This method of searching competitor may not be very efficient
-                        for k in Start(currpadi.dike[PadiSide.left.rawValue]) ..< End(currpadi.dike[PadiSide.left.rawValue]) {
+                        for k in Dike.start(currpadi.dike[PadiSide.left.rawValue]) ..< Dike.end(currpadi.dike[PadiSide.left.rawValue]) {
                             xstrip[k].UsedBy(currpadi.dike[PadiSide.bottom.rawValue], competitors)
                         }
     #endif
@@ -344,10 +344,10 @@ internal struct Farm {
         // Init only the bottom level of the simple[] arrays using info in padilist
         for currpadi in padilist {
             // record only the left bottom corner in the simple array
-            let ldikestart = Start(currpadi.dike[LEFT])
-            let ldikeend   = End(currpadi.dike[LEFT])
-            let bdikestart = Start(currpadi.dike[BOTTOM])
-            let bdikeend   = End(currpadi.dike[BOTTOM])
+            let ldikestart = Dike.start(currpadi.dike[LEFT])
+            let ldikeend   = Dike.end(currpadi.dike[LEFT])
+            let bdikestart = Dike.start(currpadi.dike[BOTTOM])
+            let bdikeend   = Dike.end(currpadi.dike[BOTTOM])
             for i in ldikestart ..< ldikeend {
                 xlign[i].simple[bdikestart + AdaptiveSkeletonClimber.N] = currpadi.dike[BOTTOM];
             }

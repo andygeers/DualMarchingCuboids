@@ -79,10 +79,10 @@ class Padi {
         lignavail = true
         
         lign = [
-            &(farm.ylign[End(xdike)]);   //right
-            &(farm.xlign[End(ydike)]);   //top
-            &(farm.ylign[Start(xdike)]); //left;
-            &(farm.xlign[Start(ydike)]); //bottom;
+            &(farm.ylign[Dike.end(xdike)]);   //right
+            &(farm.xlign[Dike.end(ydike)]);   //top
+            &(farm.ylign[Dike.start(xdike)]); //left;
+            &(farm.xlign[Dike.start(ydike)]); //bottom;
         ]
         
         for i in 0 ..< 4 {
@@ -110,12 +110,12 @@ class Padi {
     func resolveAmbiguity(xdike : Int, ydike : Int, farm : Farm, block : Block) {
         // sample the centre data
     
-        let xmidpt = (Start(xdike) + End(xdike)) >> 1  // round down
-        let ymidpt = (Start(ydike) + End(ydike)) >> 1
+        let xmidpt = (Dike.start(xdike) + Dike.end(xdike)) >> 1  // round down
+        let ymidpt = (Dike.start(ydike) + Dike.end(ydike)) >> 1
         let xis = farm.XisV()
         let yis = farm.YisV()
-        let xodd = Length(xdike) & 1 > 0
-        let yodd = Length(ydike) & 1 > 0
+        let xodd = Dike.length(xdike) & 1 > 0
+        let yodd = Dike.length(ydike) & 1 > 0
         // get bl and br
         var dim = [PadiSide](repeating: .invalid, count: 3)
         dim[farm.fixDimV().rawValue] = farm.fixDimValV()
@@ -162,20 +162,20 @@ class Padi {
         switch (side)
         {
         case .right:
-            x = End(dike[PadiSide.bottom.rawValue]) * spacing
-            y = Start(lign[side].ver[dike[side]]) * spacing + spacing / 2.0
+            x = Dike.end(dike[PadiSide.bottom.rawValue]) * spacing
+            y = Dike.start(lign[side].ver[dike[side]]) * spacing + spacing / 2.0
                      
         case .left:
-            x = Start(dike[PadiSide.bottom.rawValue]) * spacing
-            y = Start(lign[side].ver[dike[side]]) * spacing + spacing / 2.0
+            x = Dike.start(dike[PadiSide.bottom.rawValue]) * spacing
+            y = Dike.start(lign[side].ver[dike[side]]) * spacing + spacing / 2.0
             
         case .top:
-            x = Start(lign[side].ver[dike[side]]) * spacing + spacing / 2.0
-            y = End(dike[PadiSide.left.rawValue]) * spacing
+            x = Dike.start(lign[side].ver[dike[side]]) * spacing + spacing / 2.0
+            y = Dike.end(dike[PadiSide.left.rawValue]) * spacing
             
         case .bottom:
-            x = Start(lign[side].ver[dike[side]]) * spacing + spacing / 2.0
-            y = Start(dike[PadiSide.left.rawValue]) * spacing
+            x = Dike.start(lign[side].ver[dike[side]]) * spacing + spacing / 2.0
+            y = Dike.start(dike[PadiSide.left.rawValue]) * spacing
             
         default:
             print("[GetCrossPt]: input side is invalid\n")
@@ -184,7 +184,7 @@ class Padi {
         #if DEBUG
         if (x < 0 || y < 0) {
             print("[Padi::GetCrossPt]:padi %d x %d\n", dike[PadiSide.bottom.rawValue], dike[PadiSide.left.rawValue])
-            print("[Err]:side=%d x=%f y=%f dike[side]=%d start=%d\n", side, x, y, dike[side], Start(lign[side].ver[dike[side]]) )
+            print("[Err]:side=%d x=%f y=%f dike[side]=%d start=%d\n", side, x, y, dike[side], Dike.start(lign[side].ver[dike[side]]) )
         }
         #endif
     }
@@ -199,10 +199,10 @@ class Padi {
         guard lignavail else { return }
       
         // draw the padi box
-        let x0 = Start(dike[PadiSide.bottom.rawValue]) * spacing + offset;
-        let y0 = Start(dike[PadiSide.left.rawValue]) * spacing + offset;
-        let x1 = End(dike[PadiSide.bottom.rawValue]) * spacing - offset;
-        let y1 = End(dike[PadiSide.right.rawValue]) * spacing - offset;
+        let x0 = Dike.start(dike[PadiSide.bottom.rawValue]) * spacing + offset;
+        let y0 = Dike.start(dike[PadiSide.left.rawValue]) * spacing + offset;
+        let x1 = Dike.end(dike[PadiSide.bottom.rawValue]) * spacing - offset;
+        let y1 = Dike.end(dike[PadiSide.right.rawValue]) * spacing - offset;
         print("1 setlinewidth\nnewpath %f %f moveto %f %f lineto %f %f lineto %f %f lineto %f %f lineto stroke  closepath\n",
                x0, y0, x1, y0, x1, y1, x0, y1, x0, y0);
 
@@ -246,11 +246,11 @@ class Padi {
             return false
         }
         // check enclosure along x
-        if ((dike[PadiSide.top.rawValue] >> (Level(dike[PadiSide.top.rawValue]) - Level(encloser.dike[PadiSide.top.rawValue]))) != encloser.dike[PadiSide.top.rawValue]) {
+        if ((dike[PadiSide.top.rawValue] >> (Dike.level(dike[PadiSide.top.rawValue]) - Dike.level(encloser.dike[PadiSide.top.rawValue]))) != encloser.dike[PadiSide.top.rawValue]) {
             return false
         }
         // check enclosure along y
-        if ((dike[PadiSide.left.rawValue] >> (Level(dike[PadiSide.left.rawValue]) - Level(encloser.dike[PadiSide.left.rawValue]))) != encloser.dike[PadiSide.left.rawValue]) {
+        if ((dike[PadiSide.left.rawValue] >> (Dike.level(dike[PadiSide.left.rawValue]) - Dike.level(encloser.dike[PadiSide.left.rawValue]))) != encloser.dike[PadiSide.left.rawValue]) {
             return false
         }
         return true
@@ -275,7 +275,7 @@ class Padi {
                 small = dike[i];
             }
             // due to the binary restriction, overlap occur only enclosure occur along x and y direction
-            if ((small >> (Level(small) - Level(large))) != large) {
+            if ((small >> (Dike.level(small) - Dike.level(large))) != large) {
                 // check enclosure along x or y
                 return false
             }
@@ -310,14 +310,14 @@ class Padi {
         var dikecnt = 0
                 
         let ligngiven = lignavail && farm != nil
-        let clipxstart = Start(clipper.dike[3])
-        let clipxend   = End(clipper.dike[3])
-        let clipystart = Start(clipper.dike[2])
-        let clipyend   = End(clipper.dike[2])
-        let thisxstart = Start(dike[3])
-        let thisxend   = End(dike[3])
-        let thisystart = Start(dike[2])
-        let thisyend   = End(dike[2])
+        let clipxstart = Dike.start(clipper.dike[3])
+        let clipxend   = Dike.end(clipper.dike[3])
+        let clipystart = Dike.start(clipper.dike[2])
+        let clipyend   = Dike.end(clipper.dike[2])
+        let thisxstart = Dike.start(dike[3])
+        let thisxend   = Dike.end(dike[3])
+        let thisystart = Dike.start(dike[2])
+        let thisyend   = Dike.end(dike[2])
 
         if (thisxstart < clipxstart || thisxend > clipxend) {
             // divide along x axis

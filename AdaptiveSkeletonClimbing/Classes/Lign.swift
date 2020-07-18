@@ -137,7 +137,7 @@ struct Lign {
                 if (empbegin < i) {
                     Dike.MinDikeSet(minidx: empbegin, maxidx: i - 1, dike: &dikearr)
                     for dikel in dikearr {
-                        simple[Start(dikel) + AdaptiveSkeletonClimber.N] = dikel
+                        simple[Dike.start(dikel) + AdaptiveSkeletonClimber.N] = dikel
                     }
                     empbegin = i
                 }
@@ -148,7 +148,7 @@ struct Lign {
             dikearr.removeAll(keepingCapacity: true)
             Dike.MinDikeSet(minidx: empbegin, maxidx: AdaptiveSkeletonClimber.N - 1, dike: &dikearr)
             for dikeval in dikearr {
-                simple[Start(dikeval) + AdaptiveSkeletonClimber.N] = dikeval
+                simple[Dike.start(dikeval) + AdaptiveSkeletonClimber.N] = dikeval
             }
        }
     }
