@@ -35,10 +35,6 @@ import Foundation
 let PP_PADICONSTR = 0x01  // impose padi constrain
 let PP_HRICECONSTR = 0x02  // impose highrice constrain
 
-struct Lign {
-    
-}
-
 struct Strip {
     
 }
@@ -58,8 +54,8 @@ internal struct Farm {
     // tells you what "x" and "y" actually are.
     // and the fixed dimension. Whether the farm has no isosurface crossing
     
-    public var xlign = [Lign](repeating: Lign(), count: AdaptiveSkeletonClimber.N + 1)
-    public var ylign = [Lign](repeating: Lign(), count: AdaptiveSkeletonClimber.N + 1)
+    public var xlign : [Lign]
+    public var ylign : [Lign]
     public var xstrip = [Strip](repeating: Strip(), count: AdaptiveSkeletonClimber.N)
     public var padilist = DoublyLinkedList<Padi>()  // hold the generated padis
 
@@ -71,7 +67,7 @@ internal struct Farm {
     }
     
     public mutating func initialize(xis : Dimension, yis : Dimension, fixdimval : Int,
-                           xocc : [Bool], yocc : [Bool], xver : Int, yver : [Int]) {
+                                    block: Block, xver : Int, yver : [Int]) {
         assert(!(fixdimval<0 || fixdimval > AdaptiveSkeletonClimber.N || xis == yis), "[Farm::Init]: input value invalid\n")
           
         var offx : Int
@@ -83,9 +79,9 @@ internal struct Farm {
         
         self.FixDimVal = fixdimval
         self.EDimIs = 0
-        self.EDimIs = 0x03 & (~(xis.rawValue | yis.rawValue))
-        self.EDimIs = (EDimIs << 2) | (yis.rawValue & 0x03)
-        self.EDimIs = (EDimIs << 2) | (xis.rawValue & 0x03)
+        self.EDimIs = UInt(0x03 & (~(xis.rawValue | yis.rawValue)))
+        self.EDimIs = (EDimIs << 2) | UInt((yis.rawValue & 0x03))
+        self.EDimIs = (EDimIs << 2) | UInt((xis.rawValue & 0x03))
         
         if (xis == .x && yis == .y) {
             // xyfarm
@@ -109,12 +105,20 @@ internal struct Farm {
             assert(false, "[Farm::init]: I don't know how to init\n")
         }
         var nonempty = false
+        
+        xlign.removeAll(keepingCapacity: true)
+        xlign.reserveCapacity(AdaptiveSkeletonClimber.N + 1)
+        ylign.removeAll(keepingCapacity: true)
+        ylign.reserveCapacity(AdaptiveSkeletonClimber.N + 1)
+        
         for i in 0 ..< AdaptiveSkeletonClimber.N + 1 {
             posx = (i * multx + offx) * AdaptiveSkeletonClimber.SIZE;
             posy = (i * multy + offy) * AdaptiveSkeletonClimber.SIZE;
-            xlign[i].initialize(&(xocc[posx]), &(xver[posx]))
-            ylign[i].initialize(&(yocc[posy]), &(yver[posy]))
-            nonempty = nonempty || (xocc[posx + 1] || yocc[posy + 1])
+            let nextXlign = Lign(block: block, offset: posx, dimension: .x)
+            let nextYlign = Lign(block: block, offset: posy, dimension: .y)
+            xlign.append(nextXlign)
+            ylign.append(nextYlign)
+            nonempty = nonempty || (block.xocc[posx + 1] > 0) || (block.yocc[posy + 1] > 0)
         }
         if (!nonempty) {
             setEmpty();
@@ -181,7 +185,7 @@ internal struct Farm {
 
     func producePadi(block : Block, constrain : CUnsignedChar) -> DoublyLinkedList<Padi> {
       
-        var ydike : [Dyke] = []
+        var ydike : [Int] = []
         ydike.reserveCapacity(AdaptiveSkeletonClimber.N)
 
       // Init xstrip
