@@ -129,7 +129,7 @@ class AdaptiveSkeletonClimber {
                 for i in 0 ..< bkwidth {
                     let currij = j * bkwidth + i
                     if (k < bkheight) {
-                        kminus0[currij].Init(G_data1, XDIM, YDIM, ZDIM, AdaptiveSkeletonClimber.N * i, AdaptiveSkeletonClimber.N * j, AdaptiveSkeletonClimber.N * k, G_DataWidth, G_DataDepth, G_DataHeight)
+                        kminus0[currij].Init(G_data1, .x, .y, .z, AdaptiveSkeletonClimber.N * i, AdaptiveSkeletonClimber.N * j, AdaptiveSkeletonClimber.N * k, G_DataWidth, G_DataDepth, G_DataHeight)
                         if (!kminus0[currij].emptyQ()) {
                             // skip when empty
                             kminus0[currij].buildHighRice()

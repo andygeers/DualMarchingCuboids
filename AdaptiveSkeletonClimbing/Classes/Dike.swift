@@ -16,27 +16,27 @@ struct Dike {
     static var G_StartTable = [Int](repeating: 0, count: AdaptiveSkeletonClimber.DSIZE)
     static var G_EndTable = [Int](repeating: 0, count: AdaptiveSkeletonClimber.DSIZE)
     
-    static func level(i : Int) -> Int {
+    static func level(_ i : Int) -> Int {
         assert(i < AdaptiveSkeletonClimber.DSIZE, "[Level]: Tablelookup out of bound %d\n")
         return G_LevelTable[i]
     }
 
-    static func length(i : Int) -> Int {
+    static func length(_ i : Int) -> Int {
         assert(i < AdaptiveSkeletonClimber.SIZE, "[Length]: Tablelookup out of bound\n")
         return G_LengthTable[i]
     }
 
-    static func nextDike(i : Int) -> Int {
+    static func nextDike(_ i : Int) -> Int {
         assert(i < AdaptiveSkeletonClimber.SIZE, "[NextDike]: Tablelookup out of bound\n")
         return G_NextDikeTable[i]
     }
 
-    static func start(i : Int) -> Int {
+    static func start(_ i : Int) -> Int {
         assert(i < AdaptiveSkeletonClimber.SIZE, "[Start]: Tablelookup out of bound\n")
         return G_StartTable[i]
     }
 
-    static func end(i : Int) -> Int {
+    static func end(_ i : Int) -> Int {
         assert(i < AdaptiveSkeletonClimber.SIZE, "[End]: Tablelookup out of bound\n")
         return G_EndTable[i]
     }

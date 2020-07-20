@@ -121,8 +121,14 @@ internal struct Block {
         EXYZis |= 0x80
     }
     
+    public init(blockData : [CUnsignedChar], dataDimX : Int, dataDimY : Int, dataDimZ : Int) {
+        self.blockData = blockData
+        self.dataDimX = dataDimX
+        self.dataDimY = dataDimY
+        self.dataDimZ = dataDimZ
+    }
     
-    mutating func initialize(xis : CChar, yis : CChar, zis : CChar,
+    public mutating func initialize(xis : CChar, yis : CChar, zis : CChar,
                     offx : Int, offy : Int, offz : Int) {
         
         

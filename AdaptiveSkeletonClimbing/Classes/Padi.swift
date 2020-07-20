@@ -78,15 +78,15 @@ class Padi {
         
         lignavail = true
         
-        lign = [
-            &(farm.ylign[Dike.end(xdike)]);   //right
-            &(farm.xlign[Dike.end(ydike)]);   //top
-            &(farm.ylign[Dike.start(xdike)]); //left;
-            &(farm.xlign[Dike.start(ydike)]); //bottom;
+        self.lign = [
+            theFarm.ylign[Dike.end(xdike)],   //right
+            theFarm.xlign[Dike.end(ydike)],   //top
+            theFarm.ylign[Dike.start(xdike)], //left
+            theFarm.xlign[Dike.start(ydike)]  //bottom
         ]
         
         for i in 0 ..< 4 {
-            occ[i] = lign[i].occ[dike[i]]
+            occ[i] = lign[i].occ(index: dike[i])
         }
         // reverse value in .top.rawValue and .left.rawValue ie. 01 -> 10, 10 -> 01
         for i in 1 ..< 3 {

@@ -211,7 +211,7 @@ class HighRice : Padi {
                     print("vvvvvvvvvvvvvvv padi out of highrice face bound\n");
                 }
             #if DEBUG
-                print("%s %d x %d\n", face, occupant.dike[TOP], occupant.dike[LEFT]);
+                print("%s %d x %d\n", face, occupant.dike[PadiSide.top.rawValue], occupant.dike[PadiSide.left.rawValue]);
             #endif
 
                 // find the edges on each padi
@@ -533,38 +533,38 @@ class HighRice : Padi {
         {
         case HighRiceSide.bottom.rawValue:
             xyz = vertical ? .y : .x
-            coord[0] = vertical ? modulo(idx, width) + 1 + Dike.start(dike[PadiSide.top]) : modulo(idx, width) + Dike.start(dike[PadiSide.top])
-            coord[1] = vertical ? idx / width + Dike.start(dike[PadiSide.left])  : idx / width + 1 + Dike.start(dike[PadiSide.left])
+            coord[0] = vertical ? modulo(idx, width) + 1 + Dike.start(dike[PadiSide.top.rawValue]) : modulo(idx, width) + Dike.start(dike[PadiSide.top.rawValue])
+            coord[1] = vertical ? idx / width + Dike.start(dike[PadiSide.left.rawValue])  : idx / width + 1 + Dike.start(dike[PadiSide.left.rawValue])
             coord[2] = bottom
 
         case HighRiceSide.top.rawValue:
             xyz = vertical ? .y : .x
-            coord[0] = modulo(idx, width) + Dike.start(dike[PadiSide.top])
-            coord[1] = idx / width + Dike.start(dike[PadiSide.left])
+            coord[0] = modulo(idx, width) + Dike.start(dike[PadiSide.top.rawValue])
+            coord[1] = idx / width + Dike.start(dike[PadiSide.left.rawValue])
             coord[2] = top + 1
 
         case HighRiceSide.nearXZ.rawValue:
             xyz = vertical ? .z : .x
-            coord[0] = modulo(idx, width) + Dike.start(dike[PadiSide.top])
-            coord[1] = Dike.start(dike[PadiSide.left])
+            coord[0] = modulo(idx, width) + Dike.start(dike[PadiSide.top.rawValue])
+            coord[1] = Dike.start(dike[PadiSide.left.rawValue])
             coord[2] = idx / width + bottom
 
         case HighRiceSide.farXZ.rawValue:
             xyz = vertical ? .z : .x
-            coord[0] = vertical ? modulo(idx < width) + 1 + Dike.start(dike[PadiSide.top]) : modulo(idx, width) + Dike.start(dike[PadiSide.top])
-            coord[1] = Dike.end(dike[PadiSide.left])
+            coord[0] = vertical ? modulo(idx, width) + 1 + Dike.start(dike[PadiSide.top.rawValue]) : modulo(idx, width) + Dike.start(dike[PadiSide.top.rawValue])
+            coord[1] = Dike.end(dike[PadiSide.left.rawValue])
             coord[2] = vertical ? idx / width + bottom : idx / width + 1 + bottom
 
         case HighRiceSide.nearYZ.rawValue:
             xyz = vertical ? .z : .y
-            coord[0] = Dike.start(dike[PadiSide.top]);
-            coord[1] = vertical ? modulo(idx, depth) + 1 + Dike.start(dike[PadiSide.left]) : modulo(idx, depth) + Dike.start(dike[PadiSide.left])
+            coord[0] = Dike.start(dike[PadiSide.top.rawValue]);
+            coord[1] = vertical ? modulo(idx, depth) + 1 + Dike.start(dike[PadiSide.left.rawValue]) : modulo(idx, depth) + Dike.start(dike[PadiSide.left.rawValue])
             coord[2] = idx / depth + bottom
 
         case HighRiceSide.farYZ.rawValue:
             xyz = vertical ? .z : .y
-            coord[0] = Dike.end(dike[PadiSide.top]);
-            coord[1] = modulo(idx, depth) + Dike.start(dike[PadiSide.left]);
+            coord[0] = Dike.end(dike[PadiSide.top.rawValue]);
+            coord[1] = modulo(idx, depth) + Dike.start(dike[PadiSide.left.rawValue]);
             coord[2] = vertical ? idx / depth + bottom : idx/depth+1 + bottom;
             
         default:
@@ -653,10 +653,10 @@ class HighRice : Padi {
 
         for highrice in highricelist {
             let height = highrice.top - highrice.bottom + 1
-            let b1 = Dike.start(highrice->dike[LEFT])
-            let e1 = Dike.end(highrice->dike[LEFT])
-            let b2 = Dike.start(highrice->dike[TOP])
-            let e2 = Dike.end(highrice->dike[TOP])
+            let b1 = Dike.start(highrice.dike[PadiSide.left.rawValue])
+            let e1 = Dike.end(highrice.dike[PadiSide.left.rawValue])
+            let b2 = Dike.start(highrice.dike[PadiSide.top.rawValue])
+            let e2 = Dike.end(highrice.dike[PadiSide.top.rawValue])
             for j in b1 ..< e1 {
                 for i in b2 ..< e2 {
                     count[j * AdaptiveSkeletonClimber.N + i] += height
@@ -679,11 +679,11 @@ class HighRice : Padi {
             count[i] = 0
         }
         for highrice in highricelist {
-            height = highrice->top - highrice->bottom + 1;
-            b1 = Dike.start(highrice->dike[LEFT]);
-            e1 = Dike.end(highrice->dike[LEFT]);
-            b2 = Dike.start(highrice->dike[TOP]);
-            e2 = Dike.end(highrice->dike[TOP]);
+            //let height = highrice.top - highrice.bottom + 1;
+            let b1 = Dike.start(highrice.dike[PadiSide.left.rawValue])
+            let e1 = Dike.end(highrice.dike[PadiSide.left.rawValue])
+            let b2 = Dike.start(highrice.dike[PadiSide.top.rawValue])
+            let e2 = Dike.end(highrice.dike[PadiSide.top.rawValue])
             for k in highrice.bottom ... highrice.top {
                 for j in b1 ..< e1 {
                     for i in b2 ..< e2 {

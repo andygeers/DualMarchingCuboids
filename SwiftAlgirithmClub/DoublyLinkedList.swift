@@ -262,7 +262,7 @@ extension DoublyLinkedList {
     }
     
     public func filter(predicate: (T) -> Bool) -> DoublyLinkedList<T> {
-        let result = DooublyLinkedList<T>()
+        let result = DoublyLinkedList<T>()
         var node = head
         while let nd = node {
             if predicate(nd.value) {
