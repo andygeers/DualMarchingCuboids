@@ -35,10 +35,6 @@ import Foundation
 let PP_PADICONSTR = 0x01  // impose padi constrain
 let PP_HRICECONSTR = 0x02  // impose highrice constrain
 
-struct Strip {
-    
-}
-
 enum Dimension : Int {
     case x = 0
     case y = 1
@@ -159,7 +155,7 @@ internal struct Farm {
         for j in Dike.start(padi.dike[LEFT]) ..< Dike.end(padi.dike[LEFT]) {
             xstrip[j].usedby[padi.dike[BOTTOM]] = padi;
         }
-    //  ShowTagMap(xstrip);
+        Strip.showTagMap(xstrip);
     }
 
 
@@ -180,7 +176,7 @@ internal struct Farm {
                 }
             }
         }
-    //  ShowTagMap(xstrip);
+        Strip.showTagMap(xstrip);
     }
 
     func producePadi(block : Block, constrain : CUnsignedChar) -> DoublyLinkedList<Padi> {
@@ -267,7 +263,7 @@ internal struct Farm {
     #else
                         // This method of searching competitor may not be very efficient
                         for k in Dike.start(currpadi.dike[PadiSide.left.rawValue]) ..< Dike.end(currpadi.dike[PadiSide.left.rawValue]) {
-                            xstrip[k].UsedBy(currpadi.dike[PadiSide.bottom.rawValue], competitors)
+                            xstrip[k].usedBy(currpadi.dike[PadiSide.bottom.rawValue], &competitors)
                         }
     #endif
                         var padisuccess = true
