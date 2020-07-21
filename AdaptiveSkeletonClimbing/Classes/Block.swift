@@ -8,10 +8,6 @@
 import Foundation
 import Euclid
 
-internal struct Slab {
-    
-}
-
 internal struct VoxelData {
     
 }
@@ -218,19 +214,6 @@ internal struct Block {
       DISPLAYTREE(ver);
     #endif
     }
-
-
-    mutating func cleanup() {
-        // Clear up memory
-        for i in 0 ..< AdaptiveSkeletonClimber.N + 1 {
-            xyfarm[i].cleanUp()
-            xzfarm[i].cleanUp()
-            yzfarm[i].cleanUp()
-        }
-        highricelist = DoublyLinkedList<HighRice>()
-        setEmpty()  // default set to empty block
-    }
-
 
     mutating func produceHighRice(block: Block, farms : [Farm]) -> DoublyLinkedList<HighRice> {
     

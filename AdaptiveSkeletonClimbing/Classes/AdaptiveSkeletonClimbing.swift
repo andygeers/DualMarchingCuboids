@@ -47,7 +47,7 @@ class AdaptiveSkeletonClimber {
         Padi.PadiInitEdgeTable()
     }
     
-    func climb() {
+    func climb(G_data1 : [CUnsignedChar], G_DataWidth : Int, G_DataHeight : Int, G_DataDepth : Int) {
         var idxcnt = [0, 0, 0]
         let layersize = bkwidth * bkdepth
         
@@ -119,9 +119,9 @@ class AdaptiveSkeletonClimber {
         }
 #else
         for k in 0 ..< bkheight + 2 {
-            let kminus0 = layer[modulo(k, 3)]       // layer k
-            let kminus1 = layer[modulo(k - 1, 3)]   // layer k-1
-            let kminus2 = layer[modulo(k - 2, 3)]   // layer k-2
+            var kminus0 = layer[modulo(k, 3)]       // layer k
+            var kminus1 = layer[modulo(k - 1, 3)]   // layer k-1
+            var kminus2 = layer[modulo(k - 2, 3)]   // layer k-2
             if (k < bkheight) {
                 print("Processing layer %d ...\n", k * AdaptiveSkeletonClimber.N)
             }
@@ -130,23 +130,23 @@ class AdaptiveSkeletonClimber {
                     let currij = j * bkwidth + i
                     if (k < bkheight) {
                         kminus0[currij].Init(G_data1, .x, .y, .z, AdaptiveSkeletonClimber.N * i, AdaptiveSkeletonClimber.N * j, AdaptiveSkeletonClimber.N * k, G_DataWidth, G_DataDepth, G_DataHeight)
-                        if (!kminus0[currij].emptyQ()) {
+                        if (!kminus0[currij].isEmptyQ()) {
                             // skip when empty
                             kminus0[currij].buildHighRice()
                         }
                     }
-                    if (k >= 1 && k - 1 < bkheight && !kminus1[currij].emptyQ()) {
-                        let bottom = (k == 1) ?         nil : &(kminus2[currij])
-                        let top    = (k == bkheight) ?  nil : &(kminus0[currij])
-                        let nearxz = (j == 0) ?         nil : &(kminus1[(j - 1) * bkwidth + i])
-                        let farxz  = (j == bkdepth - 1) ? nil : &(kminus1[(j + 1) * bkwidth + i])
-                        let nearyz = (i == 0) ?         nil : &(kminus1[j * bkwidth + i - 1])
-                        let faryz  = (i == bkwidth - 1) ? nil : &(kminus1[j * bkwidth + i + 1])
-                        kminus1[currij].communicateSimple(bottom, top, nearxz, farxz, nearyz, faryz)
+                    if (k >= 1 && k - 1 < bkheight && !kminus1[currij].isEmptyQ()) {
+                        let bottom = (k == 1) ?         nil : kminus2[currij]
+                        let top    = (k == bkheight) ?  nil : kminus0[currij]
+                        let nearxz = (j == 0) ?         nil : kminus1[(j - 1) * bkwidth + i]
+                        let farxz  = (j == bkdepth - 1) ? nil : kminus1[(j + 1) * bkwidth + i]
+                        let nearyz = (i == 0) ?         nil : kminus1[j * bkwidth + i - 1]
+                        let faryz  = (i == bkwidth - 1) ? nil : kminus1[j * bkwidth + i + 1]
+                        kminus1[currij].communicateSimple(bottom: bottom, top: top, nearxz: nearxz, farxz: farxz, nearyz: nearyz, faryz: faryz)
                         kminus1[currij].generateTriangle(format, withnormal, fptr)
                     }
 
-                    if (k >= 2 && !kminus2[currij].emptyQ()) {
+                    if (k >= 2 && !kminus2[currij].isEmptyQ()) {
                         // skip when empty, assume Init() do not allocate memory
                         kminus2[currij].cleanup()
                     }

@@ -19,13 +19,13 @@ enum SlabCorner : Int {
 /// Bookkeep the occupant.
 class Slab {
     
-    private var py : Int
-    private var xdike : Int
+    private var py : Int = 0
+    private var xdike : Int = 0
     private var bitmap = [CUnsignedChar](repeating: 0, count: ((AdaptiveSkeletonClimber.N * AdaptiveSkeletonClimber.N) >> 3) + 1)
-    private var isEmpty : Bool   // the slab is empty, no isosurface crossing
+    private var isEmpty : Bool  // the slab is empty, no isosurface crossing
     
-    public var xlign : [Lign] //[N]
-    public var ylign : [Lign] //[N];
+    public var xlign : [Lign] = []
+    public var ylign : [Lign] = []
     
     internal init(block: Block, farmk : Farm, farmkplus1 : Farm) {
         isEmpty = farmk.emptyQ() && farmkplus1.emptyQ()
@@ -85,7 +85,7 @@ class Slab {
                     let endpy = py + Dike.length(xydike[1])
                     
                     // mark this padi as occupied
-                    for j in py ..< endpy {
+                    for _ in py ..< endpy {
                         // mark ONLY the left side of the padi
                         bitmap[off >> 3] |= CUnsignedChar(0x80 >> (off & 0x07))
                         off += AdaptiveSkeletonClimber.N
