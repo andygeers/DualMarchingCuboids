@@ -44,9 +44,9 @@ struct Strip {
     }
 
 
-    public init(lign1 : Lign, lign2 : Lign) {
+    public init(lign : [Lign], pos1: Int, pos2: Int) {
         for i in 0 ..< AdaptiveSkeletonClimber.SIZE {
-            simple[i] = max(lign1.simple[i], lign2.simple[i])
+            simple[i] = max(lign[pos1].simple[i], lign[pos2].simple[i])
         }
         #if DEBUG
         DISPLAYTREE(simple)

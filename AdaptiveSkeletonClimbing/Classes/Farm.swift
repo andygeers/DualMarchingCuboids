@@ -52,7 +52,7 @@ internal struct Farm {
     
     public var xlign : [Lign] = []
     public var ylign : [Lign] = []
-    public var xstrip = [Strip](repeating: Strip(), count: AdaptiveSkeletonClimber.N)
+    public var xstrip : [Strip] = []
     public var padilist = DoublyLinkedList<Padi>()  // hold the generated padis
 
   
@@ -152,8 +152,8 @@ internal struct Farm {
     
     func TagXStrip(padi : Padi)
     {
-        for j in Dike.start(padi.dike[LEFT]) ..< Dike.end(padi.dike[LEFT]) {
-            xstrip[j].usedby[padi.dike[BOTTOM]] = padi;
+        for j in Dike.start(padi.dike[PadiSide.left.rawValue]) ..< Dike.end(padi.dike[PadiSide.left.rawValue]) {
+            xstrip[j].usedby[padi.dike[PadiSide.bottom.rawValue]] = padi;
         }
         Strip.showTagMap(xstrip);
     }
@@ -161,32 +161,33 @@ internal struct Farm {
 
     func UntagXStrip(padi : Padi)
     {
-        for j in Dike.start(padi.dike[LEFT]) ..< Dike.end(padi.dike[LEFT]) {
-            if (xstrip[j].usedby[padi.dike[BOTTOM]] == padi) {
-                xstrip[j].usedby[padi.dike[BOTTOM]] = nil
+        for j in Dike.start(padi.dike[PadiSide.left.rawValue]) ..< Dike.end(padi.dike[PadiSide.left.rawValue]) {
+            if (xstrip[j].usedby[padi.dike[PadiSide.bottom.rawValue]] == padi) {
+                xstrip[j].usedby[padi.dike[PadiSide.bottom.rawValue]] = nil
             } else {
                 print("[Farm::UnTagXStrip]: possible some bug in tagging the data UsedBy\n");
                 print("padi %d x %d want to untag,\n", padi.dike[BOTTOM], padi.dike[LEFT]);
-                if (xstrip[j].usedby[padi.dike[BOTTOM]] != nil) {
-                    printf ("[Farm::UnTagXStrip]: strip %d, dike %d, occupied by padi %d x %d\n", j, padi.dike[BOTTOM],
-                            xstrip[j].usedby[padi.dike[BOTTOM]].dike[BOTTOM],
-                            xstrip[j].usedby[padi.dike[BOTTOM]].dike[LEFT]);
+                if (xstrip[j].usedby[padi.dike[PadiSide.bottom.rawValue]] != nil) {
+                    printf ("[Farm::UnTagXStrip]: strip %d, dike %d, occupied by padi %d x %d\n", j, padi.dike[PadiSide.bottom.rawValue],
+                            xstrip[j].usedby[padi.dike[PadiSide.bottom.rawValue]].dike[PadiSide.bottom.rawValue],
+                            xstrip[j].usedby[padi.dike[PadiSide.bottom.rawValue]].dike[PadiSide.left.rawValue]);
                 } else {
-                    printf ("[Farm::UnTagXStrip]: strip %d, dike %d, occupied by no padi\n",  j, padi->dike[BOTTOM]);
+                    printf ("[Farm::UnTagXStrip]: strip %d, dike %d, occupied by no padi\n",  j, padi.dike[PadiSide.bottom.rawValue]);
                 }
             }
         }
         Strip.showTagMap(xstrip);
     }
 
-    func producePadi(block : Block, constrain : CUnsignedChar) -> DoublyLinkedList<Padi> {
+    mutating func producePadi(block : Block, constrain : CUnsignedChar) -> DoublyLinkedList<Padi> {
       
         var ydike : [Int] = []
         ydike.reserveCapacity(AdaptiveSkeletonClimber.N)
 
       // Init xstrip
+        xstrip.reserveCapacity(AdaptiveSkeletonClimber.N)
         for i in 0 ..< AdaptiveSkeletonClimber.N {
-            xstrip[i].initialize(xlign, i, i + 1)
+            xstrip.append(Strip(lign: xlign, pos1: i, pos2: i + 1))
         }
 
         if (!padilist.isEmpty) {
@@ -223,8 +224,8 @@ internal struct Farm {
                 // Break this temporary padi into smaller padi along y, due to
                 // binary restriction.
                 var ydikecnt = 0
-                MinDikeSet(j, maxJ, ydike, &ydikecnt);
-                BreakDikeSet(ydike, ydikecnt, ylign, i);
+                Dike.MinDikeSet(j, maxJ, ydike, &ydikecnt)
+                Dike.BreakDikeSet(ydike, ydikecnt, ylign, i)
 
                 // Strategy used when there is overlapped padi:
                 // For each overlapped padi,
@@ -281,10 +282,10 @@ internal struct Farm {
                             } else if (competitor.enclosedByQ(currpadi)) {
                                 // If currpadi enclose competitor padi, just throw competitor away
     #if DEBUG
-                                print("remove competitor padi %d x %d\n", competitor[k].dike[PadiSide.bottom.rawValue], competitor[k].dike[PadiSide.left.rawValue])
+                                print("remove competitor padi %d x %d\n", competitor.dike[PadiSide.bottom.rawValue], competitor.dike[PadiSide.left.rawValue])
     #endif
-                                UntagXStrip(competitor);
-                                padilist.remove(competitor);
+                                UntagXStrip(competitor)
+                                padilist.remove(competitor)
 //                                delete competitor[k];
 //                                competitor[k] = NULL;
                             } else {
@@ -292,7 +293,7 @@ internal struct Farm {
                 
     #if DEBUG
                                 print("before: break current padi %d x %d\n", currpadi.dike[PadiSide.bottom.rawValue], currpadi.dike[PadiSide.left.rawValue]);
-                                print("clipped by padi %d x %d\n", competitor[k].dike[PadiSide.bottom.rawValue], competitor[k].dike[PadiSide.left.rawValue])
+                                print("clipped by padi %d x %d\n", competitor.dike[PadiSide.bottom.rawValue], competitor.dike[PadiSide.left.rawValue])
     #endif
                                 currpadi.clipBy(competitor, &holder, self, block)
                                 //delete currpadi;
@@ -329,7 +330,7 @@ internal struct Farm {
     // You should be careful to call this subroutine, since this calling will
     // destroy the data stored in simple[] array previously.
     // This function make use of the info store in the input Strip.
-    func InitSimpleByPadi() {
+    mutating func InitSimpleByPadi() {
 
         // clear the value in the simple array of xlign and ylign
         for i in 0 ..< AdaptiveSkeletonClimber.N + 1 {
@@ -340,15 +341,15 @@ internal struct Farm {
         // Init only the bottom level of the simple[] arrays using info in padilist
         for currpadi in padilist {
             // record only the left bottom corner in the simple array
-            let ldikestart = Dike.start(currpadi.dike[LEFT])
-            let ldikeend   = Dike.end(currpadi.dike[LEFT])
-            let bdikestart = Dike.start(currpadi.dike[BOTTOM])
-            let bdikeend   = Dike.end(currpadi.dike[BOTTOM])
+            let ldikestart = Dike.start(currpadi.dike[PadiSide.left.rawValue])
+            let ldikeend   = Dike.end(currpadi.dike[PadiSide.left.rawValue])
+            let bdikestart = Dike.start(currpadi.dike[PadiSide.bottom.rawValue])
+            let bdikeend   = Dike.end(currpadi.dike[PadiSide.bottom.rawValue])
             for i in ldikestart ..< ldikeend {
-                xlign[i].simple[bdikestart + AdaptiveSkeletonClimber.N] = currpadi.dike[BOTTOM];
+                xlign[i].simple[bdikestart + AdaptiveSkeletonClimber.N] = currpadi.dike[PadiSide.bottom.rawValue]
             }
             for i in bdikestart ..< bdikeend {
-                ylign[i].simple[ldikestart + AdaptiveSkeletonClimber.N] = currpadi.dike[LEFT];
+                ylign[i].simple[ldikestart + AdaptiveSkeletonClimber.N] = currpadi.dike[PadiSide.left.rawValue]
             }
         }
 
@@ -369,7 +370,7 @@ internal struct Farm {
             for j in 1 ..< AdaptiveSkeletonClimber.SIZE {
                 if (xlign[i].simple[j] == -1) {
                     // no value filled
-                    if (0x01 & j) {
+                    if (0x01 & j > 0) {
                         // odd numbered dike
                         xlign[i].simple[j] = j
                     } else {
@@ -379,7 +380,7 @@ internal struct Farm {
                 }
                 if (ylign[i].simple[j] == -1) {
                     // no value filled
-                    if (0x01 & j) {
+                    if (0x01 & j > 0) {
                         // odd numbered dike
                         ylign[i].simple[j] = j;
                     } else {
