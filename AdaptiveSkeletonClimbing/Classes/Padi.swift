@@ -239,7 +239,7 @@ class Padi {
 
     // test whether the input padi enclose this
     // An optimized version can be done by >> the
-    func enclosedByQ(encloser : Padi) -> Bool {
+    func enclosedByQ(_ encloser : Padi) -> Bool {
     
         if (encloser.dike[PadiSide.top.rawValue] > dike[PadiSide.top.rawValue] || encloser.dike[PadiSide.left.rawValue] > dike[PadiSide.left.rawValue]) {
             // since this is impossible for encloser

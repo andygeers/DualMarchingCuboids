@@ -284,8 +284,8 @@ internal struct Farm {
     #if DEBUG
                                 print("remove competitor padi %d x %d\n", competitor.dike[PadiSide.bottom.rawValue], competitor.dike[PadiSide.left.rawValue])
     #endif
-                                UntagXStrip(competitor)
-                                padilist.remove(competitor)
+                                UntagXStrip(padi: competitor)
+                                padilist.remove(where: { $0 === competitor })
 //                                delete competitor[k];
 //                                competitor[k] = NULL;
                             } else {
@@ -319,7 +319,7 @@ internal struct Farm {
                         }
                     } while (!holder.isEmpty)
                 }
-                i = xstrip[j].NextSimple(i)
+                i = xstrip[j].nextSimple(i)
             }
         }
         return padilist
@@ -330,7 +330,7 @@ internal struct Farm {
     // You should be careful to call this subroutine, since this calling will
     // destroy the data stored in simple[] array previously.
     // This function make use of the info store in the input Strip.
-    mutating func InitSimpleByPadi() {
+    mutating func initSimpleByPadi() {
 
         // clear the value in the simple array of xlign and ylign
         for i in 0 ..< AdaptiveSkeletonClimber.N + 1 {

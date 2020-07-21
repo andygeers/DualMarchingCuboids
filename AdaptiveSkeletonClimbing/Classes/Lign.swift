@@ -119,6 +119,9 @@ struct Lign {
         }
     }
 
+    func nextSimple(_ i : Int) -> Int {
+        return simple[Dike.nextDike(i)]
+    }
 
     mutating func maxSimple(neighbor : Lign) {
         for i in 1 ..< AdaptiveSkeletonClimber.SIZE  {

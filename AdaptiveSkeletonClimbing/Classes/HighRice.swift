@@ -68,13 +68,13 @@ class HighRice : Padi {
 
     // Check whether this highrice is enclosed by encloser.
     // We consider a enclose b even if a==b.
-    override func enclosedByQ(encloser : Padi) -> Bool {
+    override func enclosedByQ(_ encloser : Padi) -> Bool {
         guard let encloserHighRice = encloser as? HighRice else { return false }
         if (encloserHighRice.bottom > bottom || encloserHighRice.top < top) {
             // check along Z direction
             return false
         }
-        return super.enclosedByQ(encloser: encloser)
+        return super.enclosedByQ(encloser)
     }
 
 

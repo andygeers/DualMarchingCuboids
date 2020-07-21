@@ -70,7 +70,7 @@ internal struct Block {
     public var xyfarm = [Farm](repeating: Farm(), count: AdaptiveSkeletonClimber.N + 1)
     public var xzfarm = [Farm](repeating: Farm(), count: AdaptiveSkeletonClimber.N + 1)
     public var yzfarm = [Farm](repeating: Farm(), count: AdaptiveSkeletonClimber.N + 1)
-    public var slab = [Slab](repeating: Slab(), count: AdaptiveSkeletonClimber.N)
+    public var slab : [Slab] = []
     
     // A "global" way to store ver[] and occ[]
     // for all ligns. If ver[] and occ[] belongs to
@@ -232,7 +232,7 @@ internal struct Block {
     }
 
 
-    mutating func produceHighRice(farm : Farm) -> DoublyLinkedList<HighRice> {
+    mutating func produceHighRice(block: Block, farms : [Farm]) -> DoublyLinkedList<HighRice> {
     
         var xydike : [Int]
         var holdercnt : Int
@@ -242,8 +242,10 @@ internal struct Block {
         var competitor = [HighRice?](repeating: nil, count: AdaptiveSkeletonClimber.N * AdaptiveSkeletonClimber.N * AdaptiveSkeletonClimber.N)
 
         // Init the slabs
+        slab.reserveCapacity(AdaptiveSkeletonClimber.N)
+        slab.removeAll(keepingCapacity: true)
         for i in 0 ..< AdaptiveSkeletonClimber.N {
-            slab[i].initialize(&(farm[i]), &(farm[i+1]))
+            slab.append(Slab(block: block, farmk: farms[i], farmkplus1: farms[i + 1]))
         }
 
         // Clean up the doubly linked list
@@ -252,7 +254,7 @@ internal struct Block {
         }
 
         for j in 0 ..< AdaptiveSkeletonClimber.N { // from bottom to top slab
-            var go_on : Bool = slab[j].firstPadi(&xydike)
+            var go_on = slab[j].firstPadi(&xydike)
             while (go_on) {
                 let x = xydike[0]
                 let y = xydike[1]
@@ -272,7 +274,7 @@ internal struct Block {
                 // 3) If current highrice only overlap with existing highrice, clip current
                 //    highrice by that highrice.
                 holdercnt = 0
-                currhighrice = HighRice(x, y, j, jj)
+                currhighrice = HighRice(x: x, y: y, b: j, t: jj)
                 repeat {
                     // for each highrice which is broken up by overlapped highrice
                     if (holdercnt > 0) { // consider clipped highrice
@@ -285,7 +287,7 @@ internal struct Block {
             //#ifdef HIGHRICESEARCH
                     competecnt = 0
                     for tmphighrice in highricelist {
-                        if (tmphighrice.OverlapQ(currhighrice!)) {
+                        if (tmphighrice.overlapQ(padi: currhighrice!)) {
                             competitor[competecnt] = tmphighrice
                             competecnt += 1
                         }
@@ -299,7 +301,7 @@ internal struct Block {
                         let competitorK = competitor[k]!
                         
                       // Check whether currhighrice is enclosed by any competitor
-                        if (currhighrice!.EnclosedByQ(competitorK)) {
+                        if (currhighrice!.enclosedByQ(competitorK)) {
                        // no need to continue, simply delete current highrice
             #if DEBUG
                             HIGHRICEDIM(s: "remove current highrice", h: currhighrice!)
@@ -309,12 +311,12 @@ internal struct Block {
                             break;
                       
                         // If currhighrice enclose competitor currhighrice, just throw competitor away
-                        } else if (competitorK.EnclosedByQ(currhighrice!)) {
+                        } else if (competitorK.enclosedByQ(currhighrice!)) {
             #if DEBUG
                             HIGHRICEDIM(s: "remove competitor highrice", h: competitorK)
             #endif
                             untagSlab(competitorK)
-                            highricelist.remove(competitorK)
+                            highricelist.remove(where: { $0 === competitorK })
                             competitor[k] = nil
                       
                         } else {
@@ -324,7 +326,7 @@ internal struct Block {
                             HIGHRICEDIM(s: "before: break current highrice", h: currhighrice!)
                             HIGHRICEDIM(s: "clipped by highrice", h: competitorK)
             #endif
-                            currhighrice.clipBy(competitorK, holder, holdercnt)
+                            currhighrice!.clipBy(competitorK, holder, holdercnt)
                             currhighrice = nil
                             highricesuccess = false
                             // no need to continue, since the clipped portion have to go through the whole test
@@ -351,53 +353,50 @@ internal struct Block {
 
 
 
-    func initSimpleByHighRice() {
-            
-        //int j, i, k, xznear, xzfar, xzdikestart, xzdike, N_l;
-        //int yznear, yzfar, yzdikestart, yzdike;
-        
+    mutating func initSimpleByHighRice() {
+                    
         // lcfarm is localfarm, its xlign is used as temporary
-        static let lcfarm = [Farm](repeating: Farm(), count: AdaptiveSkeletonClimber.N+1)
         // array for xzfarm[].xlign[] and its ylign is used as
         // temporary for yzfarm[].xlign[].
-        static let hzfarm = [Farm](repeating: Farm(), count: AdaptiveSkeletonClimber.N+1)
+        var lcfarm = [Farm](repeating: Farm(), count: AdaptiveSkeletonClimber.N+1)
+        var hzfarm = [Farm](repeating: Farm(), count: AdaptiveSkeletonClimber.N+1)
 
-        for k in 0 ..< AdaptiveSkeletonClimber.N+1 {
-            for j in 0 ..< AdaptiveSkeletonClimber.N+1 {
-                lcfarm[k].xlign[j].simple = [Lign::nullsimple](repeating: Lign::nullsimple(), Lign::simplesize)
-              lcfarm[k].ylign[j].simple = [Lign::nullsimple](repeating: Lign::nullsimple(), Lign::simplesize)
-              hzfarm[k].xlign[j].simple = [Lign::nullsimple](repeating: Lign::nullsimple(), Lign::simplesize)
-              xyfarm[k].xlign[j].simple = [Lign::nullsimple](repeating: Lign::nullsimple(), Lign::simplesize)
-              xyfarm[k].ylign[j].simple = [Lign::nullsimple](repeating: Lign::nullsimple(), Lign::simplesize)
-              xzfarm[k].xlign[j].simple = [Lign::nullsimple](repeating: Lign::nullsimple(), Lign::simplesize)
-              xzfarm[k].ylign[j].simple = [Lign::nullsimple](repeating: Lign::nullsimple(), Lign::simplesize)
-              yzfarm[k].xlign[j].simple = [Lign::nullsimple](repeating: Lign::nullsimple(), Lign::simplesize)
-              yzfarm[k].ylign[j].simple = [Lign::nullsimple](repeating: Lign::nullsimple(), Lign::simplesize)
-            }
-        }
+        // Don't think we need this, since a newly initialized Lign is always 'nullsimple' now
+//        for k in 0 ..< AdaptiveSkeletonClimber.N+1 {
+//            for j in 0 ..< AdaptiveSkeletonClimber.N+1 {
+//                lcfarm[k].xlign[j].simple = [Lign::nullsimple](repeating: Lign(), Lign::simplesize)
+//              lcfarm[k].ylign[j].simple = [Lign::nullsimple](repeating: Lign::nullsimple(), Lign::simplesize)
+//              hzfarm[k].xlign[j].simple = [Lign::nullsimple](repeating: Lign::nullsimple(), Lign::simplesize)
+//              xyfarm[k].xlign[j].simple = [Lign::nullsimple](repeating: Lign::nullsimple(), Lign::simplesize)
+//              xyfarm[k].ylign[j].simple = [Lign::nullsimple](repeating: Lign::nullsimple(), Lign::simplesize)
+//              xzfarm[k].xlign[j].simple = [Lign::nullsimple](repeating: Lign::nullsimple(), Lign::simplesize)
+//              xzfarm[k].ylign[j].simple = [Lign::nullsimple](repeating: Lign::nullsimple(), Lign::simplesize)
+//              yzfarm[k].xlign[j].simple = [Lign::nullsimple](repeating: Lign::nullsimple(), Lign::simplesize)
+//              yzfarm[k].ylign[j].simple = [Lign::nullsimple](repeating: Lign::nullsimple(), Lign::simplesize)
+//            }
+//        }
 
         for curr in highricelist {
-            let xznear = Dike.start(curr.dike[LEFT])
-            let xzfar  = Dike.end(curr.dike[LEFT])
-            let yznear = Dike.start(curr.dike[TOP])
-            let yzfar  = Dike.end(curr.dike[TOP])
-            let xzdikestart = AdaptiveSkeletonClimber.N+yznear;
-            let yzdikestart = AdaptiveSkeletonClimber.N+xznear;
-            let xzdike = curr.dike[TOP]
-            let yzdike = curr.dike[LEFT]
+            let xznear = Dike.start(curr.dike[PadiSide.left.rawValue])
+            let xzfar  = Dike.end(curr.dike[PadiSide.left.rawValue])
+            let yznear = Dike.start(curr.dike[PadiSide.top.rawValue])
+            let yzfar  = Dike.end(curr.dike[PadiSide.top.rawValue])
+            let xzdikestart = AdaptiveSkeletonClimber.N + yznear
+            let yzdikestart = AdaptiveSkeletonClimber.N + xznear
+            let xzdike = curr.dike[PadiSide.top.rawValue]
+            let yzdike = curr.dike[PadiSide.left.rawValue]
             // init simple[] of xyfarm
             for j in xznear ..< xzfar {
                 xyfarm[curr.bottom].xlign[j].simple[xzdikestart] = xzdike
-                hzfarm[curr.top+1 ].xlign[j].simple[xzdikestart] = xzdike
+                hzfarm[curr.top + 1].xlign[j].simple[xzdikestart] = xzdike
                 let N_l = AdaptiveSkeletonClimber.N - (xzfar - j)
                 for i in yznear ..< yzfar {
-                    xyfarm[curr.bottom].ylign[i].simple[j] = MAX(N_l,xyfarm[curr.bottom].ylign[i].simple[j]);
-                    xyfarm[curr.top+1 ].ylign[i].simple[j] = MAX(N_l,xyfarm[curr->top+1 ].ylign[i].simple[j]);
+                    xyfarm[curr.bottom].ylign[i].simple[j] = max(N_l, xyfarm[curr.bottom].ylign[i].simple[j])
+                    xyfarm[curr.top + 1].ylign[i].simple[j] = max(N_l, xyfarm[curr.top + 1 ].ylign[i].simple[j])
                 }
             }
 
             for j in curr.bottom ... curr.top {
-            
                 // set the xzfarm
                 xzfarm[xznear].xlign[j].simple[xzdikestart] = xzdike
                 lcfarm[xzfar ].xlign[j].simple[xzdikestart] = xzdike
@@ -427,43 +426,43 @@ internal struct Block {
         for k in 0 ..< AdaptiveSkeletonClimber.N + 1 {
             for j in 0 ..< AdaptiveSkeletonClimber.N {
                 // fill the specially coded simple[]
-                xyfarm[k].ylign[j].FillSpecSimpleVacancy();
-                xzfarm[k].ylign[j].FillSpecSimpleVacancy();
-                yzfarm[k].ylign[j].FillSpecSimpleVacancy();
+                xyfarm[k].ylign[j].fillSpecSimpleVacancy();
+                xzfarm[k].ylign[j].fillSpecSimpleVacancy();
+                yzfarm[k].ylign[j].fillSpecSimpleVacancy();
 
                 // fill up bottommost entry in each simple[] with max sized dike
-                xyfarm[k].xlign[j].FillSimpleVacancy();
-                hzfarm[k].xlign[j].FillSimpleVacancy();
-                xzfarm[k].xlign[j].FillSimpleVacancy();
-                lcfarm[k].xlign[j].FillSimpleVacancy();
-                yzfarm[k].xlign[j].FillSimpleVacancy();
-                lcfarm[k].ylign[j].FillSimpleVacancy();
+                xyfarm[k].xlign[j].fillSimpleVacancy();
+                hzfarm[k].xlign[j].fillSimpleVacancy();
+                xzfarm[k].xlign[j].fillSimpleVacancy();
+                lcfarm[k].xlign[j].fillSimpleVacancy();
+                yzfarm[k].xlign[j].fillSimpleVacancy();
+                lcfarm[k].ylign[j].fillSimpleVacancy();
 
                 // For each lign, propagate info upwards int x ligns only
-                xyfarm[k].xlign[j].PropagateUpSimple();
-                hzfarm[k].xlign[j].PropagateUpSimple();
-                xzfarm[k].xlign[j].PropagateUpSimple();
-                lcfarm[k].xlign[j].PropagateUpSimple();
-                yzfarm[k].xlign[j].PropagateUpSimple();
-                lcfarm[k].ylign[j].PropagateUpSimple();
+                xyfarm[k].xlign[j].propagateUpSimple();
+                hzfarm[k].xlign[j].propagateUpSimple();
+                xzfarm[k].xlign[j].propagateUpSimple();
+                lcfarm[k].xlign[j].propagateUpSimple();
+                yzfarm[k].xlign[j].propagateUpSimple();
+                lcfarm[k].ylign[j].propagateUpSimple();
 
                 // propagate info downward
-                xyfarm[k].xlign[j].PropagateDownSimple();
-                hzfarm[k].xlign[j].PropagateDownSimple();
-                xyfarm[k].xlign[j].MaxSimple(&(hzfarm[k].xlign[j]));
-                xzfarm[k].xlign[j].PropagateDownSimple();
-                lcfarm[k].xlign[j].PropagateDownSimple();
-                xzfarm[k].xlign[j].MaxSimple(&(lcfarm[k].xlign[j]));
-                yzfarm[k].xlign[j].PropagateDownSimple();
-                lcfarm[k].ylign[j].PropagateDownSimple();
-                yzfarm[k].xlign[j].MaxSimple(&(lcfarm[k].ylign[j]));
+                xyfarm[k].xlign[j].propagateDownSimple();
+                hzfarm[k].xlign[j].propagateDownSimple();
+                xyfarm[k].xlign[j].maxSimple(neighbor: hzfarm[k].xlign[j])
+                xzfarm[k].xlign[j].propagateDownSimple();
+                lcfarm[k].xlign[j].propagateDownSimple();
+                xzfarm[k].xlign[j].maxSimple(neighbor: lcfarm[k].xlign[j])
+                yzfarm[k].xlign[j].propagateDownSimple();
+                lcfarm[k].ylign[j].propagateDownSimple();
+                yzfarm[k].xlign[j].maxSimple(neighbor: lcfarm[k].ylign[j])
             }
         }
         // copy the simple info to xlign[N]
         for k in 0 ..< AdaptiveSkeletonClimber.N + 1 {
-            xyfarm[k].xlign[AdaptiveSkeletonClimber.N].simple = xyfarm[k].xlign[AdaptiveSkeletonClimber.N-1].simple //, Lign::simplesize);
-            xzfarm[k].xlign[AdaptiveSkeletonClimber.N].simple = xzfarm[k].xlign[AdaptiveSkeletonClimber.N-1].simple //, Lign::simplesize);
-            yzfarm[k].xlign[AdaptiveSkeletonClimber.N].simple = yzfarm[k].xlign[AdaptiveSkeletonClimber.N-1].simple //, Lign::simplesize);
+            xyfarm[k].xlign[AdaptiveSkeletonClimber.N].simple = xyfarm[k].xlign[AdaptiveSkeletonClimber.N - 1].simple //, Lign::simplesize);
+            xzfarm[k].xlign[AdaptiveSkeletonClimber.N].simple = xzfarm[k].xlign[AdaptiveSkeletonClimber.N - 1].simple //, Lign::simplesize);
+            yzfarm[k].xlign[AdaptiveSkeletonClimber.N].simple = yzfarm[k].xlign[AdaptiveSkeletonClimber.N - 1].simple //, Lign::simplesize);
         }
     }
 
@@ -480,7 +479,7 @@ internal struct Block {
             #endif
             xyfarm[i].initSimpleByPadi()
         }
-        highricelist = produceHighRice(xyfarm)
+        highricelist = produceHighRice(block: self, farms: xyfarm)
         #if DEBUG
         HighRiceStatistic(highricelist)
         Out3DHighRice(BlockData, xyfarm, highricelist, OffX, OffY, OffZ, dataDimX, dataDimY, dataDimZ)

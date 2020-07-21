@@ -223,6 +223,21 @@ public final class DoublyLinkedList<T> {
 
 //: End of the base class declarations & beginning of extensions' declarations:
 
+// MARK: - Extension to add a 'remove(where: )' method
+extension DoublyLinkedList {
+    public func remove(where shouldRemove: (T) -> Bool) {
+        var node = head
+        while let nd = node {
+            node = nd.next
+            
+            if shouldRemove(nd.value) {
+                // Skip this node
+                remove(node: nd)
+            }
+        }
+    }
+}
+
 // MARK: - Extension to enable the standard conversion of a list to String
 extension DoublyLinkedList: CustomStringConvertible {
     public var description: String {

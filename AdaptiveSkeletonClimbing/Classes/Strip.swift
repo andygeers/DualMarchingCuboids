@@ -52,6 +52,10 @@ struct Strip {
         DISPLAYTREE(simple)
         #endif
     }
+    
+    public func nextSimple(_ i : Int) -> Int {
+        return simple[Dike.nextDike(i)]
+    }
 
 
     // This function test whether the input dike is already occupied by
