@@ -101,20 +101,23 @@ struct Dike {
 
     // Break the dike into even smaller dikes if not all same-index-ydike are
     // simple
-    internal static func BreakDikeSet(ydike : [Int], ylign : Lign, i : Int) {
+    internal static func BreakDikeSet(ydike : inout [Int], ylign : [Lign], i : Int) {
         assert(!(i<1 || i>=AdaptiveSkeletonClimber.SIZE), "[BreakDikeSet]: invalid input value\n")
                   
         var jj = 0
         while jj < ydike.count {
+            var isAllSimple = true
             repeat {
+                isAllSimple = true
                 for ii in Dike.start(i) ... Dike.end(i) {
-                    if (ylign[ii].occ[ydike[jj]] == COMPLEX) {
-                        ydike[jj] <<= 1;       // let this be its left child
-                        ydike.append(ydike[jj] + 1)  // append right child at the end
+                    if (ylign[ii].occ(ydike[jj]) == Lign.COMPLEX) {
+                        ydike[jj] <<= 1                // let this be its left child
+                        ydike.append(ydike[jj] + 1)    // append right child at the end
+                        isAllSimple = false
                         break;
                     }
                 }
-            } while (ii <= Dike.end(i))  // all simple
+            } while (!isAllSimple)
             jj += 1
         }
     }

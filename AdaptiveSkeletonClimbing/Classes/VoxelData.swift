@@ -7,6 +7,13 @@
 
 import Foundation
 
+enum DataVariability : CChar {
+    case x = 0
+    case y = 1
+    case z = 2
+    case outOfBounds = 3
+}
+
 internal struct VoxelData {
  
     var content : [CUnsignedChar]   // pointer to the data array
@@ -24,9 +31,7 @@ internal struct VoxelData {
     
     let offset : Int
     let multiplier : Int // a precomputed variables for fast addressing
-    let vary : CChar    // 1st bit from the left = 1 means x is variable
-                        // 2nd bit from the left = 1 means y is variable
-                        // 3rd bit from the left = 1 means z is variable
+    let vary : DataVariability
     
     /// INPUT PARAMETERS:
     /// 1) info    pointer to the 1 D array holding data 0 or 1
@@ -40,119 +45,89 @@ internal struct VoxelData {
     /// 8) datadimx   Real dimension of the data grid holding in the
     /// 9) datadimy   1D memory array. That is datadimx*datadimy*datadimz is
     /// 10)datadimz   the size of the 1D array.
-    Void Data::ReInit(VOXELDT *info, int x, int y, int z, int offx,
-                      int offy, int offz, int datadimx, int datadimy,
-                      int datadimz)
-    {
-    #ifdef SECURITY
-      if (info==NULL || (x<0 && x!=-1) || (y<0 && y!=-1) || (z<0 && z!=-1)
-      || offx<0 || offy<0 || offz<0)
-      {
-        ERRMSG("[Data::ReInit]: invalid input value\n");
-        return;
-      }
-    #endif
-      content = info;
-      OffX = offx;
-      OffY = offy;
-      OffZ = offz;
-      width = datadimx;
-      depth = datadimy;
-      height = datadimz;
-      fixedx = x+offx;
-      fixedy = y+offy;
-      fixedz = z+offz;
-      if (fixedx>=datadimx || fixedy>=datadimy || fixedz>=datadimz)
-      {
-        vary = OUTBND;  // allow out of bound access, but always return 0
-        return;
-      }
-      if (x<0)
-      {
-        offset = fixedz*width*depth + fixedy*width + offx;
-        multiplier = -1; // since not used;
-        vary = VARYX;
-      }
-      else if (y<0)
-      {
-        offset = fixedz*width*depth + offy*width + fixedx;
-        multiplier = -1; // since not used
-        vary = VARYY;
-      }
-      else if (z<0)
-      {
-        offset = offz*width*depth + fixedy*width + fixedx;
-        multiplier = width*depth;
-        vary = VARYZ;
-      }
-      else
-        printf ("[Data::Data]: no dimension is variable\n");
+    internal init(info : [CUnsignedChar], x : Int, y : Int, z : Int,
+                  offx : Int, offy : Int, offz : Int,
+                  datadimx : Int, datadimy : Int, datadimz : Int) {
+    
+        assert(!((x < 0 && x != -1) || (y < 0 && y != -1) || (z < 0 && z != -1)
+            || offx < 0 || offy < 0 || offz < 0), "[Data::ReInit]: invalid input value\n")
+        
+        content = info
+        self.offX = offx
+        self.offY = offy
+        self.offZ = offz
+        self.width = datadimx
+        self.depth = datadimy
+        self.height = datadimz
+        self.fixedx = x + offx
+        self.fixedy = y + offy
+        self.fixedz = z + offz
+        guard (fixedx < datadimx && fixedy < datadimy && fixedz < datadimz) else {
+            // allow out of bound access, but always return 0
+            self.vary = .outOfBounds
+            self.multiplier = 1
+            self.offset = 0
+            return
+        }
+        if (x < 0) {
+            offset = fixedz * width * depth + fixedy * width + offx
+            multiplier = -1 // since not used;
+            self.vary = .x
+        } else if (y < 0) {
+            offset = fixedz * width * depth + offy * width + fixedx
+            multiplier = -1 // since not used
+            vary = .y
+        } else if (z < 0) {
+            offset = offz * width * depth + fixedy * width + fixedx
+            multiplier = width * depth
+            vary = .z
+        } else {
+            // allow out of bound access, but always return 0
+            self.vary = .outOfBounds
+            self.multiplier = 1
+            self.offset = 0
+        }
     }
 
 
     // The reason to allow the out of bound access, is that
     // not all data has a dimension which is exactly power of N
-    VOXELDT Data::Value(int i)
-    {
-      switch(vary)
-      {
-        case VARYX:
-          if (i+OffX<width)  // within bound
-            return content[offset+i];
-          else
+    func value(_ i : Int) -> CUnsignedChar {
+        switch(vary) {
+        case .x:
+            if (i + offX < width) {
+                // within bound
+                return content[offset + i]
+            } else {
+                return 0
+            }
+
+        case .y:
+            if (i + offY < depth) {
+                // within bound
+                return content[offset + i * width]
+            } else {
+                return 0
+            }
+
+        case .z:
+            if (i + offZ < height) {
+                // within bound
+                return content[offset + i * multiplier]
+            } else {
+                return 0
+            }
+
+        case .outOfBounds:
             return 0;
-
-        case VARYY:
-          if (i+OffY<depth)  // within bound
-            return content[offset+i*width];
-          else
-            return 0;
-
-        case VARYZ:
-          if (i+OffZ<height)  // within bound
-            return content[offset+i*multiplier];
-          else
-            return 0;
-
-        case OUTBND:
-          return 0;
-
-        default:
-          ERRMSG("[Data::Value]: invalid vary type\n");
-          return 0; // Error
-      }
+        
+        }
     }
 
-
-    CHAR Data::operator[](int i)
-    {
-      switch(vary)
-      {
-        case VARYX:
-          if (i+OffX<width)
-            return (content[offset+i]>=G_Threshold)? 1: 0;
-          else
-            return 0;
-
-        case VARYY:
-          if (i+OffY<depth)
-            return (content[offset+i*width]>=G_Threshold)? 1: 0;
-          else
-            return 0;
-
-        case VARYZ:
-          if (i+OffZ<height)
-            return (content[offset+i*multiplier]>=G_Threshold)? 1: 0;
-          else
-            return 0;
-
-        case OUTBND:
-          return 0;
-
-        default:
-          ERRMSG("[Data::operator[]]: invalid vary type\n");
-          return 0; // Error
-      }
+    subscript(index: Int) -> CChar {
+        get {
+            return value(index) >= AdaptiveSkeletonClimber.G_Threshold ? 1 : 0
+        }
     }
     
 }

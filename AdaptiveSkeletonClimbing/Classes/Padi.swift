@@ -16,6 +16,12 @@ enum PadiSide : Int {
     case invalid        //      3
 }
 
+enum PadiConstraint {
+    case none
+    case padi
+    case highrice
+}
+
 class Padi {
     static var edgetable = [[PadiSide]](repeating: [PadiSide](repeating: .invalid, count: 4), count: 256)
     
@@ -86,7 +92,7 @@ class Padi {
         ]
         
         for i in 0 ..< 4 {
-            occ[i] = lign[i].occ(index: dike[i])
+            occ[i] = lign[i].occ(dike[i])
         }
         // reverse value in .top.rawValue and .left.rawValue ie. 01 -> 10, 10 -> 01
         for i in 1 ..< 3 {
@@ -117,11 +123,11 @@ class Padi {
         let xodd = Dike.length(xdike) & 1 > 0
         let yodd = Dike.length(ydike) & 1 > 0
         // get bl and br
-        var dim = [PadiSide](repeating: .invalid, count: 3)
+        var dim = [Int](repeating: -1, count: 3)
         dim[farm.fixDimV().rawValue] = farm.fixDimValV()
-        dim[xis.rawValue] = .invalid
+        dim[xis.rawValue] = -1
         dim[yis.rawValue] = ymidpt
-        let data = Data(G_data1, dim[0], dim[1], dim[2],
+        let data = VoxelData(G_data1, dim[0], dim[1], dim[2],
                         block.OffX, block.OffY, block.OffZ,
                         block.dataDimX, block.dataDimY, block.dataDimZ)
         let bl = data.Value(xmidpt)
@@ -134,7 +140,7 @@ class Padi {
             tl = bl
             tr = br
         } else {
-            dim[yis] = ymidpt + 1
+            dim[yis.rawValue] = ymidpt + 1
             data.ReInit(G_data1, dim[0], dim[1], dim[2],
                         block.OffX, block.OffY, block.OffZ,
                         block.dataDimX, block.dataDimY, block.dataDimZ)
@@ -162,20 +168,20 @@ class Padi {
         switch (side)
         {
         case .right:
-            x = Dike.end(dike[PadiSide.bottom.rawValue]) * spacing
-            y = Dike.start(lign[side].ver[dike[side]]) * spacing + spacing / 2.0
+            x = Double(Dike.end(dike[PadiSide.bottom.rawValue])) * spacing
+            y = Double(Dike.start(lign[side.rawValue].ver[dike[side.rawValue]])) * spacing + spacing / 2.0
                      
         case .left:
-            x = Dike.start(dike[PadiSide.bottom.rawValue]) * spacing
-            y = Dike.start(lign[side].ver[dike[side]]) * spacing + spacing / 2.0
+            x = Double(Dike.start(dike[PadiSide.bottom.rawValue])) * spacing
+            y = Double(Dike.start(lign[side.rawValue].ver[dike[side.rawValue]])) * spacing + spacing / 2.0
             
         case .top:
-            x = Dike.start(lign[side].ver[dike[side]]) * spacing + spacing / 2.0
-            y = Dike.end(dike[PadiSide.left.rawValue]) * spacing
+            x = Double(Dike.start(lign[side.rawValue].ver[dike[side.rawValue]])) * spacing + spacing / 2.0
+            y = Double(Dike.end(dike[PadiSide.left.rawValue])) * spacing
             
         case .bottom:
-            x = Dike.start(lign[side].ver[dike[side]]) * spacing + spacing / 2.0
-            y = Dike.start(dike[PadiSide.left.rawValue]) * spacing
+            x = Double(Dike.start(lign[side.rawValue].ver[dike[side.rawValue]])) * spacing + spacing / 2.0
+            y = Double(Dike.start(dike[PadiSide.left.rawValue])) * spacing
             
         default:
             print("[GetCrossPt]: input side is invalid\n")
@@ -184,7 +190,7 @@ class Padi {
         #if DEBUG
         if (x < 0 || y < 0) {
             print("[Padi::GetCrossPt]:padi %d x %d\n", dike[PadiSide.bottom.rawValue], dike[PadiSide.left.rawValue])
-            print("[Err]:side=%d x=%f y=%f dike[side]=%d start=%d\n", side, x, y, dike[side], Dike.start(lign[side].ver[dike[side]]) )
+            print("[Err]:side=%d x=%f y=%f dike[side]=%d start=%d\n", side, x, y, dike[side.rawValue], Dike.start(lign[side.rawValue].ver[dike[side.rawValue]]) )
         }
         #endif
     }
@@ -199,10 +205,10 @@ class Padi {
         guard lignavail else { return }
       
         // draw the padi box
-        let x0 = Dike.start(dike[PadiSide.bottom.rawValue]) * spacing + offset;
-        let y0 = Dike.start(dike[PadiSide.left.rawValue]) * spacing + offset;
-        let x1 = Dike.end(dike[PadiSide.bottom.rawValue]) * spacing - offset;
-        let y1 = Dike.end(dike[PadiSide.right.rawValue]) * spacing - offset;
+        var x0 = Double(Dike.start(dike[PadiSide.bottom.rawValue])) * spacing + offset;
+        var y0 = Double(Dike.start(dike[PadiSide.left.rawValue])) * spacing + offset;
+        var x1 = Double(Dike.end(dike[PadiSide.bottom.rawValue])) * spacing - offset;
+        var y1 = Double(Dike.end(dike[PadiSide.right.rawValue])) * spacing - offset;
         print("1 setlinewidth\nnewpath %f %f moveto %f %f lineto %f %f lineto %f %f lineto %f %f lineto stroke  closepath\n",
                x0, y0, x1, y0, x1, y1, x0, y1, x0, y0);
 
@@ -211,8 +217,8 @@ class Padi {
             let k = Padi.edgetable[Int(lookupidx)][i]
             let l = Padi.edgetable[Int(lookupidx)][i + 1]
             if (k != .invalid && l != .invalid) {
-                GetCrossPt(k, x0, y0, spacing);
-                GetCrossPt(l, x1, y1, spacing);
+                GetCrossPt(side: k, x: &x0, y: &y0, spacing: spacing);
+                GetCrossPt(side: l, x: &x1, y: &y1, spacing: spacing);
                 print("2 setlinewidth\nnewpath %f %f moveto %f %f lineto stroke closepath\n",
                       x0, y0, x1, y1);
             }
@@ -306,7 +312,7 @@ class Padi {
     // 2) cnt       The amount of element in holder array.
     func clipBy(clipper : Padi, holder : inout [Padi], farm : Farm?, block : Block?) {
                     
-        let dikeset = [Int](repeating: 0, count: AdaptiveSkeletonClimber.N)
+        var dikeset = [Int](repeating: 0, count: AdaptiveSkeletonClimber.N)
         var dikecnt = 0
                 
         let ligngiven = lignavail && farm != nil
@@ -323,25 +329,25 @@ class Padi {
             // divide along x axis
             if (thisxstart < clipxstart) {
                 dikecnt = 0
-                MinDikeSet(thisxstart, clipxstart - 1, dikeset, dikecnt)
+                Dike.MinDikeSet(minidx: thisxstart, maxidx: clipxstart - 1, dike: &dikeset)
                 for i in 0 ..< dikecnt {
                     // append into the holder array
                     if (!ligngiven) {
-                        holder.append(Padi(dikeset[i], dike[PadiSide.left.rawValue]))
+                        holder.append(Padi(xdike: dikeset[i], ydike: dike[PadiSide.left.rawValue], farm: farm, block: block))
                     } else {
-                        holder.append(Padi(dikeset[i], dike[PadiSide.left.rawValue], farm, block))
+                        holder.append(Padi(xdike: dikeset[i], ydike: dike[PadiSide.left.rawValue], farm: farm, block: block))
                     }
                 }
             }
             if (thisxend > clipxend) {
                 dikecnt = 0
-                MinDikeSet(clipxend, thisxend - 1, dikeset, dikecnt)
+                Dike.MinDikeSet(minidx: clipxend, maxidx: thisxend - 1, dike: &dikeset)
                 for i in 0 ..< dikecnt {
                     // append into the holder array
                     if (!ligngiven) {
-                        holder.append(Padi(dikeset[i], dike[PadiSide.left.rawValue]))
+                        holder.append(Padi(xdike: dikeset[i], ydike: dike[PadiSide.left.rawValue], farm: farm, block: block))
                     } else {
-                        holder.append(Padi(dikeset[i], dike[PadiSide.left.rawValue], farm, block))
+                        holder.append(Padi(xdike: dikeset[i], ydike: dike[PadiSide.left.rawValue], farm: farm, block: block))
                     }
                 }
             }
@@ -350,25 +356,25 @@ class Padi {
             // divide along y
             if (thisystart < clipystart) {
                 dikecnt = 0
-                MinDikeSet(thisystart, clipystart-1, dikeset,dikecnt);
+                Dike.MinDikeSet(minidx: thisystart, maxidx: clipystart-1, dike: &dikeset)
                 for i in 0 ..< dikecnt {
                     // append into the holder array
                     if (!ligngiven) {
-                        holder.append(Padi(dike[PadiSide.bottom.rawValue], dikeset[i]))
+                        holder.append(Padi(xdike: dike[PadiSide.bottom.rawValue], ydike: dikeset[i], farm: farm, block: block))
                     } else {
-                        holder.append(Padi(dike[PadiSide.bottom.rawValue], dikeset[i], farm, block))
+                        holder.append(Padi(xdike: dike[PadiSide.bottom.rawValue], ydike: dikeset[i], farm: farm, block: block))
                     }
                 }
             }
             if (thisyend > clipyend) {
                 dikecnt = 0
-                MinDikeSet(clipyend, thisyend - 1, dikeset, dikecnt)
+                Dike.MinDikeSet(minidx: clipyend, maxidx: thisyend - 1, dike: &dikeset)
                 for i in 0 ..< dikecnt {
                     // append into the holder array
                     if (!ligngiven) {
-                        holder.append(Padi(dike[PadiSide.bottom.rawValue], dikeset[i]))
+                        holder.append(Padi(xdike: dike[PadiSide.bottom.rawValue], ydike: dikeset[i], farm: farm, block: block))
                     } else {
-                        holder.append(Padi(dike[PadiSide.bottom.rawValue], dikeset[i], farm, block))
+                        holder.append(Padi(xdike: dike[PadiSide.bottom.rawValue], ydike: dikeset[i], farm: farm, block: block))
                     }
                 }
             }
@@ -393,12 +399,12 @@ class Padi {
         dim[farm.fixDimV().rawValue] = farm.fixDimValV()
         dim[xis.rawValue] = -1
         dim[yis.rawValue] = 0
-        let data = Data(data1, dim[0], dim[1], dim[2], offx, offy, offz, datadimx, datadimy, datadimz);
+        let data = VoxelData(info: data1, x: dim[0], y: dim[1], z: dim[2], offx: offx, offy: offy, offz: offz, datadimx: datadimx, datadimy: datadimy, datadimz: datadimz);
         for j in 0 ..< AdaptiveSkeletonClimber.N + 1 {
             dim[yis.rawValue] = j
             data.ReInit(data1, dim[0], dim[1], dim[2], offx, offy, offz, datadimx, datadimy, datadimz);
             for i in 0 ..< AdaptiveSkeletonClimber.N + 1 {
-                if (data[i]) {
+                if (data[i] > 0) {
                     // above threshold, represented by cross
                     print("newpath %f %f moveto %f %f lineto stroke closepath\n",
                            Double(i) * spacing - radius, Double(j) * spacing - radius, Double(i) * spacing + radius,

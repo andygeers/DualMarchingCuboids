@@ -199,7 +199,7 @@ class HighRice : Padi {
             // find occupiant of current face
             occupiant.removeAll(keepingCapacity: true)
             for j in ybottom ... ytop {
-                currfarm!.xstrip[j].usedBy(xdike, &occupiant)
+                currfarm!.xstrip[j].usedBy(dike: xdike, occup: &occupiant)
             }
 
             // for each occupy padi
@@ -524,6 +524,7 @@ class HighRice : Padi {
             if (idx >= offset[face] && idx < offset[face + 1]) {
                 break
             }
+            face += 1
         }
         
         idx -= offset[face]
@@ -573,20 +574,21 @@ class HighRice : Padi {
     }
 
 
-    func checkEmpty(xyfarm : Farm) -> Bool {
-        var occupied = 0
+    func checkEmpty(xyfarm : [Farm]) -> Bool {
+        var occupied = false
         let sx = Dike.start(dike[PadiSide.top.rawValue])
         let ex = Dike.end(dike[PadiSide.top.rawValue])
         let sy = dike[PadiSide.left.rawValue]
         let ey = Dike.end(dike[PadiSide.left.rawValue])
         for i in bottom ... top+1 {
             let farm = xyfarm[i]
-            occupied |=   farm.xlign[sy].occ[1]
-                        | farm.xlign[ey].occ[1]
-                        | farm.ylign[sx].occ[1]
-                        | farm.ylign[ex].occ[1]
+            occupied = occupied
+                      || farm.xlign[sy].occ(1) > 0
+                      || farm.xlign[ey].occ(1) > 0
+                      || farm.ylign[sx].occ(1) > 0
+                      || farm.ylign[ex].occ(1) > 0
         }
-        if (occupied > 0) {
+        if (occupied) {
             self.isEmpty = false
         } else {
             self.isEmpty = true
@@ -600,17 +602,7 @@ class HighRice : Padi {
      * external program to process and display the highrices
      * interactively.
      ********************************************************/
-//    void Out3DHighRice(VOXELDT *data1, Farm *farm, DoublyList *highricelist,
-//                       int offx, int offy, int offz, int datadimx,
-//                       int datadimy, int datadimz)
-//    {
-//    #ifdef SECURITY
-//      if (data1==NULL || farm==NULL || highricelist==NULL)
-//      {
-//        ERRMSG("[Out3DHighRice]: invalid input value\n");
-//        return;
-//      }
-//    #endif
+    static func out3DHighRice(data1 : [CUnsignedChar], farms : [Farm], highricelist : DoublyLinkedList<HighRice>, offx : Int, offy : Int, offz : Int, datadimx : Int, datadimy : Int, datadimz : Int) {
 //      int i, j, k, dim[3];
 //      HighRice *currhrice;
 //      CHAR xis, yis, zis;
@@ -618,7 +610,7 @@ class HighRice : Padi {
 //      // Output the HighRice dimension
 //      printf ("Highrice start\n");
 //      for (currhrice=(HighRice*)highricelist->First() ; currhrice!=NULL ; currhrice=(HighRice*)highricelist->Next())
-//        printf ("%d %d %d %d\n", currhrice->dike[TOP], currhrice->dike[LEFT],
+//        printf ("%d %d %d %d\n", currhrice.dike[PadiSide.top.rawValue], currhrice.dike[PadiSide.bottom.rawValue],
 //                currhrice->bottom, currhrice->top);
 //
 //      // Draw the data point
@@ -629,7 +621,7 @@ class HighRice : Padi {
 //      dim[zis] = 0;
 //      dim[xis] = -1;
 //      dim[yis] = 0;
-//      Data data(data1, dim[0], dim[1], dim[2], offx, offy, offz, datadimx, datadimy, datadimz);
+//      VoxelData data(data1, dim[0], dim[1], dim[2], offx, offy, offz, datadimx, datadimy, datadimz);
 //      // Use the correct orientation to output the data point
 //      for (k=0 ; k<N+1 ; k++)
 //      {
@@ -644,10 +636,10 @@ class HighRice : Padi {
 //        }
 //        printf("\n");
 //      }
-//    }
+    }
 
 
-    func highRiceStatistic(highricelist : DoublyLinkedList<HighRice>) {
+    static func highRiceStatistic(_ highricelist : DoublyLinkedList<HighRice>) {
     
         var count = [Int](repeating: 0, count: AdaptiveSkeletonClimber.N * AdaptiveSkeletonClimber.N * AdaptiveSkeletonClimber.N)
 

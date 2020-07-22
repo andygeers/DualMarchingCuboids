@@ -5,6 +5,8 @@
 //  Created by Andy Geers on 08/07/2020.
 //
 
+import Euclid
+
 struct DataBlock {
     
 }
@@ -21,7 +23,7 @@ class AdaptiveSkeletonClimber {
     internal static let SIZE = 32  /* (1<<(NLEVEL+1)), number of dikes in binary tree stucture  */
     internal static let DSIZE = 64 /* (1<<(NLEVEL+2)), double of SIZE */
 
-    static let G_Threshold = 50.0
+    static let G_Threshold = 50
     static let G_WidthScale = 1.0
     static let G_HeightScale = 1.0
     static let G_DepthScale = 1.0
@@ -64,6 +66,8 @@ class AdaptiveSkeletonClimber {
 
         // 3 layers of blocks should be hold in memory
         var layer = [[Block]](repeating: [Block](repeating: Block(blockData: G_data1, dataDimX: G_DataWidth, dataDimY: G_DataDepth, dataDimZ: G_DataHeight), count: layersize), count: 3)
+        
+        var triangles : [Euclid.Polygon] = []
         
         #if KDTREE
         
@@ -113,7 +117,7 @@ class AdaptiveSkeletonClimber {
                     let nearyz = (cx == 0) ?            nil : kminus1[cy * bkwidth + (cx - 1)]
                     let faryz  = (cx == bkwidth - 1) ?  nil : kminus1[cy * bkwidth + (cx + 1)]
                     kminus1[currxy].communicateSimple(bottom, top, nearxz, farxz, nearyz, faryz)
-                    kminus1[currxy].generateTriangle(format, withnormal, fptr)
+                    kminus1[currxy].generateTriangle(withnormal, triangles: &triangles)
                 }
             }
             if (k >= 2) { // process layer k-2
@@ -152,13 +156,13 @@ class AdaptiveSkeletonClimber {
                         let nearyz = (i == 0) ?         nil : kminus1[j * bkwidth + i - 1]
                         let faryz  = (i == bkwidth - 1) ? nil : kminus1[j * bkwidth + i + 1]
                         kminus1[currij].communicateSimple(bottom: bottom, top: top, nearxz: nearxz, farxz: farxz, nearyz: nearyz, faryz: faryz)
-                        kminus1[currij].generateTriangle(format, withnormal, fptr)
+                        kminus1[currij].generateTriangle(withnormal, triangles: &triangles)
                     }
 
-                    if (k >= 2 && !kminus2[currij].isEmptyQ()) {
-                        // skip when empty, assume Init() do not allocate memory
-                        kminus2[currij].cleanup()
-                    }
+//                    if (k >= 2 && !kminus2[currij].isEmptyQ()) {
+//                        // skip when empty, assume Init() do not allocate memory
+//                        kminus2[currij].cleanup()
+//                    }
                 }
             }
         }

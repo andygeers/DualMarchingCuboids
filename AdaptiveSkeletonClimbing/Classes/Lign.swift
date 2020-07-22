@@ -28,7 +28,7 @@ struct Lign {
         #endif
     }
     
-    func occ(index: Int) -> CChar {
+    func occ(_ index: Int) -> CChar {
         switch (dimension) {
             case .x:
                 return block.xocc[occOffset + index]
@@ -38,6 +38,19 @@ struct Lign {
             
             default:
                 return 0
+        }
+    }
+    
+    mutating func setOcc(_ index: Int, value : CChar) {
+        switch (dimension) {
+            case .x:
+                block.xocc[occOffset + index] = value
+            
+            case .y:
+                block.yocc[occOffset + index] = value
+            
+            default:
+                break
         }
     }
 
@@ -67,7 +80,7 @@ struct Lign {
             simpleQ(myid: (myid << 1) + 1, inherent: simple[myid])
         } else {
             // parent is not simple
-            if (occ(index: myid) < Lign.COMPLEX) {
+            if (occ(myid) < Lign.COMPLEX) {
                 // but I am simple
                 simple[myid] = myid
                 // propogate info downward
