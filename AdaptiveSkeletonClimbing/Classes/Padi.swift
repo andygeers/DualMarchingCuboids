@@ -127,8 +127,8 @@ class Padi {
         dim[farm.fixDimV().rawValue] = farm.fixDimValV()
         dim[xis.rawValue] = -1
         dim[yis.rawValue] = ymidpt
-        let data = VoxelData(G_data1, dim[0], dim[1], dim[2],
-                        block.OffX, block.OffY, block.OffZ,
+        var data = VoxelData(G_data1, dim[0], dim[1], dim[2],
+                        block.offX, block.offY, block.offZ,
                         block.dataDimX, block.dataDimY, block.dataDimZ)
         let bl = data.Value(xmidpt)
         let br = (xodd) ? data.Value(xmidpt + 1) : bl
@@ -141,9 +141,7 @@ class Padi {
             tr = br
         } else {
             dim[yis.rawValue] = ymidpt + 1
-            data.ReInit(G_data1, dim[0], dim[1], dim[2],
-                        block.OffX, block.OffY, block.OffZ,
-                        block.dataDimX, block.dataDimY, block.dataDimZ)
+            data.reinit(dim[0], dim[1], dim[2], block.offX, block.offY, block.offZ)
             tl = data.Value(xmidpt);
             tr = (xodd) ? data.Value(xmidpt+1) : tl
         }
@@ -398,11 +396,10 @@ class Padi {
         var dim = [Int](repeating: -1, count: 3)
         dim[farm.fixDimV().rawValue] = farm.fixDimValV()
         dim[xis.rawValue] = -1
-        dim[yis.rawValue] = 0
-        let data = VoxelData(info: data1, x: dim[0], y: dim[1], z: dim[2], offx: offx, offy: offy, offz: offz, datadimx: datadimx, datadimy: datadimy, datadimz: datadimz);
+        dim[yis.rawValue] = 0        
         for j in 0 ..< AdaptiveSkeletonClimber.N + 1 {
             dim[yis.rawValue] = j
-            data.ReInit(data1, dim[0], dim[1], dim[2], offx, offy, offz, datadimx, datadimy, datadimz);
+            let data = VoxelData(info: data1, x: dim[0], y: dim[1], z: dim[2], offx: offx, offy: offy, offz: offz, datadimx: datadimx, datadimy: datadimy, datadimz: datadimz)
             for i in 0 ..< AdaptiveSkeletonClimber.N + 1 {
                 if (data[i] > 0) {
                     // above threshold, represented by cross

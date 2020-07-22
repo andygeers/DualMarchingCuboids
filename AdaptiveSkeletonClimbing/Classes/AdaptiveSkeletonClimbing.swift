@@ -23,7 +23,7 @@ class AdaptiveSkeletonClimber {
     internal static let SIZE = 32  /* (1<<(NLEVEL+1)), number of dikes in binary tree stucture  */
     internal static let DSIZE = 64 /* (1<<(NLEVEL+2)), double of SIZE */
 
-    static let G_Threshold = 50
+    static let G_Threshold = 50.0
     static let G_WidthScale = 1.0
     static let G_HeightScale = 1.0
     static let G_DepthScale = 1.0
@@ -134,7 +134,7 @@ class AdaptiveSkeletonClimber {
         for k in 0 ..< bkheight + 2 {
             var kminus0 = layer[modulo(k, 3)]       // layer k
             var kminus1 = layer[modulo(k - 1, 3)]   // layer k-1
-            var kminus2 = layer[modulo(k - 2, 3)]   // layer k-2
+            let kminus2 = layer[modulo(k - 2, 3)]   // layer k-2
             if (k < bkheight) {
                 print("Processing layer %d ...\n", k * AdaptiveSkeletonClimber.N)
             }
@@ -156,7 +156,7 @@ class AdaptiveSkeletonClimber {
                         let nearyz = (i == 0) ?         nil : kminus1[j * bkwidth + i - 1]
                         let faryz  = (i == bkwidth - 1) ? nil : kminus1[j * bkwidth + i + 1]
                         kminus1[currij].communicateSimple(bottom: bottom, top: top, nearxz: nearxz, farxz: farxz, nearyz: nearyz, faryz: faryz)
-                        kminus1[currij].generateTriangle(withnormal, triangles: &triangles)
+                        kminus1[currij].generateTriangle(withnormal: true, triangles: &triangles)
                     }
 
 //                    if (k >= 2 && !kminus2[currij].isEmptyQ()) {

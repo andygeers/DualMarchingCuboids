@@ -297,7 +297,7 @@ class HighRice : Padi {
         }
         
         let horiz = side == .top || side == .bottom
-        let ver : [Int]
+        let verLign : [Int]
         if (horiz) {
             // horizontal relative to the farm
             ver = farm.xlign[fy].ver

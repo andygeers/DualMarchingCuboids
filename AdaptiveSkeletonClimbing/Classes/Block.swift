@@ -137,18 +137,18 @@ internal struct Block {
 
         // init x y z occ[] and ver[]
         var nonempty : CChar = 0
-        let mydata = VoxelData(info: blockData, x: -1, y: 0, z: 0, offx: offX, offy: offY, offz: offZ)
+        var mydata = VoxelData(info: blockData, datadimx: dataDimX, datadimy: dataDimY, datadimz: dataDimZ)
         for j in 0 ..< AdaptiveSkeletonClimber.N + 1 {
             for i in 0 ..< AdaptiveSkeletonClimber.N + 1 {
                 let pos = (j * (AdaptiveSkeletonClimber.N + 1) + i) * AdaptiveSkeletonClimber.SIZE
-                mydata.ReInit(blockData, -1, i, j, offX, offY, offZ)
-                Initocc(mydata, &xocc, pos)
+                mydata.reinit(x: -1, y: i, z: j, offx: offX, offy: offY, offz: offZ)
+                Initocc(data: mydata, occ: &xocc, offset: pos)
                 Initver(occ: xocc, ver: &xver, offset: pos)
-                mydata.ReInit(blockData, i, -1, j, offX, offY, offZ)
-                Initocc(mydata, &yocc, pos)
+                mydata.reinit(x: i, y: -1, z: j, offx: offX, offy: offY, offz: offZ)
+                Initocc(data: mydata, occ: &yocc, offset: pos)
                 Initver(occ: yocc, ver: &yver, offset: pos)
-                mydata.ReInit(blockData, i, j, -1, offX, offY, offZ)
-                Initocc(mydata, &zocc, pos)
+                mydata.reinit(x: i, y: j, z: -1, offx: offX, offy: offY, offz: offZ)
+                Initocc(data: mydata, occ: &zocc, offset: pos)
                 Initver(occ: zocc, ver: &zver, offset: pos)
                 nonempty |= (xocc[pos+1] | yocc[pos+1] | zocc[pos+1])
             }
@@ -215,10 +215,18 @@ internal struct Block {
       DISPLAYTREE(ver);
     #endif
     }
+    
+    func untagSlab(highRice: HighRice) {
+        // Original implementation apparently does nothing??
+    }
+    
+    func tagSlab(highRice: HighRice) {
+        // Original implementation apparently does nothing??
+    }
 
     mutating func produceHighRice(block: Block, farms : [Farm]) -> DoublyLinkedList<HighRice> {
     
-        var xydike : [Int]
+        var xydike : [Int] = []
         var competecnt : Int
         var currhighrice : HighRice? = nil
         var holder : [HighRice] = []
@@ -263,7 +271,7 @@ internal struct Block {
                     // for each highrice which is broken up by overlapped highrice
                     if (!holder.isEmpty) { // consider clipped highrice
                         // pick one element from array
-                        currhighrice = holder.popLast()
+                        currhighrice = holder.popLast()!
                     }
 
                     // Check whether it is already occupied. And find out competitors.
@@ -298,7 +306,7 @@ internal struct Block {
             #if DEBUG
                             HIGHRICEDIM(s: "remove competitor highrice", h: competitorK)
             #endif
-                            untagSlab(competitorK)
+                            untagSlab(highRice: competitorK)
                             highricelist.remove(where: { $0 === competitorK })
                             competitor[k] = nil
                       
@@ -319,7 +327,7 @@ internal struct Block {
 
                     if (highricesuccess) {
                         // Tag those occupied region
-                        tagSlab(currhighrice!)
+                        tagSlab(highRice: currhighrice!)
                         // Insert the current padi into the doubly linked list
                         highricelist.append(currhighrice!)
                         #if DEBUG
@@ -327,7 +335,7 @@ internal struct Block {
                         #endif
                     }
                 } while (!holder.isEmpty)
-                go_on = slab[j].nextPadi(&xydike)
+                go_on = slab[j].nextPadi(xydike: &xydike)
             }
         }
         
@@ -341,8 +349,8 @@ internal struct Block {
         // lcfarm is localfarm, its xlign is used as temporary
         // array for xzfarm[].xlign[] and its ylign is used as
         // temporary for yzfarm[].xlign[].
-        var lcfarm = [Farm](repeating: Farm(), count: AdaptiveSkeletonClimber.N+1)
-        var hzfarm = [Farm](repeating: Farm(), count: AdaptiveSkeletonClimber.N+1)
+        var lcfarm = [Farm](repeating: Farm(block: self), count: AdaptiveSkeletonClimber.N + 1)
+        var hzfarm = [Farm](repeating: Farm(block: self), count: AdaptiveSkeletonClimber.N + 1)
 
         // Don't think we need this, since a newly initialized Lign is always 'nullsimple' now
 //        for k in 0 ..< AdaptiveSkeletonClimber.N+1 {
@@ -466,14 +474,14 @@ internal struct Block {
 
             xyfarm[i].producePadi(block: self)
             #if DEBUG
-            Padi.out2DPadiPS(data: blockData, farm: xyfarm[i], offx: OffX, offy: OffY, offz: OffZ, datadimx: dataDimX, datadimy: dataDimY, datadimz: dataDimZ)
+            Padi.out2DPadiPS(data: blockData, farm: xyfarm[i], offx: offX, offy: offY, offz: offZ, datadimx: dataDimX, datadimy: dataDimY, datadimz: dataDimZ)
             #endif
             xyfarm[i].initSimpleByPadi()
         }
         highricelist = produceHighRice(block: self, farms: xyfarm)
         #if DEBUG
         HighRice.highRiceStatistic(highricelist)
-        HighRice.out3DHighRice(data1: blockData, farms: xyfarm, highricelist: highricelist, offx: OffX, offy: OffY, offz: OffZ, datadimx: dataDimX, datadimy: dataDimY, datadimz: dataDimZ)
+        HighRice.out3DHighRice(data1: blockData, farms: xyfarm, highricelist: highricelist, offx: offX, offy: offY, offz: offZ, datadimx: dataDimX, datadimy: dataDimY, datadimz: dataDimZ)
         #endif
         // Construct vertical farms
         initSimpleByHighRice()
@@ -481,7 +489,7 @@ internal struct Block {
 
 
 
-    mutating func generateTriangle(withnormal : Bool, triangles : inout [Euclid.Polygon]) -> [Vertex] {
+    mutating func generateTriangle(withnormal : Bool, triangles : inout [Euclid.Polygon]) {
 
         for i in 0 ..< AdaptiveSkeletonClimber.N + 1 {
             xyfarm[i].producePadi(block: self, constrain: .highrice)
@@ -559,10 +567,7 @@ internal struct Block {
                     case .z:
                         if (cell[side.rawValue] + offZ < dataDimZ) {
                             cell[side.rawValue] += 1
-                        }
-                        
-                    default:
-                        break
+                        }                                            
                     }
                     let gradient2 = calFastGradient(cell: cell)
                     gradient1 = vlerp(gradient2, gradient1, ratio: ratio)
@@ -707,7 +712,7 @@ internal struct Block {
 
     func calVertex(cell : [Int], side : Dimension, ratio : inout Double) -> Vector {
             
-        let l = VoxelData(info: blockData, x: -1,  y: 0,  z: 0, offx: OffX, offy: OffY, offz: OffZ, datadimx: dataDimX, datadimy: dataDimY, datadimz: dataDimZ)
+        var l = VoxelData(info: blockData, datadimx: dataDimX, datadimy: dataDimY, datadimz: dataDimZ)
 
         let x = cell[Dimension.x.rawValue]
         let y = cell[Dimension.y.rawValue]
@@ -715,31 +720,31 @@ internal struct Block {
     
         assert(!(x < 0 || x > AdaptiveSkeletonClimber.N + 1 || y < 0 || y > AdaptiveSkeletonClimber.N + 1 || z < 0 || z > AdaptiveSkeletonClimber.N + 1), "[Block::CalVertex]: IndexCoord map to wrong coordinate\n")
         
-        var coord = Vector(Double(OffX + x), Double(OffY + y), Double(OffZ + z))
+        var coord = Vector(Double(offX + x), Double(offY + y), Double(offZ + z))
         // linearly interpolate the vertex position
     
         assert(cell[side.rawValue] <= AdaptiveSkeletonClimber.N, "[Block::OutTriangle]: index out of bound\n")
               
         switch (side) {
         case .x:
-            l.reInit(blockData, -1, y, z, OffX, OffY, OffZ, blockData.DataDimX, blockData.DataDimY, blockData.DataDimZ);
-            let x1 = l.Value(x)
-            let x2 = l.Value(x+1)
-            ratio = Double(AdaptiveSkeletonClimber.G_Threshold - x1) / (x2 - x1)
+            l.reinit(x: -1, y: y, z: z, offx: offX, offy: offY, offz: offZ)
+            let x1 = Double(l.value(x))
+            let x2 = Double(l.value(x + 1))
+            ratio = (AdaptiveSkeletonClimber.G_Threshold - x1) / Double((x2 - x1))
             coord.x += ratio
           
         case .y:
-            l.reInit(blockData, x, -1, z, OffX, OffY, OffZ, blockData.DataDimX, blockData.DataDimY, blockData.DataDimZ);
-            let y1 = l.Value(y)
-            let y2 = l.Value(y + 1)
-            ratio = Double(AdaptiveSkeletonClimber.G_Threshold - y1) / (y2 - y1)
+            l.reinit(x: x, y: -1, z: z, offx: offX, offy: offY, offz: offZ)
+            let y1 = Double(l.value(y))
+            let y2 = Double(l.value(y + 1))
+            ratio = (AdaptiveSkeletonClimber.G_Threshold - y1) / Double((y2 - y1))
             coord.y += ratio;
           
         case .z:
-            l.reInit(blockData, x, y, -1, OffX, OffY, OffZ, blockData.DataDimX, blockData.DataDimY, blockData.DataDimZ);
-            let z1 = l.Value(z)
-            let z2 = l.Value(z + 1)
-            ratio = Double(AdaptiveSkeletonClimber.G_Threshold - z1) / (z2 - z1)
+            l.reinit(x: x, y: y, z: -1, offx: offX, offy: offY, offz: offZ)
+            let z1 = Double(l.value(z))
+            let z2 = Double(l.value(z + 1))
+            ratio = (AdaptiveSkeletonClimber.G_Threshold - z1) / Double((z2 - z1))
             coord.z += ratio
         }
         
@@ -755,9 +760,9 @@ internal struct Block {
     // The true and exact gradient is not calculated in order to speed up
     // by reducing no of multiplication and division.
     func calFastGradient(cell : [Int]) -> Vector {
-        let xl = VoxelData(info: blockData, x: -1,  y: 0,  z: 0, offx: OffX, offy: OffY, offz: OffZ, datadimx: dataDimX, datadimy: dataDimY, datadimz: dataDimZ)
-        let yl = VoxelData(info: blockData, x: -1,  y: 0,  z: 0, offx: OffX, offy: OffY, offz: OffZ, datadimx: dataDimX, datadimy: dataDimY, datadimz: dataDimZ)
-        let zl = VoxelData(info: blockData, x: -1,  y: 0,  z: 0, offx: OffX, offy: OffY, offz: OffZ, datadimx: dataDimX, datadimy: dataDimY, datadimz: dataDimZ)
+        var xl = VoxelData(info: blockData, datadimx: dataDimX, datadimy: dataDimY, datadimz: dataDimZ)
+        var yl = VoxelData(info: blockData, datadimx: dataDimX, datadimy: dataDimY, datadimz: dataDimZ)
+        var zl = VoxelData(info: blockData, datadimx: dataDimX, datadimy: dataDimY, datadimz: dataDimZ)
 
         let x = cell[Dimension.x.rawValue] + offX
         let y = cell[Dimension.y.rawValue] + offY
@@ -768,9 +773,9 @@ internal struct Block {
         let xnext = (x == dataDimX - 1) ? x : x + 1
         let ynext = (y == dataDimY - 1) ? y : y + 1
         let znext = (z == dataDimZ - 1) ? z : z + 1
-        xl.reInit(blockData, -1, y, z, 0, 0, 0, dataDimX, dataDimY, dataDimZ)
-        yl.reInit(blockData, x, -1, z, 0, 0, 0, dataDimX, dataDimY, dataDimZ)
-        zl.reInit(blockData, x, y, -1, 0, 0, 0, dataDimX, dataDimY, dataDimZ)
+        xl.reinit(x: -1, y: y, z: z, offx: 0, offy: 0, offz: 0)
+        yl.reinit(x: x, y: -1, z: z, offx: 0, offy: 0, offz: 0)
+        zl.reinit(x: x, y: y, z: -1, offx: 0, offy: 0, offz: 0)
 
         // The correct gradient is calculated in the following manner
         // gradient[Dimension.x.rawValue] = (xl.Value(xnext) - xl.Value(xprev))/2.0 * G_WidthScale;
@@ -779,9 +784,9 @@ internal struct Block {
 
         // Instead an inexact gradient is calculated
         return Vector(
-            xl.Value(xnext) - xl.Value(xprev),
-            yl.Value(ynext) - yl.Value(yprev),
-            zl.Value(znext) - zl.Value(zprev)
+            Double(xl.value(xnext) - xl.value(xprev)),
+            Double(yl.value(ynext) - yl.value(yprev)),
+            Double(zl.value(znext) - zl.value(zprev))
         )
     }
 
@@ -791,31 +796,24 @@ internal struct Block {
 
           // a neigbor block is valid if it exists and it is not empty
         let validface = [
-            bottom != nil && !bottom!.emptyQ(),
-            top != nil    && !top!.emptyQ(),
-            nearxz != nil && !nearxz!.emptyQ(),
-            farxz != nil  && !farxz!.emptyQ(),
-            nearyz != nil && !nearyz!.emptyQ(),
-            faryz != nil  && !faryz!.emptyQ()
+            bottom != nil && !bottom!.isEmptyQ(),
+            top != nil    && !top!.isEmptyQ(),
+            nearxz != nil && !nearxz!.isEmptyQ(),
+            farxz != nil  && !farxz!.isEmptyQ(),
+            nearyz != nil && !nearyz!.isEmptyQ(),
+            faryz != nil  && !faryz!.isEmptyQ()
         ]
-        
-        let HR_BOTTOM = 0
-        let HR_TOP = 1
-        let HR_NEARXZ = 2
-        let HR_FARXZ = 3
-        let HR_NEARYZ = 4
-        let HR_FARYZ = 5
         
         for face in 0 ..< 6 {
             if (validface[face]) {
                 for j in 0 ..< AdaptiveSkeletonClimber.N + 1 {
                     let my : Int
                     let nb : Int
-                    let myFarm : [Farm]
+                    var myFarm : [Farm]
                     let nbFarm : [Farm]
                     
                     switch (face) {
-                        case HR_BOTTOM:
+                    case HighRiceSide.bottom.rawValue:
                             myFarm = self.xyfarm
                             nbFarm = bottom!.xyfarm
                             my = 0 // xyfarm[0].xlign[j].simple;
@@ -823,7 +821,7 @@ internal struct Block {
                             nb = AdaptiveSkeletonClimber.N // bottom!.xyfarm[AdaptiveSkeletonClimber.N].xlign[j].simple;
                             //nby = bottom!.xyfarm[AdaptiveSkeletonClimber.N].ylign[j].simple;
                             
-                        case HR_TOP:
+                        case HighRiceSide.top.rawValue:
                             myFarm = self.xyfarm
                             nbFarm = top!.xyfarm
                             my = AdaptiveSkeletonClimber.N // xyfarm[AdaptiveSkeletonClimber.N].xlign[j].simple;
@@ -831,7 +829,7 @@ internal struct Block {
                             nb = 0 // top!.xyfarm[0].xlign[j].simple;
                             // nby = top!.xyfarm[0].ylign[j].simple;
                         
-                        case HR_NEARXZ:
+                        case HighRiceSide.nearXZ.rawValue:
                             myFarm = self.xzfarm
                             nbFarm = nearxz!.xzfarm
                             
@@ -840,7 +838,7 @@ internal struct Block {
                             nb = AdaptiveSkeletonClimber.N // nearxz!.xzfarm[AdaptiveSkeletonClimber.N].xlign[j].simple;
                             //nby = nearxz!.xzfarm[AdaptiveSkeletonClimber.N].ylign[j].simple;
                         
-                        case HR_FARXZ:
+                        case HighRiceSide.farXZ.rawValue:
                             myFarm = self.xzfarm
                             nbFarm = farxz!.xzfarm
                             
@@ -849,7 +847,7 @@ internal struct Block {
                             nb = 0 // farxz!.xzfarm[0].xlign[j].simple;
                             // nby = farxz!.xzfarm[0].ylign[j].simple;
                         
-                        case HR_NEARYZ:
+                        case HighRiceSide.nearYZ.rawValue:
                             myFarm = self.yzfarm
                             nbFarm = nearyz!.yzfarm
                             
@@ -858,7 +856,7 @@ internal struct Block {
                             nb = AdaptiveSkeletonClimber.N // nearyz!.yzfarm[AdaptiveSkeletonClimber.N].xlign[j].simple;
                             //nby = nearyz!.yzfarm[AdaptiveSkeletonClimber.N].ylign[j].simple;
                         
-                        case HR_FARYZ:
+                        case HighRiceSide.farYZ.rawValue:
                             myFarm = self.yzfarm
                             nbFarm = faryz!.yzfarm
                             
@@ -868,13 +866,13 @@ internal struct Block {
                             //nby = faryz!.yzfarm[0].ylign[j].simple;
                         
                         default:
-                            break
+                            return
                     }
                     
                     for i in 0 ..< AdaptiveSkeletonClimber.SIZE { //} ; i++, myx++, myy++, nbx++, nby++)
                         
-                        myFarm[my].xlign[j].simple = max(myFarm[my].xlign[j].simple, nbFarm[nb].xlign[j].simple)
-                        myFarm[my].ylign[j].simple = max(myFarm[my].ylign[j].simple, nbFarm[nb].ylign[j].simple)
+                        myFarm[my].xlign[j].simple[i] = max(myFarm[my].xlign[j].simple[i], nbFarm[nb].xlign[j].simple[i])
+                        myFarm[my].ylign[j].simple[i] = max(myFarm[my].ylign[j].simple[i], nbFarm[nb].ylign[j].simple[i])
                     }
                 }
             }

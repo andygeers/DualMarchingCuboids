@@ -55,6 +55,10 @@ internal struct Farm {
     public var xstrip : [Strip] = []
     public var padilist = DoublyLinkedList<Padi>()  // hold the generated padis
     
+    internal init(block: Block) {
+        self.init(xis: .x, yis: .y, fixdimval : 0, block: block)!
+    }
+    
     internal init?(xis : Dimension, yis : Dimension, fixdimval : Int, block: Block) {
         assert(!(fixdimval<0 || fixdimval > AdaptiveSkeletonClimber.N || xis == yis), "[Farm::Init]: input value invalid\n")
           

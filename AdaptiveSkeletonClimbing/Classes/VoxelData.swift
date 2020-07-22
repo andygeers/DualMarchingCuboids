@@ -20,18 +20,18 @@ internal struct VoxelData {
     let width : Int  // along x axis
     let depth : Int  // along y axis
     let height : Int // along z axis
-    let offX : Int
-    let offY : Int
-    let offZ : Int
+    var offX : Int = 0
+    var offY : Int = 0
+    var offZ : Int = 0
     
     // index of fixed x, index of fixed y
-    let fixedx : Int
-    let fixedy : Int
-    let fixedz : Int
+    var fixedx : Int = 0
+    var fixedy : Int = 0
+    var fixedz : Int = 0
     
-    let offset : Int
-    let multiplier : Int // a precomputed variables for fast addressing
-    let vary : DataVariability
+    var offset : Int = 0
+    var multiplier : Int = 1 // a precomputed variables for fast addressing
+    var vary : DataVariability = .outOfBounds
     
     /// INPUT PARAMETERS:
     /// 1) info    pointer to the 1 D array holding data 0 or 1
@@ -45,24 +45,33 @@ internal struct VoxelData {
     /// 8) datadimx   Real dimension of the data grid holding in the
     /// 9) datadimy   1D memory array. That is datadimx*datadimy*datadimz is
     /// 10)datadimz   the size of the 1D array.
-    internal init(info : [CUnsignedChar], x : Int, y : Int, z : Int,
-                  offx : Int, offy : Int, offz : Int,
-                  datadimx : Int, datadimy : Int, datadimz : Int) {
+    internal init(info : [CUnsignedChar], datadimx : Int, datadimy : Int, datadimz : Int) {
+        
+        self.content = info
+        self.width = datadimx
+        self.depth = datadimy
+        self.height = datadimz
+    }
+    
+    init(info : [CUnsignedChar], x : Int, y : Int, z : Int, offx : Int, offy : Int, offz : Int, datadimx : Int, datadimy : Int, datadimz : Int) {
+        
+        self.init(info: info, datadimx: datadimx, datadimy: datadimy, datadimz: datadimz)
+        
+        reinit(x: x, y: y, z: z, offx: offx, offy: offy, offz: offz)
+    }
+    
+    internal mutating func reinit(x : Int, y : Int, z : Int, offx : Int, offy : Int, offz : Int) {
     
         assert(!((x < 0 && x != -1) || (y < 0 && y != -1) || (z < 0 && z != -1)
             || offx < 0 || offy < 0 || offz < 0), "[Data::ReInit]: invalid input value\n")
         
-        content = info
         self.offX = offx
         self.offY = offy
         self.offZ = offz
-        self.width = datadimx
-        self.depth = datadimy
-        self.height = datadimz
         self.fixedx = x + offx
         self.fixedy = y + offy
         self.fixedz = z + offz
-        guard (fixedx < datadimx && fixedy < datadimy && fixedz < datadimz) else {
+        guard fixedx < width, fixedy < depth, fixedz < height else {
             // allow out of bound access, but always return 0
             self.vary = .outOfBounds
             self.multiplier = 1
@@ -126,7 +135,7 @@ internal struct VoxelData {
 
     subscript(index: Int) -> CChar {
         get {
-            return value(index) >= AdaptiveSkeletonClimber.G_Threshold ? 1 : 0
+            return Double(value(index)) >= AdaptiveSkeletonClimber.G_Threshold ? 1 : 0
         }
     }
     
