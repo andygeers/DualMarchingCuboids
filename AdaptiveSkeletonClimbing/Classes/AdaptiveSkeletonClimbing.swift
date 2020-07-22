@@ -15,9 +15,6 @@ internal func modulo<T: BinaryInteger>(_ lhs: T, _ rhs: T) -> T {
 }
 
 class AdaptiveSkeletonClimber {
-    private let bkwidth : Int
-    private let bkdepth : Int
-    private let bkheight : Int
     
     internal static let NLEVEL = 4  /*  number of level of the binary structure */
     internal static let N = 16  /* (1<<NLEVEL),number of intervals along 1 lign         */
@@ -36,25 +33,37 @@ class AdaptiveSkeletonClimber {
     static let G_HandleAmbiguity = true
     
     private let indexData : [DataBlock]
+    private let G_data1 : [CUnsignedChar]
+    private let G_DataWidth : Int
+    private let G_DataHeight : Int
+    private let G_DataDepth : Int
+    private let bkwidth : Int
+    private let bkdepth : Int
+    private let bkheight : Int
     
-    init(indexData : [DataBlock]) {
-        bkwidth = 16
-        bkdepth = 16
-        bkheight = 16
+    init(indexData : [DataBlock], G_data1 : [CUnsignedChar], G_DataWidth : Int, G_DataHeight : Int, G_DataDepth : Int) {
+        self.G_data1 = G_data1
+        self.G_DataWidth = G_DataWidth
+        self.G_DataHeight = G_DataHeight
+        self.G_DataDepth = G_DataDepth
+        
+        let doubleN = Double(AdaptiveSkeletonClimber.N)
+        bkwidth  = Int(ceil(Double(G_DataWidth - 1) / doubleN))
+        bkdepth  = Int(ceil(Double(G_DataDepth - 1) / doubleN))
+        bkheight = Int(ceil(Double(G_DataHeight - 1) / doubleN))
+        
         self.indexData = indexData
         
         Dike.DikeTableInit()
         Padi.PadiInitEdgeTable()
     }
     
-    func climb(G_data1 : [CUnsignedChar], G_DataWidth : Int, G_DataHeight : Int, G_DataDepth : Int) {
+    func climb() {
         var idxcnt = [0, 0, 0]
         let layersize = bkwidth * bkdepth
-        
-        let blockData = [CUnsignedChar](repeating: 0, count: 10 * 10 * 10)
 
         // 3 layers of blocks should be hold in memory
-        var layer = [[Block]](repeating: [Block](repeating: Block(blockData: blockData, dataDimX: 10, dataDimY: 10, dataDimZ: 10), count: layersize), count: 3)
+        var layer = [[Block]](repeating: [Block](repeating: Block(blockData: G_data1, dataDimX: G_DataWidth, dataDimY: G_DataDepth, dataDimZ: G_DataHeight), count: layersize), count: 3)
         
         #if KDTREE
         
@@ -86,7 +95,7 @@ class AdaptiveSkeletonClimber {
                     let cz = db.ZisQ()
                     let currxy = cy * bkwidth + cx
                     kminus0[currxy].unsetEmpty() // set it to non empty block
-                    kminus0[currxy].Init(G_data1, XDIM, YDIM, ZDIM, AdaptiveSkeletonClimber.N * cx, AdaptiveSkeletonClimber.N * cy, AdaptiveSkeletonClimber.N * cz, G_DataWidth, G_DataDepth, G_DataHeight)
+                    kminus0[currxy].initialize(.x, .y, .z, AdaptiveSkeletonClimber.N * cx, AdaptiveSkeletonClimber.N * cy, AdaptiveSkeletonClimber.N * cz)
                     kminus0[currxy].buildHighRice()  // skip when empty
                 }
             }
@@ -129,7 +138,7 @@ class AdaptiveSkeletonClimber {
                 for i in 0 ..< bkwidth {
                     let currij = j * bkwidth + i
                     if (k < bkheight) {
-                        kminus0[currij].Init(G_data1, .x, .y, .z, AdaptiveSkeletonClimber.N * i, AdaptiveSkeletonClimber.N * j, AdaptiveSkeletonClimber.N * k, G_DataWidth, G_DataDepth, G_DataHeight)
+                        kminus0[currij].initialize(xis: .x, yis: .y, zis: .z, offx: AdaptiveSkeletonClimber.N * i, offy: AdaptiveSkeletonClimber.N * j, offz: AdaptiveSkeletonClimber.N * k)
                         if (!kminus0[currij].isEmptyQ()) {
                             // skip when empty
                             kminus0[currij].buildHighRice()

@@ -8,10 +8,6 @@
 import Foundation
 import Euclid
 
-internal struct VoxelData {
-    
-}
-
 func DISPLAYTREE(_ a : [Int], offset : Int = 0) {
     for di in 0 ... AdaptiveSkeletonClimber.NLEVEL {
         for dj in 0 ..< (1 << di) {
@@ -97,18 +93,18 @@ internal struct Block {
         return CChar((EXYZis>>4) & 0x03)
     }
     
-    private mutating func setXis(_ xis : CChar) {
-        EXYZis = (EXYZis&0xfc)|(UInt8(xis)&0x03)
+    private mutating func setXis(_ xis : Dimension) {
+        EXYZis = (EXYZis & 0xfc) | (UInt8(xis.rawValue) & 0x03)
     }
-    private mutating func setYis(_ yis : CChar) {
-        EXYZis = (EXYZis&0xf3)|((UInt8(yis)&0x03)<<2)
+    private mutating func setYis(_ yis : Dimension) {
+        EXYZis = (EXYZis & 0xf3) | ((UInt8(yis.rawValue) & 0x03) << 2)
     }
-    private mutating func setZis(_ zis : CChar) {
-        EXYZis = (EXYZis&0xcf)|((UInt8(zis)&0x03)<<4)
+    private mutating func setZis(_ zis : Dimension) {
+        EXYZis = (EXYZis & 0xcf) | ((UInt8(zis.rawValue) & 0x03) << 4)
     }
     
     public func isEmptyQ() -> Bool {
-        return (EXYZis&0x80) != 0
+        return (EXYZis & 0x80) != 0
     }
     public mutating func unsetEmpty() {
         EXYZis &= 0x7f
@@ -124,7 +120,7 @@ internal struct Block {
         self.dataDimZ = dataDimZ
     }
     
-    public mutating func initialize(xis : CChar, yis : CChar, zis : CChar,
+    public mutating func initialize(xis : Dimension, yis : Dimension, zis : Dimension,
                     offx : Int, offy : Int, offz : Int) {
         
         
