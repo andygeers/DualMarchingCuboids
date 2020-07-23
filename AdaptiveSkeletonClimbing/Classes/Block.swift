@@ -260,7 +260,7 @@ internal struct Block {
                 // 3) If current highrice only overlap with existing highrice, clip current
                 //    highrice by that highrice.
                 holder.removeAll(keepingCapacity: true)
-                currhighrice = HighRice(x: x, y: y, b: j, t: jj)
+                currhighrice = HighRice(climber: block.climber, xdike: x, ydike: y, b: j, t: jj)
                 repeat {
                     // for each highrice which is broken up by overlapped highrice
                     if (!holder.isEmpty) { // consider clipped highrice

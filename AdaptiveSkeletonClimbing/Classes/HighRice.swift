@@ -23,8 +23,8 @@ enum HighRiceSide : Int {
 // EnclosedByQ(), OverlapQ() and ClipBy() functions.
 
 class HighRice : Padi {
-    private var edgeno : Int    // no of unit edges on the surface of the highrice
-                                // edgeno = 4 *(pq + qr + rp)   is no of edges of p x q x r highrice
+    private var edgeno : Int = 0    // no of unit edges on the surface of the highrice
+                                    // edgeno = 4 *(pq + qr + rp)   is no of edges of p x q x r highrice
     private var offset = [Int](repeating: 0, count: 6)   // offset pointer to the 1st entry of each face of highrice
     private var width : Int {
         get {
@@ -50,19 +50,14 @@ class HighRice : Padi {
     public var bottom : Int
     public var top : Int
                         
-    internal init(x : Int, y : Int, b : Int, t : Int) {
-        assert(!(x < 1 || x >= AdaptiveSkeletonClimber.SIZE || y < 1 || y >= AdaptiveSkeletonClimber.SIZE || b < 0 || b >= AdaptiveSkeletonClimber.N || t < 0 || t >= AdaptiveSkeletonClimber.N), "[HighRice::Init]: invalid input value\n")
+    internal init(climber: AdaptiveSkeletonClimber, xdike : Int, ydike : Int, b : Int, t : Int) {
+        assert(!(xdike < 1 || xdike >= AdaptiveSkeletonClimber.SIZE || ydike < 1 || ydike >= AdaptiveSkeletonClimber.SIZE || b < 0 || b >= AdaptiveSkeletonClimber.N || t < 0 || t >= AdaptiveSkeletonClimber.N), "[HighRice::Init]: invalid input value\n")
         
-        dike = [
-            y, //right
-            x, //top
-            y, //left
-            x  //bottom
-        ]
-              
         bottom = min(b, t)
         top = max(b, t)
         isEmpty = false
+        
+        super.init(climber: climber, xdike: xdike, ydike: ydike)
     }
 
 
@@ -98,11 +93,11 @@ class HighRice : Padi {
         var upperbnd = top
         var lowerbnd = bottom
         if (top > clipper.top) {
-            holder.append(HighRice(x: dike[PadiSide.top.rawValue], y: dike[PadiSide.right.rawValue], b: clipper.top + 1, t: top))
+            holder.append(HighRice(climber: climber, xdike: dike[PadiSide.top.rawValue], ydike: dike[PadiSide.right.rawValue], b: clipper.top + 1, t: top))
             upperbnd = clipper.top
         }
         if (bottom < clipper.bottom) {
-            holder.append(HighRice(x: dike[PadiSide.top.rawValue], y: dike[PadiSide.right.rawValue], b: bottom, t: clipper.bottom - 1))
+            holder.append(HighRice(climber: climber, xdike: dike[PadiSide.top.rawValue], ydike: dike[PadiSide.right.rawValue], b: bottom, t: clipper.bottom - 1))
             lowerbnd = clipper.bottom;
         }
 
@@ -111,7 +106,7 @@ class HighRice : Padi {
         
         // for each 2D clipped padi, generate a highrice
         for padi in padiholder {
-            holder.append(HighRice(x: padi.dike[PadiSide.top.rawValue], y: padi.dike[PadiSide.left.rawValue],
+            holder.append(HighRice(climber: climber, xdike: padi.dike[PadiSide.top.rawValue], ydike: padi.dike[PadiSide.left.rawValue],
                                    b: lowerbnd, t: upperbnd))
         }
     }
@@ -135,7 +130,7 @@ class HighRice : Padi {
         var currfarm : Farm? = nil
       
         // total no of unit edges
-        let edgeno = 4 * (width * depth + height * width + height * depth)
+        self.edgeno = 4 * (width * depth + height * width + height * depth)
         offset[HighRiceSide.bottom.rawValue] = 0
         offset[HighRiceSide.top.rawValue] = width * depth * 2
         offset[HighRiceSide.nearXZ.rawValue] = offset[HighRiceSide.top.rawValue] + width * depth * 2

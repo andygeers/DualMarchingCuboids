@@ -66,10 +66,10 @@ class Padi {
     var dike : [Int]
     
     // hold padi in a doubly linked list
-    var next : Padi?
-    var previous : Padi?
+    var next : Padi? = nil
+    var previous : Padi? = nil
     
-    internal init(climber: AdaptiveSkeletonClimber, xdike : Int, ydike : Int, farm : Farm?, block : Block?) {
+    internal init(climber: AdaptiveSkeletonClimber, xdike : Int, ydike : Int, farm : Farm? = nil, block : Block? = nil) {
     
         assert(!(xdike < 1 || xdike >= AdaptiveSkeletonClimber.SIZE || ydike < 1 || ydike >= AdaptiveSkeletonClimber.SIZE), "[Padi::Init]: invalid input valid\n")
             
@@ -80,7 +80,12 @@ class Padi {
             xdike  //bottom
         ]
 
-        guard let theFarm = farm else { return }
+        guard let theFarm = farm else {
+            lign = []
+            occ = []
+            lookupidx = 0
+            return
+        }
         
         lignavail = true
         
@@ -91,7 +96,7 @@ class Padi {
             theFarm.xlign[Dike.start(ydike)]  //bottom
         ]
         
-        occ = []
+        self.occ = []
         occ.reserveCapacity(4)
         for i in 0 ..< 4 {
             occ.append(lign[i].occ(dike[i]))
@@ -102,7 +107,7 @@ class Padi {
         }
 
     
-        lookupidx = 0;
+        self.lookupidx = 0
         for i in 0 ..< 4 {
             lookupidx = (lookupidx << 2) | (3 & (Int(occ[i])))
         }
