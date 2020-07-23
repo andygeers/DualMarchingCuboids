@@ -20,7 +20,7 @@ func DISPLAYTREE(_ a : [Int], offset : Int = 0) {
 
 /// Block. It constrains the max size of highrice.
 /// All the isosurface generation processes are done in this object.
-internal struct Block {
+internal class Block {
     static let THINTHRESH = 0.25
     static let FATTHRESH = 0.5
         
@@ -93,23 +93,23 @@ internal struct Block {
         return Dimension(rawValue: (Int(EXYZis)>>4) & 0x03) ?? .x
     }
     
-    private mutating func setXis(_ xis : Dimension) {
+    private func setXis(_ xis : Dimension) {
         EXYZis = (EXYZis & 0xfc) | (UInt8(xis.rawValue) & 0x03)
     }
-    private mutating func setYis(_ yis : Dimension) {
+    private func setYis(_ yis : Dimension) {
         EXYZis = (EXYZis & 0xf3) | ((UInt8(yis.rawValue) & 0x03) << 2)
     }
-    private mutating func setZis(_ zis : Dimension) {
+    private func setZis(_ zis : Dimension) {
         EXYZis = (EXYZis & 0xcf) | ((UInt8(zis.rawValue) & 0x03) << 4)
     }
     
     public func isEmptyQ() -> Bool {
         return (EXYZis & 0x80) != 0
     }
-    public mutating func unsetEmpty() {
+    public func unsetEmpty() {
         EXYZis &= 0x7f
     }
-    public mutating func setEmpty() {
+    public func setEmpty() {
         EXYZis |= 0x80
     }
     
@@ -117,7 +117,7 @@ internal struct Block {
         self.climber = climber
     }
     
-    public mutating func initialize(xis : Dimension, yis : Dimension, zis : Dimension,
+    public func initialize(xis : Dimension, yis : Dimension, zis : Dimension,
                     offx : Int, offy : Int, offz : Int) {
         
         
@@ -195,10 +195,10 @@ internal struct Block {
         for i in (1 ..< AdaptiveSkeletonClimber.N).reversed() {
             if (ver[offset + i << 1] > 0) {
                 // left child is not 00
-                ver[offset + i] = ver[i<<1];
+                ver[offset + i] = ver[offset + i << 1];
             } else if (ver[offset + (i << 1) + 1] > 0) {
                 // right child is not 00
-                ver[offset + i] = ver[(i << 1) + 1]
+                ver[offset + i] = ver[offset + (i << 1) + 1]
             } else {
                 // both left and right child are 00
                 ver[offset + i] = 0
@@ -219,7 +219,7 @@ internal struct Block {
         // Original implementation apparently does nothing??
     }
 
-    mutating func produceHighRice(block: Block, farms : [Farm]) -> DoublyLinkedList<HighRice> {
+    func produceHighRice(block: Block, farms : [Farm]) -> DoublyLinkedList<HighRice> {
     
         var xydike : [Int] = []
         var competecnt : Int
@@ -339,7 +339,7 @@ internal struct Block {
 
 
 
-    mutating func initSimpleByHighRice() {
+    func initSimpleByHighRice() {
                     
         // lcfarm is localfarm, its xlign is used as temporary
         // array for xzfarm[].xlign[] and its ylign is used as
@@ -453,7 +453,7 @@ internal struct Block {
     }
 
 
-    mutating func buildHighRice() {
+    func buildHighRice() {
         xyfarm.reserveCapacity(AdaptiveSkeletonClimber.N + 1)
         xzfarm.reserveCapacity(AdaptiveSkeletonClimber.N + 1)
         yzfarm.reserveCapacity(AdaptiveSkeletonClimber.N + 1)
@@ -484,7 +484,7 @@ internal struct Block {
 
 
 
-    mutating func generateTriangle(withnormal : Bool, triangles : inout [Euclid.Polygon]) {
+    func generateTriangle(withnormal : Bool, triangles : inout [Euclid.Polygon]) {
 
         for i in 0 ..< AdaptiveSkeletonClimber.N + 1 {
             guard i < xyfarm.count else { continue }

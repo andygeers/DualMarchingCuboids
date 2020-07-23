@@ -131,8 +131,8 @@ public class AdaptiveSkeletonClimber {
 #else
         let totalElements = bkwidth * bkdepth * (bkheight + 2)
         for k in 0 ..< bkheight + 2 {
-            var kminus0 = layer[modulo(k, 3)]       // layer k
-            var kminus1 = layer[modulo(k - 1, 3)]   // layer k-1
+            let kminus0 = layer[modulo(k, 3)]       // layer k
+            let kminus1 = layer[modulo(k - 1, 3)]   // layer k-1
             let kminus2 = layer[modulo(k - 2, 3)]   // layer k-2
             if (k < bkheight) {
                 NSLog("Processing layer %d ...\n", k * AdaptiveSkeletonClimber.N)

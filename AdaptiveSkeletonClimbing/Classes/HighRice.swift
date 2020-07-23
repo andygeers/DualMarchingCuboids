@@ -140,7 +140,11 @@ class HighRice : Padi {
 
         // init the input global edge table array
         for k in 0 ..< 2 * edgeno {
-            edge[k] = -1
+            if (k >= edge.count) {
+                edge.append(-1)
+            } else {
+                edge[k] = -1
+            }
         }
 
         #if DEBUG

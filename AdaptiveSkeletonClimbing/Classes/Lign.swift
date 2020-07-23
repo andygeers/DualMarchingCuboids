@@ -8,9 +8,9 @@
 import Foundation
 
 struct Lign {
-    public var block : Block
-    public var occOffset : Int
-    public var dimension : Dimension
+    public let block : Block
+    public let occOffset : Int
+    public let dimension : Dimension
     
     static let COMPLEX = 3
     
