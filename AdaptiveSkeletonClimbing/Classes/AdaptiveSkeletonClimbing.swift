@@ -129,6 +129,7 @@ public class AdaptiveSkeletonClimber {
             }
         }
 #else
+        let totalElements = bkwidth * bkdepth * (bkheight + 2)
         for k in 0 ..< bkheight + 2 {
             var kminus0 = layer[modulo(k, 3)]       // layer k
             var kminus1 = layer[modulo(k - 1, 3)]   // layer k-1
@@ -138,7 +139,8 @@ public class AdaptiveSkeletonClimber {
             }
             for j in 0 ..< bkdepth {
                 for i in 0 ..< bkwidth {
-                    let currij = j * bkwidth + i                    
+                    let currij = j * bkwidth + i
+                    NSLog("- processing (1) %d / %d", currij, totalElements)
                     if (k < bkheight) {
                         kminus0[currij].initialize(xis: .x, yis: .y, zis: .z, offx: AdaptiveSkeletonClimber.N * i, offy: AdaptiveSkeletonClimber.N * j, offz: AdaptiveSkeletonClimber.N * k)
                         if (!kminus0[currij].isEmptyQ()) {
@@ -146,6 +148,7 @@ public class AdaptiveSkeletonClimber {
                             kminus0[currij].buildHighRice()
                         }
                     }
+                    NSLog("- processing (2) %d / %d", currij, totalElements)
                     if (k >= 1 && k - 1 < bkheight && !kminus1[currij].isEmptyQ()) {
                         let bottom = (k == 1) ?         nil : kminus2[currij]
                         let top    = (k == bkheight) ?  nil : kminus0[currij]
@@ -155,6 +158,7 @@ public class AdaptiveSkeletonClimber {
                         let faryz  = (i == bkwidth - 1) ? nil : kminus1[j * bkwidth + i + 1]
                         kminus1[currij].communicateSimple(bottom: bottom, top: top, nearxz: nearxz, farxz: farxz, nearyz: nearyz, faryz: faryz)
                         kminus1[currij].generateTriangle(withnormal: true, triangles: &triangles)
+                        return Mesh(triangles)
                     }
 
 //                    if (k >= 2 && !kminus2[currij].isEmptyQ()) {
