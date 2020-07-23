@@ -14,7 +14,7 @@ struct Lign {
     
     static let COMPLEX = 3
     
-    var simple = [Int](repeating: Int.max, count: AdaptiveSkeletonClimber.SIZE)
+    var simple = [Int](repeating: -1, count: AdaptiveSkeletonClimber.SIZE)
     
     init(block: Block, offset: Int, dimension : Dimension) {
         self.block = block
@@ -125,14 +125,14 @@ struct Lign {
         for i in (1 ..< AdaptiveSkeletonClimber.N).reversed() {
             simple[i] = simple[i << 1]
         }
-        simple[0] = Int.max
+        simple[0] = -1
     }
 
 
     // Propagate info in the simple array downward
     mutating func propagateDownSimple() {
         for i in 1 ..< AdaptiveSkeletonClimber.SIZE {
-            if (simple[i] == Int.max) {
+            if (simple[i] == -1) {
                 // no value filled
                 if (0x01 & i > 0) {
                     // odd
@@ -162,7 +162,7 @@ struct Lign {
         dikearr.reserveCapacity(AdaptiveSkeletonClimber.N)
         var empbegin = 0
         for i in 0 ..< AdaptiveSkeletonClimber.N {
-            if (simple[i + AdaptiveSkeletonClimber.N] != Int.max) {
+            if (simple[i + AdaptiveSkeletonClimber.N] != -1) {
                 if (empbegin < i) {
                     Dike.MinDikeSet(minidx: empbegin, maxidx: i - 1, dike: &dikearr)
                     for dikel in dikearr {
@@ -187,7 +187,7 @@ struct Lign {
     mutating func fillSpecSimpleVacancy() {
         var empbegin = 0
         for i in 0 ..< AdaptiveSkeletonClimber.N  {
-            if (simple[i] != Int.max) {
+            if (simple[i] != -1) {
                 if (empbegin < i) {
                     for l in empbegin ..< i {
                         simple[l] = AdaptiveSkeletonClimber.N - (i - l)

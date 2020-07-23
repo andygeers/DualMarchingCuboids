@@ -148,7 +148,7 @@ internal struct Block {
                 nonempty |= (xocc[pos+1] | yocc[pos+1] | zocc[pos+1])
             }
         }
-        if (nonempty > 0) {
+        if (nonempty == 0) {
             setEmpty()
         } else {
             Block.G_NonEmptyBlockCnt += 1

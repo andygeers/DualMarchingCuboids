@@ -328,8 +328,8 @@ internal struct Farm {
 
         // clear the value in the simple array of xlign and ylign
         for i in 0 ..< AdaptiveSkeletonClimber.N + 1 {
-            xlign[i].simple = [Int](repeating: Int.max, count: AdaptiveSkeletonClimber.SIZE)
-            ylign[i].simple = [Int](repeating: Int.max, count: AdaptiveSkeletonClimber.SIZE)
+            xlign[i].simple = [Int](repeating: -1, count: AdaptiveSkeletonClimber.SIZE)
+            ylign[i].simple = [Int](repeating: -1, count: AdaptiveSkeletonClimber.SIZE)
         }
 
         // Init only the bottom level of the simple[] arrays using info in padilist

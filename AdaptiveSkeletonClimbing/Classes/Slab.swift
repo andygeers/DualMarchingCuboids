@@ -71,6 +71,10 @@ class Slab {
         for i in 0 ..< totalbyte  {
             bitmap[i] = 0x0
         }
+        
+        while (xydike.count < 2) {
+            xydike.append(0)
+        }
 
       // search through the bitmap for vacant padi
         for py in 0 ..< AdaptiveSkeletonClimber.N {
