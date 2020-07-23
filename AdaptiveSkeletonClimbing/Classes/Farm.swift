@@ -61,7 +61,8 @@ internal struct Farm {
     
     internal init?(xis : Dimension, yis : Dimension, fixdimval : Int, block: Block) {
         assert(!(fixdimval<0 || fixdimval > AdaptiveSkeletonClimber.N || xis == yis), "[Farm::Init]: input value invalid\n")
-          
+        
+        NSLog("farm init")
         var offx : Int
         var multx : Int
         var offy : Int
@@ -103,15 +104,22 @@ internal struct Farm {
         ylign.removeAll(keepingCapacity: true)
         ylign.reserveCapacity(AdaptiveSkeletonClimber.N + 1)
         
+        NSLog("farm pre-loop")
+        
         for i in 0 ..< AdaptiveSkeletonClimber.N + 1 {
+            NSLog("farm loop %d", i)
             posx = (i * multx + offx) * AdaptiveSkeletonClimber.SIZE;
             posy = (i * multy + offy) * AdaptiveSkeletonClimber.SIZE;
             let nextXlign = Lign(block: block, offset: posx, dimension: .x)
             let nextYlign = Lign(block: block, offset: posy, dimension: .y)
+            NSLog("farm loop %d ligned", i)
             xlign.append(nextXlign)
             ylign.append(nextYlign)
+            NSLog("farm loop %d appended", i)
             nonempty = nonempty || (block.xocc[posx + 1] > 0) || (block.yocc[posy + 1] > 0)
         }
+        
+        NSLog("farm post-loop")
         if (!nonempty) {
             setEmpty();
         }

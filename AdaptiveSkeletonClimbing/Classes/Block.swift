@@ -9,6 +9,7 @@ import Foundation
 import Euclid
 
 func DISPLAYTREE(_ a : [Int], offset : Int = 0) {
+    return
     var values : [String] = []
     for di in 0 ... AdaptiveSkeletonClimber.NLEVEL {
         for dj in 0 ..< (1 << di) {
@@ -120,7 +121,7 @@ internal class Block {
     public func initialize(xis : Dimension, yis : Dimension, zis : Dimension,
                     offx : Int, offy : Int, offz : Int) {
         
-        
+        NSLog("Block.init")
         self.offX = offx
         self.offY = offy
         self.offZ = offz
@@ -130,18 +131,26 @@ internal class Block {
         setZis(zis)
         highricelist = DoublyLinkedList<HighRice>()
 
+        
         // init x y z occ[] and ver[]
         var nonempty : CChar = 0
         var mydata = VoxelData(climber: climber)
         for j in 0 ..< AdaptiveSkeletonClimber.N + 1 {
             for i in 0 ..< AdaptiveSkeletonClimber.N + 1 {
                 let pos = (j * (AdaptiveSkeletonClimber.N + 1) + i) * AdaptiveSkeletonClimber.SIZE
+                
+                NSLog("Block.init %d (1)", pos)
+                
                 mydata.reinit(x: -1, y: i, z: j, offx: offX, offy: offY, offz: offZ)
                 Initocc(data: mydata, occ: &xocc, offset: pos)
                 Initver(occ: xocc, ver: &xver, offset: pos)
+                
+                NSLog("Block.init %d (2)", pos)
                 mydata.reinit(x: i, y: -1, z: j, offx: offX, offy: offY, offz: offZ)
                 Initocc(data: mydata, occ: &yocc, offset: pos)
                 Initver(occ: yocc, ver: &yver, offset: pos)
+                
+                NSLog("Block.init %d (3)", pos)
                 mydata.reinit(x: i, y: j, z: -1, offx: offX, offy: offY, offz: offZ)
                 Initocc(data: mydata, occ: &zocc, offset: pos)
                 Initver(occ: zocc, ver: &zver, offset: pos)
@@ -462,17 +471,22 @@ internal class Block {
         xzfarm.removeAll(keepingCapacity: true)
         yzfarm.removeAll(keepingCapacity: true)
         
+        NSLog("hrice: pre-loop")
         for i in 0 ..< AdaptiveSkeletonClimber.N + 1 {
+            NSLog("hrice: i=%d", i)
             xyfarm.append(Farm(xis: XisQ(), yis: YisQ(), fixdimval: i, block: self)!)
             xzfarm.append(Farm(xis: XisQ(), yis: ZisQ(), fixdimval: i, block: self)!)
             yzfarm.append(Farm(xis: YisQ(), yis: ZisQ(), fixdimval: i, block: self)!)
 
+            NSLog("hrice: i=%d producePadi", i)
             xyfarm[i].producePadi(block: self)
             #if DEBUG
-            Padi.out2DPadiPS(climber: climber, farm: xyfarm[i], offx: offX, offy: offY, offz: offZ)
+            //Padi.out2DPadiPS(climber: climber, farm: xyfarm[i], offx: offX, offy: offY, offz: offZ)
             #endif
+            NSLog("hrice: i=%d initSimpleByPadi", i)
             xyfarm[i].initSimpleByPadi()
         }
+        NSLog("hrice: post-loop")
         highricelist = produceHighRice(block: self, farms: xyfarm)
         #if DEBUG
         HighRice.highRiceStatistic(highricelist)

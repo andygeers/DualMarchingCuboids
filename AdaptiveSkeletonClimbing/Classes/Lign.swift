@@ -20,11 +20,11 @@ struct Lign {
         self.block = block
         self.occOffset = offset
         self.dimension = dimension
-        
+                
         simpleQ(myid: 1, inherent: -1)
         
         #if DEBUG
-        DISPLAYTREE(simple)
+        //DISPLAYTREE(simple)
         #endif
     }
     

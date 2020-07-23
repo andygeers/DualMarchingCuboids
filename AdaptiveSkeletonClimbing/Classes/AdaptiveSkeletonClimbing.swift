@@ -140,15 +140,19 @@ public class AdaptiveSkeletonClimber {
             for j in 0 ..< bkdepth {
                 for i in 0 ..< bkwidth {
                     let currij = j * bkwidth + i
-                    NSLog("- processing (1) %d / %d", currij, totalElements)
+                    NSLog("- prof: processing (1) %d / %d", currij, totalElements)
                     if (k < bkheight) {
+                        NSLog("- prof: initialize")
                         kminus0[currij].initialize(xis: .x, yis: .y, zis: .z, offx: AdaptiveSkeletonClimber.N * i, offy: AdaptiveSkeletonClimber.N * j, offz: AdaptiveSkeletonClimber.N * k)
+                        NSLog("- prof: check isEmptyQ")
                         if (!kminus0[currij].isEmptyQ()) {
+                            NSLog("- prof: buildHighRice")
                             // skip when empty
                             kminus0[currij].buildHighRice()
                         }
+                        NSLog("- prof: processed")
                     }
-                    NSLog("- processing (2) %d / %d", currij, totalElements)
+                    NSLog("- prof: processing (2) %d / %d", currij, totalElements)
                     if (k >= 1 && k - 1 < bkheight && !kminus1[currij].isEmptyQ()) {
                         let bottom = (k == 1) ?         nil : kminus2[currij]
                         let top    = (k == bkheight) ?  nil : kminus0[currij]
