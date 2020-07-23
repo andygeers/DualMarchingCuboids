@@ -233,7 +233,7 @@ internal struct Farm {
                 
                     var holder : [Padi] = []
                     holder.reserveCapacity(AdaptiveSkeletonClimber.N * AdaptiveSkeletonClimber.N)
-                    var currpadi = Padi(xdike: i, ydike: ydikeIndex, farm: self, block: block)
+                    var currpadi = Padi(climber: block.climber, xdike: i, ydike: ydikeIndex, farm: self, block: block)
 
                     // for each padi which is broken up by existing padi
                     repeat {
@@ -289,7 +289,7 @@ internal struct Farm {
                                 print("before: break current padi %d x %d\n", currpadi.dike[PadiSide.bottom.rawValue], currpadi.dike[PadiSide.left.rawValue]);
                                 print("clipped by padi %d x %d\n", competitor.dike[PadiSide.bottom.rawValue], competitor.dike[PadiSide.left.rawValue])
     #endif
-                                currpadi.clipBy(clipper: competitor, holder: &holder, farm: self, block: block)
+                                currpadi.clipBy(clipper: competitor, holder: &holder, climber: block.climber, farm: self, block: block)
                                 //delete currpadi;
                                 //currpadi = NULL;
                                 padisuccess = false

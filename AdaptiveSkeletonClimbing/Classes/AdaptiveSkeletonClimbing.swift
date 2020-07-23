@@ -35,10 +35,10 @@ class AdaptiveSkeletonClimber {
     static let G_HandleAmbiguity = true
     
     private let indexData : [DataBlock]
-    private let G_data1 : [CUnsignedChar]
-    private let G_DataWidth : Int
-    private let G_DataHeight : Int
-    private let G_DataDepth : Int
+    public let G_data1 : [CUnsignedChar]
+    public let G_DataWidth : Int
+    public let G_DataHeight : Int
+    public let G_DataDepth : Int
     private let bkwidth : Int
     private let bkdepth : Int
     private let bkheight : Int
@@ -65,7 +65,7 @@ class AdaptiveSkeletonClimber {
         let layersize = bkwidth * bkdepth
 
         // 3 layers of blocks should be hold in memory
-        var layer = [[Block]](repeating: [Block](repeating: Block(blockData: G_data1, dataDimX: G_DataWidth, dataDimY: G_DataDepth, dataDimZ: G_DataHeight), count: layersize), count: 3)
+        var layer = [[Block]](repeating: [Block](repeating: Block(climber: self), count: layersize), count: 3)
         
         var triangles : [Euclid.Polygon] = []
         

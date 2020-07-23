@@ -16,10 +16,7 @@ enum DataVariability : CChar {
 
 internal struct VoxelData {
  
-    var content : [CUnsignedChar]   // pointer to the data array
-    let width : Int  // along x axis
-    let depth : Int  // along y axis
-    let height : Int // along z axis
+    let climber : AdaptiveSkeletonClimber   // pointer to the data array
     var offX : Int = 0
     var offY : Int = 0
     var offZ : Int = 0
@@ -45,17 +42,14 @@ internal struct VoxelData {
     /// 8) datadimx   Real dimension of the data grid holding in the
     /// 9) datadimy   1D memory array. That is datadimx*datadimy*datadimz is
     /// 10)datadimz   the size of the 1D array.
-    internal init(info : [CUnsignedChar], datadimx : Int, datadimy : Int, datadimz : Int) {
+    internal init(climber : AdaptiveSkeletonClimber) {
         
-        self.content = info
-        self.width = datadimx
-        self.depth = datadimy
-        self.height = datadimz
+        self.climber = climber
     }
     
-    init(info : [CUnsignedChar], x : Int, y : Int, z : Int, offx : Int, offy : Int, offz : Int, datadimx : Int, datadimy : Int, datadimz : Int) {
+    init(climber : AdaptiveSkeletonClimber, x : Int, y : Int, z : Int, offx : Int, offy : Int, offz : Int) {
         
-        self.init(info: info, datadimx: datadimx, datadimy: datadimy, datadimz: datadimz)
+        self.init(climber: climber)
         
         reinit(x: x, y: y, z: z, offx: offx, offy: offy, offz: offz)
     }
@@ -71,7 +65,7 @@ internal struct VoxelData {
         self.fixedx = x + offx
         self.fixedy = y + offy
         self.fixedz = z + offz
-        guard fixedx < width, fixedy < depth, fixedz < height else {
+        guard fixedx < climber.G_DataWidth, fixedy < climber.G_DataDepth, fixedz < climber.G_DataHeight else {
             // allow out of bound access, but always return 0
             self.vary = .outOfBounds
             self.multiplier = 1
@@ -79,16 +73,16 @@ internal struct VoxelData {
             return
         }
         if (x < 0) {
-            offset = fixedz * width * depth + fixedy * width + offx
+            offset = fixedz * climber.G_DataWidth * climber.G_DataDepth + fixedy * climber.G_DataWidth + offx
             multiplier = -1 // since not used;
             self.vary = .x
         } else if (y < 0) {
-            offset = fixedz * width * depth + offy * width + fixedx
+            offset = fixedz * climber.G_DataWidth * climber.G_DataDepth + offy * climber.G_DataWidth + fixedx
             multiplier = -1 // since not used
             vary = .y
         } else if (z < 0) {
-            offset = offz * width * depth + fixedy * width + fixedx
-            multiplier = width * depth
+            offset = offz * climber.G_DataWidth * climber.G_DataDepth + fixedy * climber.G_DataWidth + fixedx
+            multiplier = climber.G_DataWidth * climber.G_DataDepth
             vary = .z
         } else {
             // allow out of bound access, but always return 0
@@ -104,25 +98,25 @@ internal struct VoxelData {
     func value(_ i : Int) -> CUnsignedChar {
         switch(vary) {
         case .x:
-            if (i + offX < width) {
+            if (i + offX < climber.G_DataWidth) {
                 // within bound
-                return content[offset + i]
+                return climber.G_data1[offset + i]
             } else {
                 return 0
             }
 
         case .y:
-            if (i + offY < depth) {
+            if (i + offY < climber.G_DataDepth) {
                 // within bound
-                return content[offset + i * width]
+                return climber.G_data1[offset + i * climber.G_DataWidth]
             } else {
                 return 0
             }
 
         case .z:
-            if (i + offZ < height) {
+            if (i + offZ < climber.G_DataHeight) {
                 // within bound
-                return content[offset + i * multiplier]
+                return climber.G_data1[offset + i * multiplier]
             } else {
                 return 0
             }

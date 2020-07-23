@@ -28,6 +28,19 @@ struct Lign {
         #endif
     }
     
+    func ver(_ index: Int) -> Int {
+        switch (dimension) {
+            case .x:
+                return block.xver[occOffset + index]
+            
+            case .y:
+                return block.yver[occOffset + index]
+            
+            default:
+                return 0
+        }
+    }
+    
     func occ(_ index: Int) -> CChar {
         switch (dimension) {
             case .x:

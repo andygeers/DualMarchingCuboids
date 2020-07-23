@@ -69,7 +69,7 @@ class Padi {
     var next : Padi?
     var previous : Padi?
     
-    internal init(xdike : Int, ydike : Int, farm : Farm?, block : Block?) {
+    internal init(climber: AdaptiveSkeletonClimber, xdike : Int, ydike : Int, farm : Farm?, block : Block?) {
     
         assert(!(xdike < 1 || xdike >= AdaptiveSkeletonClimber.SIZE || ydike < 1 || ydike >= AdaptiveSkeletonClimber.SIZE), "[Padi::Init]: invalid input valid\n")
             
@@ -91,8 +91,10 @@ class Padi {
             theFarm.xlign[Dike.start(ydike)]  //bottom
         ]
         
+        occ = []
+        occ.reserveCapacity(4)
         for i in 0 ..< 4 {
-            occ[i] = lign[i].occ(dike[i])
+            occ.append(lign[i].occ(dike[i]))
         }
         // reverse value in .top.rawValue and .left.rawValue ie. 01 -> 10, 10 -> 01
         for i in 1 ..< 3 {
@@ -107,13 +109,13 @@ class Padi {
         if let theBlock = block, (AdaptiveSkeletonClimber.G_HandleAmbiguity && (lookupidx == 0x99 || lookupidx == 0x66)) {
             
             // ambiguous cases
-            resolveAmbiguity(xdike: xdike, ydike: ydike, farm: theFarm, block: theBlock)
+            resolveAmbiguity(climber: climber, xdike: xdike, ydike: ydike, farm: theFarm, block: theBlock)
 
         }
  
     }
     
-    func resolveAmbiguity(xdike : Int, ydike : Int, farm : Farm, block : Block) {
+    func resolveAmbiguity(climber: AdaptiveSkeletonClimber, xdike : Int, ydike : Int, farm : Farm, block : Block) {
         // sample the centre data
     
         let xmidpt = (Dike.start(xdike) + Dike.end(xdike)) >> 1  // round down
@@ -127,23 +129,22 @@ class Padi {
         dim[farm.fixDimV().rawValue] = farm.fixDimValV()
         dim[xis.rawValue] = -1
         dim[yis.rawValue] = ymidpt
-        var data = VoxelData(G_data1, dim[0], dim[1], dim[2],
-                        block.offX, block.offY, block.offZ,
-                        block.dataDimX, block.dataDimY, block.dataDimZ)
-        let bl = data.Value(xmidpt)
-        let br = (xodd) ? data.Value(xmidpt + 1) : bl
+        var data = VoxelData(climber: climber, x: dim[0], y: dim[1], z: dim[2],
+                             offx: block.offX, offy: block.offY, offz: block.offZ)
+        let bl = Double(data.value(xmidpt))
+        let br = (xodd) ? Double(data.value(xmidpt + 1)) : bl
         
         // value at four corner of the unit square
-        let tl : CUnsignedChar
-        let tr : CUnsignedChar
+        let tl : Double
+        let tr : Double
         if (!yodd) {
             tl = bl
             tr = br
         } else {
             dim[yis.rawValue] = ymidpt + 1
-            data.reinit(dim[0], dim[1], dim[2], block.offX, block.offY, block.offZ)
-            tl = data.Value(xmidpt);
-            tr = (xodd) ? data.Value(xmidpt+1) : tl
+            data.reinit(x: dim[0], y: dim[1], z: dim[2], offx: block.offX, offy: block.offY, offz: block.offZ)
+            tl = Double(data.value(xmidpt))
+            tr = (xodd) ? Double(data.value(xmidpt + 1)) : tl
         }
         // sample the centre
         let sample = (tl + tr + bl + br) / 4.0
@@ -167,18 +168,18 @@ class Padi {
         {
         case .right:
             x = Double(Dike.end(dike[PadiSide.bottom.rawValue])) * spacing
-            y = Double(Dike.start(lign[side.rawValue].ver[dike[side.rawValue]])) * spacing + spacing / 2.0
+            y = Double(Dike.start(lign[side.rawValue].ver(dike[side.rawValue]))) * spacing + spacing / 2.0
                      
         case .left:
             x = Double(Dike.start(dike[PadiSide.bottom.rawValue])) * spacing
-            y = Double(Dike.start(lign[side.rawValue].ver[dike[side.rawValue]])) * spacing + spacing / 2.0
+            y = Double(Dike.start(lign[side.rawValue].ver(dike[side.rawValue]))) * spacing + spacing / 2.0
             
         case .top:
-            x = Double(Dike.start(lign[side.rawValue].ver[dike[side.rawValue]])) * spacing + spacing / 2.0
+            x = Double(Dike.start(lign[side.rawValue].ver(dike[side.rawValue]))) * spacing + spacing / 2.0
             y = Double(Dike.end(dike[PadiSide.left.rawValue])) * spacing
             
         case .bottom:
-            x = Double(Dike.start(lign[side.rawValue].ver[dike[side.rawValue]])) * spacing + spacing / 2.0
+            x = Double(Dike.start(lign[side.rawValue].ver(dike[side.rawValue]))) * spacing + spacing / 2.0
             y = Double(Dike.start(dike[PadiSide.left.rawValue])) * spacing
             
         default:
@@ -188,7 +189,7 @@ class Padi {
         #if DEBUG
         if (x < 0 || y < 0) {
             print("[Padi::GetCrossPt]:padi %d x %d\n", dike[PadiSide.bottom.rawValue], dike[PadiSide.left.rawValue])
-            print("[Err]:side=%d x=%f y=%f dike[side]=%d start=%d\n", side, x, y, dike[side.rawValue], Dike.start(lign[side.rawValue].ver[dike[side.rawValue]]) )
+            print("[Err]:side=%d x=%f y=%f dike[side]=%d start=%d\n", side, x, y, dike[side.rawValue], Dike.start(lign[side.rawValue].ver(dike[side.rawValue])) )
         }
         #endif
     }
@@ -308,7 +309,7 @@ class Padi {
     // "this" will not not affected
     // 1) holder    The clipped padi will be appended into holder array.
     // 2) cnt       The amount of element in holder array.
-    func clipBy(clipper : Padi, holder : inout [Padi], farm : Farm?, block : Block?) {
+    func clipBy(clipper : Padi, holder : inout [Padi], climber: AdaptiveSkeletonClimber, farm : Farm?, block : Block?) {
                     
         var dikeset = [Int](repeating: 0, count: AdaptiveSkeletonClimber.N)
         var dikecnt = 0
@@ -331,9 +332,9 @@ class Padi {
                 for i in 0 ..< dikecnt {
                     // append into the holder array
                     if (!ligngiven) {
-                        holder.append(Padi(xdike: dikeset[i], ydike: dike[PadiSide.left.rawValue], farm: farm, block: block))
+                        holder.append(Padi(climber: climber, xdike: dikeset[i], ydike: dike[PadiSide.left.rawValue], farm: farm, block: block))
                     } else {
-                        holder.append(Padi(xdike: dikeset[i], ydike: dike[PadiSide.left.rawValue], farm: farm, block: block))
+                        holder.append(Padi(climber: climber, xdike: dikeset[i], ydike: dike[PadiSide.left.rawValue], farm: farm, block: block))
                     }
                 }
             }
@@ -343,9 +344,9 @@ class Padi {
                 for i in 0 ..< dikecnt {
                     // append into the holder array
                     if (!ligngiven) {
-                        holder.append(Padi(xdike: dikeset[i], ydike: dike[PadiSide.left.rawValue], farm: farm, block: block))
+                        holder.append(Padi(climber: climber, xdike: dikeset[i], ydike: dike[PadiSide.left.rawValue], farm: farm, block: block))
                     } else {
-                        holder.append(Padi(xdike: dikeset[i], ydike: dike[PadiSide.left.rawValue], farm: farm, block: block))
+                        holder.append(Padi(climber: climber, xdike: dikeset[i], ydike: dike[PadiSide.left.rawValue], farm: farm, block: block))
                     }
                 }
             }
@@ -358,9 +359,9 @@ class Padi {
                 for i in 0 ..< dikecnt {
                     // append into the holder array
                     if (!ligngiven) {
-                        holder.append(Padi(xdike: dike[PadiSide.bottom.rawValue], ydike: dikeset[i], farm: farm, block: block))
+                        holder.append(Padi(climber: climber, xdike: dike[PadiSide.bottom.rawValue], ydike: dikeset[i], farm: farm, block: block))
                     } else {
-                        holder.append(Padi(xdike: dike[PadiSide.bottom.rawValue], ydike: dikeset[i], farm: farm, block: block))
+                        holder.append(Padi(climber: climber, xdike: dike[PadiSide.bottom.rawValue], ydike: dikeset[i], farm: farm, block: block))
                     }
                 }
             }
@@ -370,9 +371,9 @@ class Padi {
                 for i in 0 ..< dikecnt {
                     // append into the holder array
                     if (!ligngiven) {
-                        holder.append(Padi(xdike: dike[PadiSide.bottom.rawValue], ydike: dikeset[i], farm: farm, block: block))
+                        holder.append(Padi(climber: climber, xdike: dike[PadiSide.bottom.rawValue], ydike: dikeset[i], farm: farm, block: block))
                     } else {
-                        holder.append(Padi(xdike: dike[PadiSide.bottom.rawValue], ydike: dikeset[i], farm: farm, block: block))
+                        holder.append(Padi(climber: climber, xdike: dike[PadiSide.bottom.rawValue], ydike: dikeset[i], farm: farm, block: block))
                     }
                 }
             }
@@ -382,7 +383,7 @@ class Padi {
 
 
     /// output the 2D slice and padi as a postscript image  *
-    static func out2DPadiPS(data data1 : [CUnsignedChar], farm : Farm, offx : Int, offy : Int, offz : Int, datadimx : Int, datadimy : Int, datadimz : Int) {
+    static func out2DPadiPS(climber: AdaptiveSkeletonClimber, farm : Farm, offx : Int, offy : Int, offz : Int) {
             
         let radius = 1 * 5.0
         let spacing = 10 * 5.0
@@ -399,7 +400,7 @@ class Padi {
         dim[yis.rawValue] = 0        
         for j in 0 ..< AdaptiveSkeletonClimber.N + 1 {
             dim[yis.rawValue] = j
-            let data = VoxelData(info: data1, x: dim[0], y: dim[1], z: dim[2], offx: offx, offy: offy, offz: offz, datadimx: datadimx, datadimy: datadimy, datadimz: datadimz)
+            let data = VoxelData(climber: climber, x: dim[0], y: dim[1], z: dim[2], offx: offx, offy: offy, offz: offz)
             for i in 0 ..< AdaptiveSkeletonClimber.N + 1 {
                 if (data[i] > 0) {
                     // above threshold, represented by cross

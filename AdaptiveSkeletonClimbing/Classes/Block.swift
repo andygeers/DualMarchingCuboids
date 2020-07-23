@@ -51,10 +51,7 @@ internal struct Block {
         print(" %d x %d x [%d,%d]\n", h.dike[0], h.dike[1], h.bottom, h)
     }
 
-    public let blockData : [CUnsignedChar]
-    public let dataDimX : Int
-    public let dataDimY : Int
-    public let dataDimZ : Int
+    public let climber : AdaptiveSkeletonClimber
     
     public var offX : Int = 0
     public var offY : Int = 0
@@ -115,11 +112,8 @@ internal struct Block {
         EXYZis |= 0x80
     }
     
-    public init(blockData : [CUnsignedChar], dataDimX : Int, dataDimY : Int, dataDimZ : Int) {
-        self.blockData = blockData
-        self.dataDimX = dataDimX
-        self.dataDimY = dataDimY
-        self.dataDimZ = dataDimZ
+    public init(climber: AdaptiveSkeletonClimber) {
+        self.climber = climber
     }
     
     public mutating func initialize(xis : Dimension, yis : Dimension, zis : Dimension,
@@ -137,7 +131,7 @@ internal struct Block {
 
         // init x y z occ[] and ver[]
         var nonempty : CChar = 0
-        var mydata = VoxelData(info: blockData, datadimx: dataDimX, datadimy: dataDimY, datadimz: dataDimZ)
+        var mydata = VoxelData(climber: climber)
         for j in 0 ..< AdaptiveSkeletonClimber.N + 1 {
             for i in 0 ..< AdaptiveSkeletonClimber.N + 1 {
                 let pos = (j * (AdaptiveSkeletonClimber.N + 1) + i) * AdaptiveSkeletonClimber.SIZE
@@ -317,7 +311,7 @@ internal struct Block {
                             HIGHRICEDIM(s: "before: break current highrice", h: currhighrice!)
                             HIGHRICEDIM(s: "clipped by highrice", h: competitorK)
             #endif
-                            currhighrice!.clipBy(clipper: competitorK, holder: &holder)
+                            currhighrice!.clipBy(clipper: competitorK, holder: &holder, climber: climber)
                             currhighrice = nil
                             highricesuccess = false
                             // no need to continue, since the clipped portion have to go through the whole test
@@ -474,14 +468,14 @@ internal struct Block {
 
             xyfarm[i].producePadi(block: self)
             #if DEBUG
-            Padi.out2DPadiPS(data: blockData, farm: xyfarm[i], offx: offX, offy: offY, offz: offZ, datadimx: dataDimX, datadimy: dataDimY, datadimz: dataDimZ)
+            Padi.out2DPadiPS(climber: climber, farm: xyfarm[i], offx: offX, offy: offY, offz: offZ)
             #endif
             xyfarm[i].initSimpleByPadi()
         }
         highricelist = produceHighRice(block: self, farms: xyfarm)
         #if DEBUG
         HighRice.highRiceStatistic(highricelist)
-        HighRice.out3DHighRice(data1: blockData, farms: xyfarm, highricelist: highricelist, offx: offX, offy: offY, offz: offZ, datadimx: dataDimX, datadimy: dataDimY, datadimz: dataDimZ)
+        HighRice.out3DHighRice(climber: climber, farms: xyfarm, highricelist: highricelist, offx: offX, offy: offY, offz: offZ)
         #endif
         // Construct vertical farms
         initSimpleByHighRice()
@@ -496,9 +490,9 @@ internal struct Block {
             xzfarm[i].producePadi(block: self, constrain: .highrice)
             yzfarm[i].producePadi(block: self, constrain: .highrice)
             #if DEBUG
-            Padi.out2DPadiPS(data: blockData, farm: xyfarm[i], offx: offX, offy: offY, offz: offZ, datadimx: dataDimX, datadimy: dataDimY, datadimz: dataDimZ)
-            Padi.out2DPadiPS(data: blockData, farm: xzfarm[i], offx: offX, offy: offY, offz: offZ, datadimx: dataDimX, datadimy: dataDimY, datadimz: dataDimZ)
-            Padi.out2DPadiPS(data: blockData, farm: yzfarm[i], offx: offX, offy: offY, offz: offZ, datadimx: dataDimX, datadimy: dataDimY, datadimz: dataDimZ)
+            Padi.out2DPadiPS(climber: climber, farm: xyfarm[i], offx: offX, offy: offY, offz: offZ)
+            Padi.out2DPadiPS(climber: climber, farm: xzfarm[i], offx: offX, offy: offY, offz: offZ)
+            Padi.out2DPadiPS(climber: climber, farm: yzfarm[i], offx: offX, offy: offY, offz: offZ)
             #endif
         }
         for hrice in highricelist {
@@ -557,15 +551,15 @@ internal struct Block {
                     switch(side)
                     {
                     case .x:
-                        if (cell[side.rawValue] + offX < dataDimX) {
+                        if (cell[side.rawValue] + offX < climber.G_DataWidth) {
                             cell[side.rawValue] += 1
                         }
                     case .y:
-                        if (cell[side.rawValue] + offY < dataDimY) {
+                        if (cell[side.rawValue] + offY < climber.G_DataDepth) {
                             cell[side.rawValue] += 1
                         }
                     case .z:
-                        if (cell[side.rawValue] + offZ < dataDimZ) {
+                        if (cell[side.rawValue] + offZ < climber.G_DataHeight) {
                             cell[side.rawValue] += 1
                         }                                            
                     }
@@ -712,7 +706,7 @@ internal struct Block {
 
     func calVertex(cell : [Int], side : Dimension, ratio : inout Double) -> Vector {
             
-        var l = VoxelData(info: blockData, datadimx: dataDimX, datadimy: dataDimY, datadimz: dataDimZ)
+        var l = VoxelData(climber: climber)
 
         let x = cell[Dimension.x.rawValue]
         let y = cell[Dimension.y.rawValue]
@@ -760,9 +754,9 @@ internal struct Block {
     // The true and exact gradient is not calculated in order to speed up
     // by reducing no of multiplication and division.
     func calFastGradient(cell : [Int]) -> Vector {
-        var xl = VoxelData(info: blockData, datadimx: dataDimX, datadimy: dataDimY, datadimz: dataDimZ)
-        var yl = VoxelData(info: blockData, datadimx: dataDimX, datadimy: dataDimY, datadimz: dataDimZ)
-        var zl = VoxelData(info: blockData, datadimx: dataDimX, datadimy: dataDimY, datadimz: dataDimZ)
+        var xl = VoxelData(climber: climber)
+        var yl = VoxelData(climber: climber)
+        var zl = VoxelData(climber: climber)
 
         let x = cell[Dimension.x.rawValue] + offX
         let y = cell[Dimension.y.rawValue] + offY
@@ -770,9 +764,9 @@ internal struct Block {
         let xprev = (x == 0) ? 0 : x - 1
         let yprev = (y == 0) ? 0 : y - 1
         let zprev = (z == 0) ? 0 : z - 1
-        let xnext = (x == dataDimX - 1) ? x : x + 1
-        let ynext = (y == dataDimY - 1) ? y : y + 1
-        let znext = (z == dataDimZ - 1) ? z : z + 1
+        let xnext = (x == climber.G_DataWidth - 1) ? x : x + 1
+        let ynext = (y == climber.G_DataDepth - 1) ? y : y + 1
+        let znext = (z == climber.G_DataHeight - 1) ? z : z + 1
         xl.reinit(x: -1, y: y, z: z, offx: 0, offy: 0, offz: 0)
         yl.reinit(x: x, y: -1, z: z, offx: 0, offy: 0, offz: 0)
         zl.reinit(x: x, y: y, z: -1, offx: 0, offy: 0, offz: 0)

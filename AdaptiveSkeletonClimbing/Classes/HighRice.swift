@@ -90,7 +90,7 @@ class HighRice : Padi {
     }
 
 
-    func clipBy(clipper : HighRice, holder : inout [HighRice]) {
+    func clipBy(clipper : HighRice, holder : inout [HighRice], climber: AdaptiveSkeletonClimber) {
         var padiholder : [Padi] = []
         padiholder.reserveCapacity(AdaptiveSkeletonClimber.N * AdaptiveSkeletonClimber.N)
         
@@ -107,7 +107,7 @@ class HighRice : Padi {
         }
 
         // Now only the same interval along z need to be clipped
-        super.clipBy(clipper: clipper, holder: &padiholder, farm: nil, block: nil)
+        super.clipBy(clipper: clipper, holder: &padiholder, climber: climber, farm: nil, block: nil)
         
         // for each 2D clipped padi, generate a highrice
         for padi in padiholder {
@@ -275,8 +275,8 @@ class HighRice : Padi {
 
     func mapToEdgeTable(face : HighRiceSide, farm : Farm, padi : Padi, side : PadiSide) -> Int {
 
-        let fx : Int
-        let fy : Int
+        var fx : Int
+        var fy : Int
         
         // take appropiate coordinate relative to the farm's origin
         switch (side) {
@@ -297,14 +297,13 @@ class HighRice : Padi {
         }
         
         let horiz = side == .top || side == .bottom
-        let verLign : [Int]
+        let intersect : Int
         if (horiz) {
             // horizontal relative to the farm
-            ver = farm.xlign[fy].ver
+            intersect = farm.xlign[fy].ver(padi.dike[side.rawValue])
         } else {
-            ver = farm.ylign[fx].ver
+            intersect = farm.ylign[fx].ver(padi.dike[side.rawValue])
         }
-        let intersect = ver[padi.dike[side.rawValue]]
         if (intersect == 0) {
             // no intersection
             print("[HighRice::MaptoEdgeTable]: input padi side has no intersection\n")
@@ -602,7 +601,7 @@ class HighRice : Padi {
      * external program to process and display the highrices
      * interactively.
      ********************************************************/
-    static func out3DHighRice(data1 : [CUnsignedChar], farms : [Farm], highricelist : DoublyLinkedList<HighRice>, offx : Int, offy : Int, offz : Int, datadimx : Int, datadimy : Int, datadimz : Int) {
+    static func out3DHighRice(climber : AdaptiveSkeletonClimber, farms : [Farm], highricelist : DoublyLinkedList<HighRice>, offx : Int, offy : Int, offz : Int) {
 //      int i, j, k, dim[3];
 //      HighRice *currhrice;
 //      CHAR xis, yis, zis;
