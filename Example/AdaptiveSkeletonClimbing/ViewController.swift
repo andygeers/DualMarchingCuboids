@@ -8,6 +8,7 @@
 
 import UIKit
 import SceneKit
+import AdaptiveSkeletonClimbing
 
 let SCALE_FACTOR : CGFloat = 0.1
 
@@ -30,6 +31,8 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         loadVoxels()
+        
+        generateMesh()
     }
 
     override func didReceiveMemoryWarning() {
@@ -44,6 +47,38 @@ class ViewController: UIViewController {
         } catch {
             return
         }
+    }
+    
+    private func generateMesh() {
+        NSLog("Generating mesh")
+        
+        let mesh = AdaptiveSkeletonClimber(G_data1: gridData, G_DataWidth: width, G_DataHeight: height, G_DataDepth: depth).climb()
+        
+        NSLog("Generated mesh with %d polygon(s)", mesh.polygons.count)
+        
+        let scene = SCNScene()
+        
+        let geometry = SCNGeometry(mesh, materialLookup: {
+            let material = SCNMaterial()
+            material.diffuse.contents = $0
+            return material
+        })
+        let node = SCNNode(geometry: geometry)
+        scene.rootNode.addChildNode(node)
+        
+        let cameraNode = SCNNode()
+        let camera = SCNCamera()
+        cameraNode.camera = camera
+        cameraNode.position = SCNVector3(0.0, 50.0, 50.0)
+        cameraNode.look(at: SCNVector3(0.0, 0.0, 0.0))
+        
+        self.sceneView.scene = scene
+        
+        self.sceneView.allowsCameraControl = true
+        self.sceneView.showsStatistics = true
+    }
+    
+    private func visualiseVoxels() {
         
         let scene = SCNScene()
         
@@ -53,9 +88,8 @@ class ViewController: UIViewController {
         
         var k = 0
         for z in 0 ..< depth {
-            for y in 0 ..< height {                
+            for y in 0 ..< height {
                 for x in 0 ..< width {
-                    //let index = x + y * width + z * (width * height)
                     if gridData[k] >= threshold {
                         let voxelNode = SCNNode(geometry: (particle.copy() as! SCNGeometry))
                         voxelNode.position = SCNVector3Make(Float(x) + rnd(), Float(y), Float(z) + rnd())

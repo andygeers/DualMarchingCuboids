@@ -14,7 +14,7 @@ enum DataVariability : CChar {
     case outOfBounds = 3
 }
 
-internal struct VoxelData {
+class VoxelData {
  
     let climber : AdaptiveSkeletonClimber   // pointer to the data array
     var offX : Int = 0
@@ -47,14 +47,14 @@ internal struct VoxelData {
         self.climber = climber
     }
     
-    init(climber : AdaptiveSkeletonClimber, x : Int, y : Int, z : Int, offx : Int, offy : Int, offz : Int) {
+    convenience init(climber : AdaptiveSkeletonClimber, x : Int, y : Int, z : Int, offx : Int, offy : Int, offz : Int) {
         
         self.init(climber: climber)
         
         reinit(x: x, y: y, z: z, offx: offx, offy: offy, offz: offz)
     }
     
-    internal mutating func reinit(x : Int, y : Int, z : Int, offx : Int, offy : Int, offz : Int) {
+    internal func reinit(x : Int, y : Int, z : Int, offx : Int, offy : Int, offz : Int) {
     
         assert(!((x < 0 && x != -1) || (y < 0 && y != -1) || (z < 0 && z != -1)
             || offx < 0 || offy < 0 || offz < 0), "[Data::ReInit]: invalid input value\n")

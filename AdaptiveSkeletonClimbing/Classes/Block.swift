@@ -9,12 +9,13 @@ import Foundation
 import Euclid
 
 func DISPLAYTREE(_ a : [Int], offset : Int = 0) {
+    var values : [String] = []
     for di in 0 ... AdaptiveSkeletonClimber.NLEVEL {
         for dj in 0 ..< (1 << di) {
-            print("%d ", Int(a[offset + (1 << di) + dj]))
+            values.append(String(format: "%d", Int(a[offset + (1 << di) + dj])))
         }
     }
-    print("\n")
+    NSLog("%@", values.joined(separator: " "))
 }
 
 /// Block. It constrains the max size of highrice.
@@ -48,7 +49,7 @@ internal struct Block {
     
     func HIGHRICEDIM(s : String, h : HighRice) {
         print(s)
-        print(" %d x %d x [%d,%d]\n", h.dike[0], h.dike[1], h.bottom, h)
+        NSLog(" %d x %d x [%d,%d]\n", h.dike[0], h.dike[1], h.bottom, h.top)
     }
 
     public let climber : AdaptiveSkeletonClimber
@@ -486,6 +487,7 @@ internal struct Block {
     mutating func generateTriangle(withnormal : Bool, triangles : inout [Euclid.Polygon]) {
 
         for i in 0 ..< AdaptiveSkeletonClimber.N + 1 {
+            guard i < xyfarm.count else { continue }
             xyfarm[i].producePadi(block: self, constrain: .highrice)
             xzfarm[i].producePadi(block: self, constrain: .highrice)
             yzfarm[i].producePadi(block: self, constrain: .highrice)
@@ -865,6 +867,7 @@ internal struct Block {
                     
                     for i in 0 ..< AdaptiveSkeletonClimber.SIZE { //} ; i++, myx++, myy++, nbx++, nby++)
                         
+                        guard my < myFarm.count else { continue }
                         myFarm[my].xlign[j].simple[i] = max(myFarm[my].xlign[j].simple[i], nbFarm[nb].xlign[j].simple[i])
                         myFarm[my].ylign[j].simple[i] = max(myFarm[my].ylign[j].simple[i], nbFarm[nb].ylign[j].simple[i])
                     }

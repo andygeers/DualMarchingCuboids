@@ -160,13 +160,13 @@ internal struct Farm {
                 xstrip[j].usedby[padi.dike[PadiSide.bottom.rawValue]] = nil
             } else {
                 print("[Farm::UnTagXStrip]: possible some bug in tagging the data UsedBy\n");
-                print("padi %d x %d want to untag,\n", padi.dike[PadiSide.bottom.rawValue], padi.dike[PadiSide.left.rawValue]);
+                NSLog("padi %d x %d want to untag,\n", padi.dike[PadiSide.bottom.rawValue], padi.dike[PadiSide.left.rawValue]);
                 if let usedPadi = xstrip[j].usedby[padi.dike[PadiSide.bottom.rawValue]] {
-                    print("[Farm::UnTagXStrip]: strip %d, dike %d, occupied by padi %d x %d\n", j, padi.dike[PadiSide.bottom.rawValue],
+                    NSLog("[Farm::UnTagXStrip]: strip %d, dike %d, occupied by padi %d x %d\n", j, padi.dike[PadiSide.bottom.rawValue],
                             usedPadi.dike[PadiSide.bottom.rawValue],
                             usedPadi.dike[PadiSide.left.rawValue]);
                 } else {
-                    print("[Farm::UnTagXStrip]: strip %d, dike %d, occupied by no padi\n",  j, padi.dike[PadiSide.bottom.rawValue]);
+                    NSLog("[Farm::UnTagXStrip]: strip %d, dike %d, occupied by no padi\n",  j, padi.dike[PadiSide.bottom.rawValue]);
                 }
             }
         }
@@ -267,7 +267,7 @@ internal struct Farm {
                             if (currpadi.enclosedByQ(competitor)) {
                                 // no need to continue, simply delete current padi
     #if DEBUG
-                                print("remove current padi %d x %d\n", currpadi.dike[PadiSide.bottom.rawValue], currpadi.dike[PadiSide.left.rawValue])
+                                NSLog("remove current padi %d x %d\n", currpadi.dike[PadiSide.bottom.rawValue], currpadi.dike[PadiSide.left.rawValue])
     #endif
                                 //currpadi = nil
                                 padisuccess = false
@@ -276,7 +276,7 @@ internal struct Farm {
                             } else if (competitor.enclosedByQ(currpadi)) {
                                 // If currpadi enclose competitor padi, just throw competitor away
     #if DEBUG
-                                print("remove competitor padi %d x %d\n", competitor.dike[PadiSide.bottom.rawValue], competitor.dike[PadiSide.left.rawValue])
+                                NSLog("remove competitor padi %d x %d\n", competitor.dike[PadiSide.bottom.rawValue], competitor.dike[PadiSide.left.rawValue])
     #endif
                                 untagXStrip(padi: competitor)
                                 padilist.remove(where: { $0 === competitor })
@@ -286,15 +286,15 @@ internal struct Farm {
                                 // only partial overlaid, break the current padi
                 
     #if DEBUG
-                                print("before: break current padi %d x %d\n", currpadi.dike[PadiSide.bottom.rawValue], currpadi.dike[PadiSide.left.rawValue]);
-                                print("clipped by padi %d x %d\n", competitor.dike[PadiSide.bottom.rawValue], competitor.dike[PadiSide.left.rawValue])
+                                NSLog("before: break current padi %d x %d\n", currpadi.dike[PadiSide.bottom.rawValue], currpadi.dike[PadiSide.left.rawValue]);
+                                NSLog("clipped by padi %d x %d\n", competitor.dike[PadiSide.bottom.rawValue], competitor.dike[PadiSide.left.rawValue])
     #endif
                                 currpadi.clipBy(clipper: competitor, holder: &holder, climber: block.climber, farm: self, block: block)
                                 //delete currpadi;
                                 //currpadi = NULL;
                                 padisuccess = false
     #if DEBUG
-                                print("after: break current padi %d x %d\n", currpadi.dike[PadiSide.bottom.rawValue], currpadi.dike[PadiSide.left.rawValue])
+                                NSLog("after: break current padi %d x %d\n", currpadi.dike[PadiSide.bottom.rawValue], currpadi.dike[PadiSide.left.rawValue])
     #endif
                   
                                 // no need to continue, since the clipped portion have to go through the whole test
@@ -308,7 +308,7 @@ internal struct Farm {
                             // Insert the current padi into the doubly linked list
                             padilist.append(currpadi)
     #if DEBUG
-                            print("current padi born %d x %d\n", currpadi.dike[PadiSide.bottom.rawValue], currpadi.dike[PadiSide.left.rawValue]);
+                            NSLog("current padi born %d x %d\n", currpadi.dike[PadiSide.bottom.rawValue], currpadi.dike[PadiSide.left.rawValue]);
     #endif
                         }
                     } while (!holder.isEmpty)
@@ -393,9 +393,9 @@ internal struct Farm {
 
     #if DEBUG
         for i in 0 ..< AdaptiveSkeletonClimber.N + 1 {
-            print("xlign[%d]:\n",i);
+            NSLog("xlign[%d]:\n",i);
             DISPLAYTREE(xlign[i].simple);
-            print("ylign[%d]:\n",i);
+            NSLog("ylign[%d]:\n",i);
             DISPLAYTREE(ylign[i].simple);
         }
     #endif

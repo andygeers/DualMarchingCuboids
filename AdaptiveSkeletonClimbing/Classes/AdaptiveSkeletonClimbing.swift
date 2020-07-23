@@ -16,7 +16,7 @@ internal func modulo<T: BinaryInteger>(_ lhs: T, _ rhs: T) -> T {
     return rem >= 0 ? rem : rem + rhs
 }
 
-class AdaptiveSkeletonClimber {
+public class AdaptiveSkeletonClimber {
     
     internal static let NLEVEL = 4  /*  number of level of the binary structure */
     internal static let N = 16  /* (1<<NLEVEL),number of intervals along 1 lign         */
@@ -34,7 +34,7 @@ class AdaptiveSkeletonClimber {
     static let G_CosAngleThresh = cos(G_AngleThresh);
     static let G_HandleAmbiguity = true
     
-    private let indexData : [DataBlock]
+    private var indexData : [DataBlock] = []
     public let G_data1 : [CUnsignedChar]
     public let G_DataWidth : Int
     public let G_DataHeight : Int
@@ -43,7 +43,7 @@ class AdaptiveSkeletonClimber {
     private let bkdepth : Int
     private let bkheight : Int
     
-    init(indexData : [DataBlock], G_data1 : [CUnsignedChar], G_DataWidth : Int, G_DataHeight : Int, G_DataDepth : Int) {
+    public init(G_data1 : [CUnsignedChar], G_DataWidth : Int, G_DataHeight : Int, G_DataDepth : Int) {
         self.G_data1 = G_data1
         self.G_DataWidth = G_DataWidth
         self.G_DataHeight = G_DataHeight
@@ -52,15 +52,13 @@ class AdaptiveSkeletonClimber {
         let doubleN = Double(AdaptiveSkeletonClimber.N)
         bkwidth  = Int(ceil(Double(G_DataWidth - 1) / doubleN))
         bkdepth  = Int(ceil(Double(G_DataDepth - 1) / doubleN))
-        bkheight = Int(ceil(Double(G_DataHeight - 1) / doubleN))
-        
-        self.indexData = indexData
+        bkheight = Int(ceil(Double(G_DataHeight - 1) / doubleN))                
         
         Dike.DikeTableInit()
         Padi.PadiInitEdgeTable()
     }
     
-    func climb() {
+    public func climb() -> Mesh {
         var idxcnt = [0, 0, 0]
         let layersize = bkwidth * bkdepth
 
@@ -83,7 +81,7 @@ class AdaptiveSkeletonClimber {
             let kminus2 = layer[k_2] // layer k-2
 
             if (k < bkheight) {
-                print("Processing layer %d ...\n", k * AdaptiveSkeletonClimber.N)
+                NSLog("Processing layer %d ...\n", k * AdaptiveSkeletonClimber.N)
                 for i in 0 ..< layersize {
                     kminus0[i].setEmpty()  // Set all block in current layer to empty
                 }
@@ -136,11 +134,11 @@ class AdaptiveSkeletonClimber {
             var kminus1 = layer[modulo(k - 1, 3)]   // layer k-1
             let kminus2 = layer[modulo(k - 2, 3)]   // layer k-2
             if (k < bkheight) {
-                print("Processing layer %d ...\n", k * AdaptiveSkeletonClimber.N)
+                NSLog("Processing layer %d ...\n", k * AdaptiveSkeletonClimber.N)
             }
             for j in 0 ..< bkdepth {
                 for i in 0 ..< bkwidth {
-                    let currij = j * bkwidth + i
+                    let currij = j * bkwidth + i                    
                     if (k < bkheight) {
                         kminus0[currij].initialize(xis: .x, yis: .y, zis: .z, offx: AdaptiveSkeletonClimber.N * i, offy: AdaptiveSkeletonClimber.N * j, offz: AdaptiveSkeletonClimber.N * k)
                         if (!kminus0[currij].isEmptyQ()) {
@@ -167,5 +165,6 @@ class AdaptiveSkeletonClimber {
             }
         }
 #endif
+        return Mesh(triangles)
     }
 }

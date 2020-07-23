@@ -193,8 +193,8 @@ class Padi {
 
         #if DEBUG
         if (x < 0 || y < 0) {
-            print("[Padi::GetCrossPt]:padi %d x %d\n", dike[PadiSide.bottom.rawValue], dike[PadiSide.left.rawValue])
-            print("[Err]:side=%d x=%f y=%f dike[side]=%d start=%d\n", side, x, y, dike[side.rawValue], Dike.start(lign[side.rawValue].ver(dike[side.rawValue])) )
+            NSLog("[Padi::GetCrossPt]:padi %d x %d\n", dike[PadiSide.bottom.rawValue], dike[PadiSide.left.rawValue])
+            NSLog("[Err]:side=%@ x=%f y=%f dike[side]=%d start=%d\n", String(describing: side), x, y, dike[side.rawValue], Dike.start(lign[side.rawValue].ver(dike[side.rawValue])) )
         }
         #endif
     }
