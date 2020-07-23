@@ -157,8 +157,7 @@ public class AdaptiveSkeletonClimber {
                         let nearyz = (i == 0) ?         nil : kminus1[j * bkwidth + i - 1]
                         let faryz  = (i == bkwidth - 1) ? nil : kminus1[j * bkwidth + i + 1]
                         kminus1[currij].communicateSimple(bottom: bottom, top: top, nearxz: nearxz, farxz: farxz, nearyz: nearyz, faryz: faryz)
-                        kminus1[currij].generateTriangle(withnormal: true, triangles: &triangles)
-                        return Mesh(triangles)
+                        kminus1[currij].generateTriangle(withnormal: true, triangles: &triangles)                                                
                     }
 
 //                    if (k >= 2 && !kminus2[currij].isEmptyQ()) {
