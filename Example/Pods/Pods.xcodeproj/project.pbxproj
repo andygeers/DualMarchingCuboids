@@ -45,15 +45,9 @@
 		4B97BD308458A93E1F03EF7A7D5D4DCE /* RaisesException.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22B6CD4A6D061008FE0C14BF5BE4F5BA /* RaisesException.swift */; settings = {COMPILER_FLAGS = "-DPRODUCT_NAME=Nimble/Nimble"; }; };
 		4CBB32046E3B8844FFA021ACFC57702F /* ExpectationMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4608A8CD71C659C12E1D6CC77440B4E6 /* ExpectationMessage.swift */; settings = {COMPILER_FLAGS = "-DPRODUCT_NAME=Nimble/Nimble"; }; };
 		4E5EE3187B48F60A0FBA4EB9ACB7FD76 /* NSString+C99ExtendedIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C8C9579E6B67F901B9BFD083AD001C1 /* NSString+C99ExtendedIdentifier.swift */; };
-		4FCCB743D478391F4A9C5AB48D947EF5 /* Block.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2B22CE71AACBBAE581953535D7C94E2 /* Block.swift */; };
 		5221433E6847800B0533CAADF9BABA04 /* BeCloseTo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05114CE35ECBF36CBF5EC4296C0F1063 /* BeCloseTo.swift */; settings = {COMPILER_FLAGS = "-DPRODUCT_NAME=Nimble/Nimble"; }; };
-		52C4F09224C2CCF5001CD6E7 /* Lign.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52C4F09124C2CCF5001CD6E7 /* Lign.swift */; };
-		52C4F09424C2CEA2001CD6E7 /* Dike.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52C4F09324C2CEA1001CD6E7 /* Dike.swift */; };
-		52C4F09624C8166A001CD6E7 /* VoxelData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52C4F09524C8166A001CD6E7 /* VoxelData.swift */; };
 		52D2408424C0855200E8762C /* DoublyLinkedList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52D2408324C0855200E8762C /* DoublyLinkedList.swift */; };
-		52D2408624C0A1D600E8762C /* HighRice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52D2408524C0A1D600E8762C /* HighRice.swift */; };
-		52D2408824C6045300E8762C /* Strip.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52D2408724C6045300E8762C /* Strip.swift */; };
-		52D2408A24C7203200E8762C /* Slab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52D2408924C7203200E8762C /* Slab.swift */; };
+		52D2409624CB430700E8762C /* Slice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52D2409524CB430700E8762C /* Slice.swift */; };
 		53B30596B1EA5F0845A886843FB9E859 /* CwlCatchException.swift in Sources */ = {isa = PBXBuildFile; fileRef = A045C37EAD0682BBDD4C513553DAC8F2 /* CwlCatchException.swift */; settings = {COMPILER_FLAGS = "-DPRODUCT_NAME=Nimble/Nimble"; }; };
 		543967CB633CDE86DFD53581EAE1A35D /* BeEmpty.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C45C484738A0F1B793E58F953275C5D /* BeEmpty.swift */; settings = {COMPILER_FLAGS = "-DPRODUCT_NAME=Nimble/Nimble"; }; };
 		54A61062B9FB72C6BA0054B2A685ED0E /* Equal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 629D6F05E5B7EB2FB73DD7A2117595F9 /* Equal.swift */; settings = {COMPILER_FLAGS = "-DPRODUCT_NAME=Nimble/Nimble"; }; };
@@ -75,7 +69,6 @@
 		7508FA423683F5D800F528750E4CA9E4 /* SceneKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B671E1C6BE3542E6D9A6F69AC47BCE3 /* SceneKit.swift */; };
 		75A27DDC3153B1F4F30B9FE44AE9591B /* Euclid-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = 724D2055B232B403FD0AD957D0444211 /* Euclid-dummy.m */; };
 		76049DE81EB1E2B6C436086630F77CA0 /* NMBStringify.m in Sources */ = {isa = PBXBuildFile; fileRef = B8B50FF7B7051FE6110B52A28002A7EC /* NMBStringify.m */; settings = {COMPILER_FLAGS = "-DPRODUCT_NAME=Nimble/Nimble"; }; };
-		77C77432CF80AA8D76539B1EE49984C5 /* Farm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68D3B766A6A5ECB58E81EFE3CF80FC83 /* Farm.swift */; };
 		7A5B1CC9274B3E4E10EE1561F3AFD58E /* Callsite.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16918DAFD403E7966E7D5107694B6CA8 /* Callsite.swift */; };
 		7A66539DD738BE28A057CA37AAF8F829 /* ExampleHooks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 343A2671070D8DFA11B37FB47C1B979F /* ExampleHooks.swift */; };
 		7ACF7943A939837532BB53A73F01CE63 /* Match.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3EC98D1949DE65DCCBAF236E1A84859 /* Match.swift */; settings = {COMPILER_FLAGS = "-DPRODUCT_NAME=Nimble/Nimble"; }; };
@@ -90,7 +83,6 @@
 		981D9FBF09890E4E20DF889B2AD514F0 /* BeLessThanOrEqual.swift in Sources */ = {isa = PBXBuildFile; fileRef = C80B6F4000696AD1F90A16B264906B54 /* BeLessThanOrEqual.swift */; settings = {COMPILER_FLAGS = "-DPRODUCT_NAME=Nimble/Nimble"; }; };
 		99B2BFD67568B9953B86113CF7D1290C /* ThrowAssertion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E8E9CFF4558F39A717FCF6EDAC1AA1F /* ThrowAssertion.swift */; settings = {COMPILER_FLAGS = "-DPRODUCT_NAME=Nimble/Nimble"; }; };
 		99B81A2789DF1507DF35CFDB0E8846A6 /* AdaptiveSkeletonClimbing-umbrella.h in Headers */ = {isa = PBXBuildFile; fileRef = 54F728390E9ADE5C2AE8FD9FBE47CEC4 /* AdaptiveSkeletonClimbing-umbrella.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		9ACF67C3217A5D0DFF60E1A8A4092F83 /* Padi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 135E9C49E6BA96A8F7AA32346C70B893 /* Padi.swift */; };
 		9B04437A68FEA721697EACB574AAB15B /* Transforms.swift in Sources */ = {isa = PBXBuildFile; fileRef = 435064AAEA8343305A42D1D93C734F7A /* Transforms.swift */; };
 		9BA4E7F68AE9967DE324C686E6DDF1A9 /* Predicate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1101694526B24CD1DE26D8E002CB5BFF /* Predicate.swift */; settings = {COMPILER_FLAGS = "-DPRODUCT_NAME=Nimble/Nimble"; }; };
 		9DB13659CA8F9BF54942DEDAE9F5E858 /* QuickSpecBase.m in Sources */ = {isa = PBXBuildFile; fileRef = F13DAA014B5A8DDEE854A3758BA043DA /* QuickSpecBase.m */; };
@@ -111,7 +103,7 @@
 		B662FB934B08450530A1A521489732B3 /* FailureMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = D62695D468493106B4635C4918E90643 /* FailureMessage.swift */; settings = {COMPILER_FLAGS = "-DPRODUCT_NAME=Nimble/Nimble"; }; };
 		B75FB2158E7B938A636418590735B56F /* Plane.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9DDE41882EF69A9398DBB91BD194951 /* Plane.swift */; };
 		B7A0119D88C1DF43AFD25FB3A0B6E842 /* Expectation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FB8726DA2A5E6856B4CC6B98A12A04C /* Expectation.swift */; settings = {COMPILER_FLAGS = "-DPRODUCT_NAME=Nimble/Nimble"; }; };
-		BA4BB93FA1FB20D473F9792773DF8DD1 /* AdaptiveSkeletonClimbing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 878C5C131B61CF82F08227DDD934F57C /* AdaptiveSkeletonClimbing.swift */; };
+		BA4BB93FA1FB20D473F9792773DF8DD1 /* ContourTracer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 878C5C131B61CF82F08227DDD934F57C /* ContourTracer.swift */; };
 		BAEAB2ADD34955EE77CBA4B43994B6F7 /* NMBExpectation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B598D7D9CCC208C0A31598E5303D77D /* NMBExpectation.swift */; settings = {COMPILER_FLAGS = "-DPRODUCT_NAME=Nimble/Nimble"; }; };
 		BB1619BCE35A078A932C56B2519CCB6C /* BeLogical.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B5EE79993C67D96213824FDD50F7648 /* BeLogical.swift */; settings = {COMPILER_FLAGS = "-DPRODUCT_NAME=Nimble/Nimble"; }; };
 		BD8AB3699C483B11671A85C72CE92B50 /* ExampleGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C0F3C0FE651C448D871EF87A458E1B1 /* ExampleGroup.swift */; };
@@ -220,7 +212,6 @@
 		0E20CC31C634B4735146E821BCAEB685 /* HooksPhase.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = HooksPhase.swift; path = Sources/Quick/Hooks/HooksPhase.swift; sourceTree = "<group>"; };
 		10BEAC0C7B0B863803BF09C064B95483 /* BeVoid.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = BeVoid.swift; path = Sources/Nimble/Matchers/BeVoid.swift; sourceTree = "<group>"; };
 		1101694526B24CD1DE26D8E002CB5BFF /* Predicate.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Predicate.swift; path = Sources/Nimble/Matchers/Predicate.swift; sourceTree = "<group>"; };
-		135E9C49E6BA96A8F7AA32346C70B893 /* Padi.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Padi.swift; path = AdaptiveSkeletonClimbing/Classes/Padi.swift; sourceTree = "<group>"; };
 		144200582D5E5980F9DC41C4670ECD3A /* Euclid.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = Euclid.release.xcconfig; sourceTree = "<group>"; };
 		162F6190FF85FB9BA831BE949607865D /* Euclid.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = Euclid.debug.xcconfig; sourceTree = "<group>"; };
 		16918DAFD403E7966E7D5107694B6CA8 /* Callsite.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Callsite.swift; path = Sources/Quick/Callsite.swift; sourceTree = "<group>"; };
@@ -265,13 +256,8 @@
 		4F142FAC26DFCB41515165E023DAF3F1 /* World.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = World.swift; path = Sources/Quick/World.swift; sourceTree = "<group>"; };
 		5235E2EDB4A4501B7C53BAB15FD65D2D /* NSBundle+CurrentTestBundle.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "NSBundle+CurrentTestBundle.swift"; path = "Sources/Quick/NSBundle+CurrentTestBundle.swift"; sourceTree = "<group>"; };
 		525BBAD79F145A4055C76E975F2789B9 /* Rotation.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Rotation.swift; path = Sources/Rotation.swift; sourceTree = "<group>"; };
-		52C4F09124C2CCF5001CD6E7 /* Lign.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Lign.swift; path = AdaptiveSkeletonClimbing/Classes/Lign.swift; sourceTree = "<group>"; };
-		52C4F09324C2CEA1001CD6E7 /* Dike.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Dike.swift; path = AdaptiveSkeletonClimbing/Classes/Dike.swift; sourceTree = "<group>"; };
-		52C4F09524C8166A001CD6E7 /* VoxelData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = VoxelData.swift; path = AdaptiveSkeletonClimbing/Classes/VoxelData.swift; sourceTree = "<group>"; };
 		52D2408324C0855200E8762C /* DoublyLinkedList.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = DoublyLinkedList.swift; path = ../../SwiftAlgirithmClub/DoublyLinkedList.swift; sourceTree = "<group>"; };
-		52D2408524C0A1D600E8762C /* HighRice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = HighRice.swift; path = AdaptiveSkeletonClimbing/Classes/HighRice.swift; sourceTree = "<group>"; };
-		52D2408724C6045300E8762C /* Strip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Strip.swift; path = AdaptiveSkeletonClimbing/Classes/Strip.swift; sourceTree = "<group>"; };
-		52D2408924C7203200E8762C /* Slab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Slab.swift; path = AdaptiveSkeletonClimbing/Classes/Slab.swift; sourceTree = "<group>"; };
+		52D2409524CB430700E8762C /* Slice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Slice.swift; sourceTree = "<group>"; };
 		54F728390E9ADE5C2AE8FD9FBE47CEC4 /* AdaptiveSkeletonClimbing-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "AdaptiveSkeletonClimbing-umbrella.h"; sourceTree = "<group>"; };
 		55BAA2C18078300D28AA54D2ACB41FFB /* Functional.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Functional.swift; path = Sources/Nimble/Utils/Functional.swift; sourceTree = "<group>"; };
 		5891E35D297FD33B20A63F013A75A0E4 /* QuickConfiguration.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = QuickConfiguration.h; path = Sources/QuickObjectiveC/Configuration/QuickConfiguration.h; sourceTree = "<group>"; };
@@ -285,7 +271,6 @@
 		629D6F05E5B7EB2FB73DD7A2117595F9 /* Equal.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Equal.swift; path = Sources/Nimble/Matchers/Equal.swift; sourceTree = "<group>"; };
 		66D5A6BDD3F69C23832A14D639F7DCF7 /* QuickSpec.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = QuickSpec.h; path = Sources/QuickObjectiveC/QuickSpec.h; sourceTree = "<group>"; };
 		68645E2999EBC9F5DD8007A7D6C6CFFC /* Pods-AdaptiveSkeletonClimbing_Tests-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-AdaptiveSkeletonClimbing_Tests-Info.plist"; sourceTree = "<group>"; };
-		68D3B766A6A5ECB58E81EFE3CF80FC83 /* Farm.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Farm.swift; path = AdaptiveSkeletonClimbing/Classes/Farm.swift; sourceTree = "<group>"; };
 		68ECFF65891FB892EA9B46ACDDB58F75 /* Euclid-prefix.pch */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "Euclid-prefix.pch"; sourceTree = "<group>"; };
 		6905D9E2EF991BA671FED2E3F34ABB48 /* Nimble-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Nimble-Info.plist"; sourceTree = "<group>"; };
 		6B598D7D9CCC208C0A31598E5303D77D /* NMBExpectation.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = NMBExpectation.swift; path = Sources/Nimble/Adapters/NMBExpectation.swift; sourceTree = "<group>"; };
@@ -310,7 +295,7 @@
 		83EED725641AA174FBCDA3BD813CA446 /* NMBExceptionCapture.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = NMBExceptionCapture.m; path = Sources/NimbleObjectiveC/NMBExceptionCapture.m; sourceTree = "<group>"; };
 		856EDF7848BC7A34AB30483D4667B5AB /* CoreText.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CoreText.swift; path = Sources/CoreText.swift; sourceTree = "<group>"; };
 		85CF0EED98A5AF3BC01BAE7807EFD257 /* AllPass.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AllPass.swift; path = Sources/Nimble/Matchers/AllPass.swift; sourceTree = "<group>"; };
-		878C5C131B61CF82F08227DDD934F57C /* AdaptiveSkeletonClimbing.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AdaptiveSkeletonClimbing.swift; path = AdaptiveSkeletonClimbing/Classes/AdaptiveSkeletonClimbing.swift; sourceTree = "<group>"; };
+		878C5C131B61CF82F08227DDD934F57C /* ContourTracer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ContourTracer.swift; path = AdaptiveSkeletonClimbing/Classes/ContourTracer.swift; sourceTree = "<group>"; };
 		891A9501EEAC43B6B866E29097EA3707 /* QuickConfiguration.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = QuickConfiguration.m; path = Sources/QuickObjectiveC/Configuration/QuickConfiguration.m; sourceTree = "<group>"; };
 		8B7964B03C3012BFF5E5C097558E2001 /* Stringers.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Stringers.swift; path = Sources/Nimble/Utils/Stringers.swift; sourceTree = "<group>"; };
 		8C0F3C0FE651C448D871EF87A458E1B1 /* ExampleGroup.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExampleGroup.swift; path = Sources/Quick/ExampleGroup.swift; sourceTree = "<group>"; };
@@ -328,7 +313,6 @@
 		A045C37EAD0682BBDD4C513553DAC8F2 /* CwlCatchException.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CwlCatchException.swift; path = Carthage/Checkouts/CwlCatchException/Sources/CwlCatchException/CwlCatchException.swift; sourceTree = "<group>"; };
 		A0B97BFF8E25980CA4ECA02455DCC16C /* ExampleMetadata.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExampleMetadata.swift; path = Sources/Quick/ExampleMetadata.swift; sourceTree = "<group>"; };
 		A2A831CC3A1D0B4D851355C4FF413294 /* QuickTestSuite.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = QuickTestSuite.swift; path = Sources/Quick/QuickTestSuite.swift; sourceTree = "<group>"; };
-		A2B22CE71AACBBAE581953535D7C94E2 /* Block.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Block.swift; path = AdaptiveSkeletonClimbing/Classes/Block.swift; sourceTree = "<group>"; };
 		A2E1B50DF028A1ECE0FC1BAE404E670E /* Euclid-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Euclid-Info.plist"; sourceTree = "<group>"; };
 		A6A0EBAC3B0E9B89FB9C351D81AEEFF3 /* ThrowError.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ThrowError.swift; path = Sources/Nimble/Matchers/ThrowError.swift; sourceTree = "<group>"; };
 		A9183A15EFAF2A5FB29C1E3786229E06 /* Pods-AdaptiveSkeletonClimbing_Tests-frameworks.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "Pods-AdaptiveSkeletonClimbing_Tests-frameworks.sh"; sourceTree = "<group>"; };
@@ -652,16 +636,8 @@
 		63765115B86BB0200A3C2D0F6BBB17D5 /* AdaptiveSkeletonClimbing */ = {
 			isa = PBXGroup;
 			children = (
-				878C5C131B61CF82F08227DDD934F57C /* AdaptiveSkeletonClimbing.swift */,
-				A2B22CE71AACBBAE581953535D7C94E2 /* Block.swift */,
-				68D3B766A6A5ECB58E81EFE3CF80FC83 /* Farm.swift */,
-				135E9C49E6BA96A8F7AA32346C70B893 /* Padi.swift */,
-				52D2408524C0A1D600E8762C /* HighRice.swift */,
-				52C4F09124C2CCF5001CD6E7 /* Lign.swift */,
-				52C4F09324C2CEA1001CD6E7 /* Dike.swift */,
-				52D2408724C6045300E8762C /* Strip.swift */,
-				52D2408924C7203200E8762C /* Slab.swift */,
-				52C4F09524C8166A001CD6E7 /* VoxelData.swift */,
+				878C5C131B61CF82F08227DDD934F57C /* ContourTracer.swift */,
+				52D2409524CB430700E8762C /* Slice.swift */,
 				F7026AA3EFC1F098211F986733F56349 /* Pod */,
 				918EDCFBA4C85F6222B474A00393AF5D /* Support Files */,
 			);
@@ -1059,16 +1035,8 @@
 			files = (
 				E6DFB15D08A99C03F4020735857741A0 /* AdaptiveSkeletonClimbing-dummy.m in Sources */,
 				52D2408424C0855200E8762C /* DoublyLinkedList.swift in Sources */,
-				BA4BB93FA1FB20D473F9792773DF8DD1 /* AdaptiveSkeletonClimbing.swift in Sources */,
-				4FCCB743D478391F4A9C5AB48D947EF5 /* Block.swift in Sources */,
-				52D2408824C6045300E8762C /* Strip.swift in Sources */,
-				77C77432CF80AA8D76539B1EE49984C5 /* Farm.swift in Sources */,
-				52C4F09624C8166A001CD6E7 /* VoxelData.swift in Sources */,
-				9ACF67C3217A5D0DFF60E1A8A4092F83 /* Padi.swift in Sources */,
-				52D2408A24C7203200E8762C /* Slab.swift in Sources */,
-				52C4F09424C2CEA2001CD6E7 /* Dike.swift in Sources */,
-				52D2408624C0A1D600E8762C /* HighRice.swift in Sources */,
-				52C4F09224C2CCF5001CD6E7 /* Lign.swift in Sources */,
+				52D2409624CB430700E8762C /* Slice.swift in Sources */,
+				BA4BB93FA1FB20D473F9792773DF8DD1 /* ContourTracer.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
