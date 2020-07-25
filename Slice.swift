@@ -6,10 +6,12 @@
 //
 
 import Foundation
+import Euclid
 
 public class Slice {
     private let offset : Int
     private let contourTracer : ContourTracer
+    private let previousSlice : Slice?
     public let depthCounts : [Int]
     
     public init?(contourTracer: ContourTracer, z: Int, previousSlice: Slice?) {
@@ -17,6 +19,7 @@ public class Slice {
         guard z == 0 || z == contourTracer.G_DataDepth - 1 || previousSlice != nil else { return nil }
             
         self.contourTracer = contourTracer
+        self.previousSlice = previousSlice
         
         if (z == -1 || z == contourTracer.G_DataDepth) {
             self.offset = -1
@@ -60,5 +63,60 @@ public class Slice {
             }
         }
         return depths
+    }
+    
+    func generatePolygons(polygons : inout [Euclid.Polygon]) {
+        var k = 0
+        for y in 0 ..< contourTracer.G_DataHeight {
+            for x in 0 ..< contourTracer.G_DataWidth {
+                let depth = depthCounts[k]
+                
+                // See if we're newly filled
+                if (depth == 1) {
+                    
+                    /*
+                        1/////2//////3
+                        //    //    //
+                        //    //    //
+                        4/////0//////5
+                        //    //    //
+                        //    //    //
+                        6/////7//////8
+                     */
+                    // See if any of the other eight vertices are available yet
+                    let depths = [
+                        depth,
+                        x > 0 && y < contourTracer.G_DataHeight ? depthCounts[k - 1 + contourTracer.G_DataWidth] : 0,
+                        y < contourTracer.G_DataHeight ? depthCounts[k + contourTracer.G_DataWidth] : 0,
+                        x < contourTracer.G_DataWidth && y < contourTracer.G_DataHeight ? depthCounts[k + 1 + contourTracer.G_DataWidth] : 0,
+                        x > 0 ? depthCounts[k - 1] : 0,
+                        x < contourTracer.G_DataWidth ? depthCounts[k + 1] : 0,
+                        x > 0 && y > 0 ? depthCounts[k - 1 - contourTracer.G_DataWidth] : 0,
+                        x < contourTracer.G_DataWidth && y > 0 ? depthCounts[k + 1 - contourTracer.G_DataWidth] : 0
+                    ]
+                    if (depths[2] > 0) {
+                        
+                        if (depths[4] > 0) {
+                            
+                        }
+                        if (depths[5] > 0) {
+                            
+                        }
+                    }
+                    if (depths[7] > 0) {
+                        
+                        if (depths[4] > 0) {
+                            
+                        }
+                        if (depths[5] > 0) {
+                            
+                        }
+                    }
+                    
+                }
+                
+                k += 1
+            }
+        }
     }
 }
