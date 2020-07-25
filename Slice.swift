@@ -9,15 +9,33 @@ import Foundation
 import Euclid
 
 public class Slice {
+    private let z : Int
+    private let zOffset : Double   /// Offset compared to previous layer
     private let offset : Int
     private let contourTracer : ContourTracer
     private let previousSlice : Slice?
     public let depthCounts : [Int]
     
+    // See generatePolygons for the diagram
+    static let vertexOffsets = [
+        Vector( 0,  0, 0),
+        Vector(-1,  1, 0),
+        Vector( 0,  1, 0),
+        Vector( 1,  1, 0),
+        Vector(-1,  0, 0),
+        Vector( 1,  0, 0),
+        Vector(-1, -1, 0),
+        Vector( 0, -1, 0),
+        Vector( 1, -1, 0)
+    ]
+    
     public init?(contourTracer: ContourTracer, z: Int, previousSlice: Slice?) {
         guard z >= -1 && z <= contourTracer.G_DataDepth else { return nil }
         guard z == 0 || z == contourTracer.G_DataDepth - 1 || previousSlice != nil else { return nil }
             
+        self.z = z
+        let previousZ = (previousSlice?.z ?? (z == 0 ? -1 : contourTracer.G_DataDepth))
+        self.zOffset = Double(z - previousZ)
         self.contourTracer = contourTracer
         self.previousSlice = previousSlice
         
@@ -65,23 +83,27 @@ public class Slice {
         return depths
     }
     
-    func generatePolygons(polygons : inout [Euclid.Polygon]) {
+    public func generatePolygons(_ polygons : inout [Euclid.Polygon], material: Euclid.Polygon.Material = UIColor.blue) {
         var k = 0
         for y in 0 ..< contourTracer.G_DataHeight {
             for x in 0 ..< contourTracer.G_DataWidth {
                 let depth = depthCounts[k]
                 
+                let centre = Vector(Double(x), Double(y), Double(z))
+                
+                var vertexPositions : [[Vector]] = []
+                
                 // See if we're newly filled
                 if (depth == 1) {
                     
                     /*
-                        1/////2//////3
-                        //    //    //
-                        //    //    //
-                        4/////0//////5
-                        //    //    //
-                        //    //    //
-                        6/////7//////8
+                        1/////2////3
+                        //  ///  ///
+                        // / // / //
+                        4/////0////5
+                        //  ///  ///
+                        // / // / //
+                        6/////7////8
                      */
                     // See if any of the other eight vertices are available yet
                     let depths = [
@@ -97,22 +119,28 @@ public class Slice {
                     if (depths[2] > 0) {
                         
                         if (depths[4] > 0) {
-                            
+                            vertexPositions.append([0, 2, 4].map { centre + Slice.vertexOffsets[$0] - Vector(0.0, 0.0, (Double(depths[$0] - 1) * zOffset)) })
                         }
                         if (depths[5] > 0) {
-                            
+                            vertexPositions.append([0, 5, 2].map { centre + Slice.vertexOffsets[$0] - Vector(0.0, 0.0, (Double(depths[$0] - 1) * zOffset)) })
                         }
                     }
                     if (depths[7] > 0) {
                         
                         if (depths[4] > 0) {
-                            
+                            vertexPositions.append([0, 4, 7].map { centre + Slice.vertexOffsets[$0] - Vector(0.0, 0.0, (Double(depths[$0] - 1) * zOffset)) })
                         }
                         if (depths[5] > 0) {
-                            
+                            vertexPositions.append([0, 7, 5].map { centre + Slice.vertexOffsets[$0] - Vector(0.0, 0.0, (Double(depths[$0] - 1) * zOffset)) })
                         }
                     }
                     
+                }
+                
+                for positions in vertexPositions {
+                    if let poly = Polygon(positions.map { Vertex($0, Vector.zero) }, material: material) {
+                        polygons.append(poly)
+                    }
                 }
                 
                 k += 1

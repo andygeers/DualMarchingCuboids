@@ -9,6 +9,7 @@
 import UIKit
 import SceneKit
 import AdaptiveSkeletonClimbing
+import Euclid
 
 let SCALE_FACTOR : CGFloat = 0.1
 
@@ -19,6 +20,7 @@ private func rnd() -> Float {
 class ViewController: UIViewController {
 
     var gridData : [CUnsignedChar] = []
+    var polygons : [Euclid.Polygon] = []
     var width = 0
     var height = 0
     var depth = 0
@@ -59,6 +61,19 @@ class ViewController: UIViewController {
         }
         guard let currentSlice = Slice(contourTracer: contourTracer, z: currentSliceIndex, previousSlice: currentSlice) else { return }
         
+        var newPolygons : [Euclid.Polygon] = []
+        currentSlice.generatePolygons(&newPolygons, material: colourForSlice(currentSliceIndex))
+        polygons.append(contentsOf: newPolygons)
+        
+        let mesh = Mesh(newPolygons)
+        let geom = SCNGeometry(mesh, materialLookup: {
+            let material = SCNMaterial()
+            material.diffuse.contents = $0
+            return material
+        })
+        let node = SCNNode(geometry: geom)
+        scene.rootNode.addChildNode(node)
+        
         self.currentSlice = currentSlice
         
         let voxels = SCNNode()
@@ -82,6 +97,12 @@ class ViewController: UIViewController {
         NSLog("Found %d voxel(s)", voxels.childNodes.count)
         
         scene.rootNode.addChildNode(voxels)
+    }
+    
+    private func colourForSlice(_ z : Int) -> UIColor {
+        let saturation = CGFloat(z + 1) / CGFloat(contourTracer.G_DataDepth + 1)
+        let hue : CGFloat = 0.7 + saturation * 0.2
+        return UIColor(hue: hue, saturation: saturation, brightness: 1.0, alpha: 0.6)
     }
     
     private func colourForDepth(_ depth : Int) -> UIColor {
@@ -146,7 +167,7 @@ class ViewController: UIViewController {
         let camera = SCNCamera()
         cameraNode.camera = camera
         cameraNode.position = SCNVector3(CGFloat(width) / 2.0, CGFloat(height) / 2.0, 50.0)
-        cameraNode.look(at: SCNVector3(0.0, 0.0, 0.0))
+        cameraNode.look(at: SCNVector3(CGFloat(width) / 2.0, CGFloat(height) / 2.0, 0.0))
         scene.rootNode.addChildNode(cameraNode)
     }
     
