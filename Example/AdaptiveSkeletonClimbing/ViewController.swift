@@ -38,11 +38,12 @@ class ViewController: UIViewController {
         
         contourTracer = ContourTracer(G_data1: gridData, G_DataWidth: width, G_DataHeight: height, G_DataDepth: depth)
         
+        currentSliceIndex = depth - 1
+        
+        initialiseScene()
+        
         //generateMesh()
         visualiseNextSlice()
-        
-        self.sceneView.allowsCameraControl = true
-        self.sceneView.showsStatistics = true
     }
 
     override func didReceiveMemoryWarning() {
@@ -51,14 +52,14 @@ class ViewController: UIViewController {
     }
     
     private func visualiseNextSlice() {
+        guard let scene = self.sceneView.scene else { return }
+        
         if currentSlice != nil {
-            currentSliceIndex += 1
+            currentSliceIndex -= 1
         }
         guard let currentSlice = Slice(contourTracer: contourTracer, z: currentSliceIndex, previousSlice: currentSlice) else { return }
         
         self.currentSlice = currentSlice
-        
-        let scene = SCNScene()
         
         let voxels = SCNNode()
         
@@ -67,7 +68,7 @@ class ViewController: UIViewController {
         var k = 0
         for y in 0 ..< height {
             for x in 0 ..< width {
-                if currentSlice.depthCounts[k] != 0 {
+                if currentSlice.depthCounts[k] != 0  && x < 25 && y < 25  {
                     let depthColour = colourForDepth(currentSlice.depthCounts[k])
                     let voxelNode = generateVoxel(x: x, y: y, z: currentSliceIndex, particle: particle, colour: depthColour)
                     
@@ -81,15 +82,11 @@ class ViewController: UIViewController {
         NSLog("Found %d voxel(s)", voxels.childNodes.count)
         
         scene.rootNode.addChildNode(voxels)
-        
-        addCamera(to: scene)
-        
-        self.sceneView.scene = scene
     }
     
     private func colourForDepth(_ depth : Int) -> UIColor {
-        let saturation = 1.0 - CGFloat(depth) / CGFloat(contourTracer.G_DataDepth)
-        let hue : CGFloat = depth > 0 ? 0.5 : 0.0
+        let saturation = CGFloat(abs(depth) + 1) / CGFloat(contourTracer.G_DataDepth + 1)
+        let hue : CGFloat = (depth > 0 ? 0.5 : 0.0) + saturation * 0.2
         return UIColor(hue: hue, saturation: saturation, brightness: 1.0, alpha: 1.0)
     }
     
@@ -148,14 +145,25 @@ class ViewController: UIViewController {
         let cameraNode = SCNNode()
         let camera = SCNCamera()
         cameraNode.camera = camera
-        cameraNode.position = SCNVector3(0.0, 50.0, 50.0)
+        cameraNode.position = SCNVector3(CGFloat(width) / 2.0, CGFloat(height) / 2.0, 50.0)
         cameraNode.look(at: SCNVector3(0.0, 0.0, 0.0))
         scene.rootNode.addChildNode(cameraNode)
     }
     
+    private func initialiseScene() {
+        let scene = SCNScene()
+        
+        addCamera(to: scene)
+        
+        self.sceneView.scene = scene
+        
+        self.sceneView.allowsCameraControl = true
+        self.sceneView.showsStatistics = true
+    }
+    
     private func visualiseVoxels() {
         
-        let scene = SCNScene()
+        guard let scene = self.sceneView.scene else { return }
         
         let voxels = SCNNode()
         
@@ -179,11 +187,10 @@ class ViewController: UIViewController {
         NSLog("Found %d voxel(s)", voxels.childNodes.count)
         
         scene.rootNode.addChildNode(voxels)
-        
-        addCamera(to: scene)
-        
-        self.sceneView.scene = scene
     }
 
+    @IBAction func nextSlice() {
+        visualiseNextSlice()
+    }
 }
 

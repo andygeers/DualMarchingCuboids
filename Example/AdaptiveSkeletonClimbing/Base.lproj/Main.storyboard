@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="16097.2" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="vXZ-lx-hvc">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="16097" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="vXZ-lx-hvc">
     <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
@@ -20,15 +20,25 @@
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
                             <sceneKitView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="fog-s8-U5a">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="637"/>
                             </sceneKitView>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4WQ-CZ-FZT">
+                                <rect key="frame" x="0.0" y="637" width="375" height="30"/>
+                                <state key="normal" title="Next slice"/>
+                                <connections>
+                                    <action selector="nextSlice" destination="vXZ-lx-hvc" eventType="touchUpInside" id="RlM-4R-Zpa"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstItem="fog-s8-U5a" firstAttribute="trailing" secondItem="kh9-bI-dsS" secondAttribute="trailing" id="4wZ-Yn-LXK"/>
                             <constraint firstItem="fog-s8-U5a" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leading" id="82l-LL-5DJ"/>
-                            <constraint firstItem="fog-s8-U5a" firstAttribute="bottom" secondItem="kh9-bI-dsS" secondAttribute="bottom" id="8e6-iN-oLg"/>
+                            <constraint firstItem="4WQ-CZ-FZT" firstAttribute="trailing" secondItem="kh9-bI-dsS" secondAttribute="trailing" id="Heh-5K-xPt"/>
                             <constraint firstItem="fog-s8-U5a" firstAttribute="top" secondItem="kh9-bI-dsS" secondAttribute="top" id="Iun-Oq-svb"/>
+                            <constraint firstItem="4WQ-CZ-FZT" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leading" id="eD1-gK-7gy"/>
+                            <constraint firstItem="4WQ-CZ-FZT" firstAttribute="bottom" secondItem="2fi-mo-0CV" secondAttribute="top" id="fDE-EU-VPB"/>
+                            <constraint firstItem="fog-s8-U5a" firstAttribute="bottom" secondItem="4WQ-CZ-FZT" secondAttribute="top" id="hhu-pD-Piz"/>
                         </constraints>
                     </view>
                     <connections>
