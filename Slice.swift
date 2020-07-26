@@ -116,22 +116,20 @@ public class Slice {
                         x > 0 && y > 0 ? depthCounts[k - 1 - contourTracer.G_DataWidth] : 0,
                         x < contourTracer.G_DataWidth && y > 0 ? depthCounts[k + 1 - contourTracer.G_DataWidth] : 0
                     ]
-                    if (depths[2] > 0) {
-                        
-                        if (depths[4] > 0) {
-                            vertexPositions.append([0, 2, 4].map { centre + Slice.vertexOffsets[$0] - Vector(0.0, 0.0, (Double(depths[$0] - 1) * zOffset)) })
+                    if (depths[3] > 0) {
+                        if (depths[2] > 0) {
+                            vertexPositions.append([0, 3, 2].map { centre + Slice.vertexOffsets[$0] - Vector(0.0, 0.0, (Double(depths[$0] - 1) * zOffset)) })
                         }
                         if (depths[5] > 0) {
-                            vertexPositions.append([0, 5, 2].map { centre + Slice.vertexOffsets[$0] - Vector(0.0, 0.0, (Double(depths[$0] - 1) * zOffset)) })
+                            vertexPositions.append([0, 5, 3].map { centre + Slice.vertexOffsets[$0] - Vector(0.0, 0.0, (Double(depths[$0] - 1) * zOffset)) })
                         }
                     }
-                    if (depths[7] > 0) {
-                        
-                        if (depths[4] > 0) {
-                            vertexPositions.append([0, 4, 7].map { centre + Slice.vertexOffsets[$0] - Vector(0.0, 0.0, (Double(depths[$0] - 1) * zOffset)) })
+                    if (depths[4] > depth) {
+                        if (depths[2] > 0) {
+                            vertexPositions.append([0, 4, 2].map { centre + Slice.vertexOffsets[$0] - Vector(0.0, 0.0, (Double(depths[$0] - 1) * zOffset)) })
                         }
-                        if (depths[5] > 0) {
-                            vertexPositions.append([0, 7, 5].map { centre + Slice.vertexOffsets[$0] - Vector(0.0, 0.0, (Double(depths[$0] - 1) * zOffset)) })
+                        if (depths[6] > 0) {
+                            vertexPositions.append([0, 6, 4].map { centre + Slice.vertexOffsets[$0] - Vector(0.0, 0.0, (Double(depths[$0] - 1) * zOffset)) })
                         }
                     }
                     
