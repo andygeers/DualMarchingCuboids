@@ -101,16 +101,16 @@ public class Generator {
     
     private func surfaceFrom(heightMap: [[Double]], alphaMap: [[Double]]) -> ([CUnsignedChar], Int, Int, Int) {
         
-        let height = heightMap.first!.count
-        let width = heightMap.count
+        let height = heightMap.first!.count + 2
+        let width = heightMap.count + 2
         let maxDepth = modelHeight + baseHeight
-        let voxelDepth = Int(ceil(maxDepth))
+        let voxelDepth = Int(ceil(maxDepth)) + 2
         
         var voxels = [CUnsignedChar](repeating: 0, count: width * height * voxelDepth)
         
-        for i in 0 ..< height - 1 {
+        for i in 0 ..< height - 3 {
         
-            for j in 0 ..< width - 1 {
+            for j in 0 ..< width - 3 {
                                 
                 if (!self.isTransparent(x: j, y: i, alphaMap: alphaMap)) {
                                     
@@ -119,8 +119,11 @@ public class Generator {
                     
                     for k in 0 ... Int(depth) {
                         // w should be 50 at the surface and increase in magnitude towards the middle
+                        let x = j + 1
+                        let y = i + 1
+                        let z = k + 1
                         let w = 50.0 + (midPoint - abs(Float(k) - midPoint))
-                        let index = j + i * width + k * (width * height)
+                        let index = x + y * width + z * (width * height)
                         voxels[index] = CUnsignedChar(w)
                     }
                 

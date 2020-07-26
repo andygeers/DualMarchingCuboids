@@ -53,10 +53,11 @@ public class SurfaceNet {
     }
     
     public init(contourTracer: ContourTracer) {
+        self.contourTracer = contourTracer
         dimensions = [contourTracer.G_DataWidth, contourTracer.G_DataHeight, contourTracer.G_DataDepth]
     }
     
-    public func generate(material: Euclid.Polygon.Material = UIColor.blue) -> [Euclid.Polygon] {
+    public func generate(material: Euclid.Polygon.Material = UIColor.blue) -> Mesh {
         
         var vertices : [Vector] = []
         var faces : [Euclid.Polygon] = []
@@ -96,15 +97,25 @@ public class SurfaceNet {
                         n += 1
                         m += 1
                     }
+                    
+                    let expectedIndex = x + y * contourTracer.G_DataWidth + z * (contourTracer.G_DataWidth * contourTracer.G_DataHeight)
+                    if (n != expectedIndex) {
+                        NSLog("Unexpected index %d vs %d for (%d, %d, %d)", n, expectedIndex, x, y, z)
+                    }
           
                     //Read in 8 field values around this vertex and store them in an array
                     //Also calculate 8-bit mask, like in marching cubes, so we can speed up sign checks later
                     var mask = 0, g = 0, idx = n;
-                    for k in 0 ..< 2 {
-                        for j in 0 ..< 2 {
-                            for i in 0 ..< 2 {
-                                let p = contourTracer.G_data1[idx]
-                                grid[g] = Double(p)
+                    for _ in 0 ..< 2 {
+                        for _ in 0 ..< 2 {
+                            for _ in 0 ..< 2 {
+                                let p : Double
+                                if idx < contourTracer.G_data1.count {
+                                    p = Double(contourTracer.G_data1[idx]) - 50.0
+                                } else {
+                                    p = -50.0
+                                }
+                                grid[g] = p
                                 mask |= (p < 0) ? (1 << g) : 0;
                                 
                                 g += 1
@@ -151,19 +162,19 @@ public class SurfaceNet {
                         //Interpolate vertices and add up intersections (this can be done without multiplying)
                         var k = 1
                         for j in 0 ..< 3 {
-                            let a = e0 & k > 0
-                            let b = e1 & k > 0
+                            let a = e0 & k
+                            let b = e1 & k
                             if (a != b) {
-                                v[j] += a ? 1.0 - t : t
+                                v[j] += a > 0 ? 1.0 - t : t
                             } else {
-                                v[j] += a ? 1.0 : 0
+                                v[j] += a > 0 ? 1.0 : 0
                             }
                             k<<=1
                         }
                     }
 
                     //Now we just average the edge intersections and add them to coordinate
-                    var s = 1.0 / Double(eCount)
+                    let s = 1.0 / Double(eCount)
                     
                     let position = [Double(x), Double(y), Double(z)]
                     for i in 0 ..< 3 {
@@ -195,18 +206,26 @@ public class SurfaceNet {
                         let dv = R[iv]
 
                         //Remember to flip orientation depending on the sign of the corner.
+                        let vertexIndices : [Int]
                         if (mask & 1 > 0) {
-                            if let poly = Euclid.Polygon([buffer[m], buffer[m-du], buffer[m-du-dv], buffer[m-dv]].map { Vertex(vertices[$0], Vector.zero) }, material: material) {
-                                faces.append(poly)
-                            }
+                            vertexIndices = [buffer[m], buffer[m-du], buffer[m-du-dv], buffer[m-dv]]
                         } else {
-                            if let poly = Euclid.Polygon([buffer[m], buffer[m-dv], buffer[m-du-dv], buffer[m-du]].map { Vertex(vertices[$0], Vector.zero) }, material: material) {
-                                faces.append(poly)
-                            }
+                            vertexIndices = [buffer[m], buffer[m-dv], buffer[m-du-dv], buffer[m-du]]
+                        }
+                        let vertexPositions = vertexIndices.map { vertices[$0] }
+                        
+                        if let plane = Plane(points: vertexPositions), let face = Euclid.Polygon(vertexPositions.map { Vertex($0, plane.normal) }, material: material) {
+                            faces.append(face)
                         }
                     }
                 }
+                n += 1
+                m += 1
             }
+            n += 1
+            m += 2
         }
+        
+        return Mesh(faces)
     }
 }
