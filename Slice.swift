@@ -16,17 +16,35 @@ public class Slice {
     private let previousSlice : Slice?
     public let depthCounts : [Int]
     
-    // See generatePolygons for the diagram
+    /*
+       5/////2////3
+       //  ///  ///
+       // / // / //
+       4/////0////1
+       //  ///  ///
+       // / // / //
+       6/////7////8
+    */
     static let vertexOffsets = [
         Vector( 0,  0, 0),
-        Vector(-1,  1, 0),
-        Vector( 0,  1, 0),
-        Vector( 1,  1, 0),
-        Vector(-1,  0, 0),
         Vector( 1,  0, 0),
+        Vector( 0,  1, 0),
+        Vector( 1,  1, 0),  // Up to here are all 'after' 0
+        Vector(-1,  0, 0),
+        Vector(-1,  1, 0),
         Vector(-1, -1, 0),
         Vector( 0, -1, 0),
         Vector( 1, -1, 0)
+    ]
+    static let polygonIndices = [
+        [0, 3, 2],
+        [0, 1, 3],
+        [0, 2, 4],
+        [4, 2, 5],
+        [0, 4, 6],
+        [0, 6, 7],
+        [0, 7, 1],
+        [1, 7, 8]
     ]
     
     public init?(contourTracer: ContourTracer, z: Int, previousSlice: Slice?) {
@@ -91,16 +109,16 @@ public class Slice {
                 
                 let centre = Vector(Double(x), Double(y), Double(z))
                 
-                var vertexPositions : [[Vector]] = []
+                //var vertexPositions : [[Vector]] = []
                 
                 // See if we're newly filled
                 if (depth == 1) {
                     
                     /*
-                        1/////2////3
+                        5/////2////3
                         //  ///  ///
                         // / // / //
-                        4/////0////5
+                        4/////0////1
                         //  ///  ///
                         // / // / //
                         6/////7////8
@@ -108,38 +126,31 @@ public class Slice {
                     // See if any of the other eight vertices are available yet
                     let depths = [
                         depth,
-                        x > 0 && y < contourTracer.G_DataHeight ? depthCounts[k - 1 + contourTracer.G_DataWidth] : 0,
+                        x < contourTracer.G_DataWidth ? depthCounts[k + 1] : 0,
                         y < contourTracer.G_DataHeight ? depthCounts[k + contourTracer.G_DataWidth] : 0,
                         x < contourTracer.G_DataWidth && y < contourTracer.G_DataHeight ? depthCounts[k + 1 + contourTracer.G_DataWidth] : 0,
                         x > 0 ? depthCounts[k - 1] : 0,
-                        x < contourTracer.G_DataWidth ? depthCounts[k + 1] : 0,
+                        x > 0 && y < contourTracer.G_DataHeight ? depthCounts[k - 1 + contourTracer.G_DataWidth] : 0,
                         x > 0 && y > 0 ? depthCounts[k - 1 - contourTracer.G_DataWidth] : 0,
+                        y > 0 ? depthCounts[k - contourTracer.G_DataWidth] : 0,
                         x < contourTracer.G_DataWidth && y > 0 ? depthCounts[k + 1 - contourTracer.G_DataWidth] : 0
                     ]
-                    if (depths[2] > 0) {
-                        
-                        if (depths[4] > 0) {
-                            vertexPositions.append([0, 2, 4].map { centre + Slice.vertexOffsets[$0] - Vector(0.0, 0.0, (Double(depths[$0] - 1) * zOffset)) })
-                        }
-                        if (depths[5] > 0) {
-                            vertexPositions.append([0, 5, 2].map { centre + Slice.vertexOffsets[$0] - Vector(0.0, 0.0, (Double(depths[$0] - 1) * zOffset)) })
-                        }
-                    }
-                    if (depths[7] > 0) {
-                        
-                        if (depths[4] > 0) {
-                            vertexPositions.append([0, 4, 7].map { centre + Slice.vertexOffsets[$0] - Vector(0.0, 0.0, (Double(depths[$0] - 1) * zOffset)) })
-                        }
-                        if (depths[5] > 0) {
-                            vertexPositions.append([0, 7, 5].map { centre + Slice.vertexOffsets[$0] - Vector(0.0, 0.0, (Double(depths[$0] - 1) * zOffset)) })
-                        }
-                    }
                     
-                }
-                
-                for positions in vertexPositions {
-                    if let poly = Polygon(positions.map { Vertex($0, Vector.zero) }, material: material) {
-                        polygons.append(poly)
+                    // We will include a polygon if:
+                    //    a) All the corners are present
+                    //AND b) The corners are 'after' our vertex
+                    // OR c) At least one of the corners is from a previous layer
+                    let polyIndices = Slice.polygonIndices.filter { (indices) in
+                        indices.allSatisfy({ depths[$0] > 0 }) &&
+                        indices.contains(where: { $0 <= 3 || depths[$0] > depths[0] })
+                    }
+                    let vertexPositions = polyIndices.map { (indices) in
+                        indices.map { centre + Slice.vertexOffsets[$0] - Vector(0.0, 0.0, (Double(depths[$0] - 1) * zOffset)) }
+                    }
+                    for positions in vertexPositions {
+                        if let poly = Polygon(positions.map { Vertex($0, Vector.zero) }, material: material) {
+                            polygons.append(poly)
+                        }
                     }
                 }
                 
