@@ -22,20 +22,48 @@ extension Vector {
     }
 }
 
+private struct Position3D : Hashable {
+    let x : Int
+    let y : Int
+    let z : Int
+    
+    static let zero = Position3D(0, 0, 0)
+    
+    init(_ x : Int, _ y : Int, _ z : Int) {
+        self.x = x
+        self.y = y
+        self.z = z
+    }
+}
+
+private struct PositionAndAxis : Hashable {
+    let position : Position3D
+    let axis : Int
+}
+
+private func -(left: Position3D, right: Position3D) -> Position3D {
+    return Position3D(left.x - right.x, left.y - right.y, left.z - right.z)
+}
+
 public class DualContourer {
+    
+    static let THRESHOLD : CUnsignedChar = 50
     
     static let AXIS_OFFSET = [
         Vector(1, 0, 0),
         Vector(0, 1, 0),
         Vector(0, 0, 1)
     ]
+    
+    /// Equivalent of AXIS_OFFSET except it tells us what to add to the data set index
+    private let axisIndexOffset : [Int]
 
     // ----------------------------------------------------------------------------
 
-    static let EDGE_NODE_OFFSETS = [
-        [ Vector.zero, Vector(0, 0, 1), Vector(0, 1, 0), Vector(0, 1, 1) ],
-        [ Vector.zero, Vector(1, 0, 0), Vector(0, 0, 1), Vector(1, 0, 1) ],
-        [ Vector.zero, Vector(0, 1, 0), Vector(1, 0, 0), Vector(1, 1, 0) ],
+    private static let EDGE_NODE_OFFSETS = [
+        [Position3D.zero, Position3D(0, 0, 1), Position3D(0, 1, 0), Position3D(0, 1, 1) ],
+        [Position3D.zero, Position3D(1, 0, 0), Position3D(0, 0, 1), Position3D(1, 0, 1) ],
+        [Position3D.zero, Position3D(0, 1, 0), Position3D(1, 0, 0), Position3D(1, 1, 0) ],
     ]
 
     // ----------------------------------------------------------------------------
@@ -77,31 +105,18 @@ public class DualContourer {
 
     private let contourTracer : ContourTracer
     
-    private var edgeInfoMap : [Int : EdgeInfo] = [:]
-    private var voxelIDSet = Set<Int>()
-    private var voxelIndexMap : [Int: Int] = [:]
+    private var activeEdges : [PositionAndAxis : EdgeInfo] = [:]
+    private var activeVoxels = Set<Position3D>()
+    private var voxelIndexMap : [Position3D: Int] = [:]
 
     public init(contourTracer: ContourTracer) {
         self.contourTracer = contourTracer
         
+        axisIndexOffset = [1, contourTracer.G_DataWidth, contourTracer.G_DataWidth * contourTracer.G_DataHeight]
     }
     
     public func generate(material: Euclid.Polygon.Material = UIColor.blue) -> Mesh {
         
-    }
-    
-    private static func encodeVoxelUniqueID(idxPos : Vector) -> Int {
-        return Int(idxPos.x) | Int(idxPos.y) << 10 | Int(idxPos.z) << 20
-    }
-
-    // ----------------------------------------------------------------------------
-
-    private static func decodeVoxelUniqueID(id : Int) -> Vector {
-        return Vector(
-            Double(id & 0x3ff),
-            Double((id >> 10) & 0x3ff),
-            Double((id >> 20) & 0x3ff)
-        )
     }
 
     // ----------------------------------------------------------------------------
@@ -114,7 +129,7 @@ public class DualContourer {
         
     }
     
-    private func findIntersection(p0 : Vector, p1 : Vector) -> Double {
+    private func findIntersection(_ p0 : Vector, _ p1 : Vector) -> Double {
         let FIND_EDGE_INFO_STEPS = 16
         let FIND_EDGE_INFO_INCREMENT = 1.0 / Double(FIND_EDGE_INFO_STEPS)
 
@@ -137,57 +152,62 @@ public class DualContourer {
 
     // ----------------------------------------------------------------------------
 
-    static void FindActiveVoxels(
-        const SuperPrimitiveConfig& config,
-        VoxelIDSet& activeVoxels,
-        EdgeInfoMap& activeEdges)
-    {
-        for (int x = 0; x < VOXEL_GRID_SIZE; x++)
-        for (int y = 0; y < VOXEL_GRID_SIZE; y++)
-        for (int z = 0; z < VOXEL_GRID_SIZE; z++)
-        {
-            const ivec4 idxPos(x, y, z, 0);
-            const vec4 p = vec4(x - VOXEL_GRID_OFFSET, y - VOXEL_GRID_OFFSET, z - VOXEL_GRID_OFFSET, 1.f);
+    func findNormal(_ pos : Vector) -> Vector {
+        let H = 0.001
+        /*Vector(
+            Density(config, pos + vec4(H, 0.f, 0.f, 0.f)) - Density(config, pos - vec4(H, 0.f, 0.f, 0.f)),
+            Density(config, pos + vec4(0.f, H, 0.f, 0.f)) - Density(config, pos - vec4(0.f, H, 0.f, 0.f)),
+            Density(config, pos + vec4(0.f, 0.f, H, 0.f)) - Density(config, pos - vec4(0.f, 0.f, H, 0.f)),
+            0.f).normalize()*/
+    }
+    
+    func findPositionAndNormal(_ p : Vector, _ q : Vector) -> (Vector, Vector) {
+        let t = findIntersection(p, q)
+        let pos = Vector.interpolate(p, q, t) //, 1.f);
 
-            for (int axis = 0; axis < 3; axis++)
-            {
-                const vec4 q = p + AXIS_OFFSET[axis];
+        let normal = findNormal(pos)
+        
+        return (pos, normal)
+    }
+    
+    func findActiveVoxels() {
+        var k = 0
+        for z in 0 ..< contourTracer.G_DataDepth {
+            for y in 0 ..< contourTracer.G_DataHeight {
+                for x in 0 ..< contourTracer.G_DataWidth {
+                    let idxPos = Position3D(x, y, z)
+                    let p = Vector(Double(x), Double(y), Double(z))//, 1.f);
 
-                const float pDensity = Density(config, p);
-                const float qDensity = Density(config, q);
+                    for axis in 0 ..< 3 {
+                        let q = p + DualContourer.AXIS_OFFSET[axis]
+                        let indexOffset = axisIndexOffset[axis]
 
-                const bool zeroCrossing =
-                    pDensity >= 0.f && qDensity < 0.f ||
-                    pDensity < 0.f && qDensity >= 0.f;
-                if (!zeroCrossing)
-                {
-                    continue;
-                }
+                        let pDensity = contourTracer.G_data1[k]
+                        let qDensity = contourTracer.G_data1[k + indexOffset]
 
-                const float t = FindIntersection(config, p, q);
-                const vec4 pos = vec4(glm::mix(glm::vec3(p), glm::vec3(q), t), 1.f);
+                        let zeroCrossing =
+                            pDensity >= DualContourer.THRESHOLD && qDensity < DualContourer.THRESHOLD ||
+                            pDensity < DualContourer.THRESHOLD && qDensity >= DualContourer.THRESHOLD
+                        
+                        if (!zeroCrossing) {
+                            continue
+                        }
+                        
+                        let (pos, normal) = findPositionAndNormal(p, q)
 
-                const float H = 0.001f;
-                const auto normal = glm::normalize(vec4(
-                    Density(config, pos + vec4(H, 0.f, 0.f, 0.f)) - Density(config, pos - vec4(H, 0.f, 0.f, 0.f)),
-                    Density(config, pos + vec4(0.f, H, 0.f, 0.f)) - Density(config, pos - vec4(0.f, H, 0.f, 0.f)),
-                    Density(config, pos + vec4(0.f, 0.f, H, 0.f)) - Density(config, pos - vec4(0.f, 0.f, H, 0.f)),
-                    0.f));
+                        let info = EdgeInfo(pos: pos, normal: normal, winding: pDensity >= DualContourer.THRESHOLD)
 
-                EdgeInfo info;
-                info.pos = pos;
-                info.normal = normal;
-                info.winding = pDensity >= 0.f;
+                        let code = PositionAndAxis(position: idxPos, axis: axis)
+                        activeEdges[code] = info
 
-                const auto code = EncodeAxisUniqueID(axis, x, y, z);
-                activeEdges[code] = info;
-
-                const auto edgeNodes = EDGE_NODE_OFFSETS[axis];
-                for (int i = 0; i < 4; i++)
-                {
-                    const auto nodeIdxPos = idxPos - edgeNodes[i];
-                    const auto nodeID = EncodeVoxelUniqueID(nodeIdxPos);
-                    activeVoxels.insert(nodeID);
+                        let edgeNodes = DualContourer.EDGE_NODE_OFFSETS[axis]
+                        for i in 0 ..< 4 {
+                            let nodeIdxPos = idxPos - edgeNodes[i]
+                            activeVoxels.insert(nodeIdxPos)
+                        }
+                    }
+                    
+                    k += 1
                 }
             }
         }
