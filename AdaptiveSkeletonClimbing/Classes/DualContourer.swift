@@ -45,6 +45,10 @@ private func -(left: Position3D, right: Position3D) -> Position3D {
     return Position3D(left.x - right.x, left.y - right.y, left.z - right.z)
 }
 
+private func +(left: Position3D, right: Position3D) -> Position3D {
+    return Position3D(left.x + right.x, left.y + right.y, left.z + right.z)
+}
+
 public class DualContourer {
     
     static let THRESHOLD : CUnsignedChar = 50
@@ -61,9 +65,9 @@ public class DualContourer {
     // ----------------------------------------------------------------------------
 
     private static let EDGE_NODE_OFFSETS = [
-        [Position3D.zero, Position3D(0, 0, 1), Position3D(0, 1, 0), Position3D(0, 1, 1) ],
-        [Position3D.zero, Position3D(1, 0, 0), Position3D(0, 0, 1), Position3D(1, 0, 1) ],
-        [Position3D.zero, Position3D(0, 1, 0), Position3D(1, 0, 0), Position3D(1, 1, 0) ],
+        Position3D.zero, Position3D(0, 0, 1), Position3D(0, 1, 0), Position3D(0, 1, 1),
+        Position3D.zero, Position3D(1, 0, 0), Position3D(0, 0, 1), Position3D(1, 0, 1),
+        Position3D.zero, Position3D(0, 1, 0), Position3D(1, 0, 0), Position3D(1, 1, 0),
     ]
 
     // ----------------------------------------------------------------------------
@@ -108,7 +112,7 @@ public class DualContourer {
     private var activeEdges : [PositionAndAxis : EdgeInfo] = [:]
     private var activeVoxels = Set<Position3D>()
     private var voxelIndexMap : [Position3D: Int] = [:]
-
+    
     public init(contourTracer: ContourTracer) {
         self.contourTracer = contourTracer
         
@@ -200,9 +204,8 @@ public class DualContourer {
                         let code = PositionAndAxis(position: idxPos, axis: axis)
                         activeEdges[code] = info
 
-                        let edgeNodes = DualContourer.EDGE_NODE_OFFSETS[axis]
                         for i in 0 ..< 4 {
-                            let nodeIdxPos = idxPos - edgeNodes[i]
+                            let nodeIdxPos = idxPos - DualContourer.EDGE_NODE_OFFSETS[axis * 4 + i]
                             activeVoxels.insert(nodeIdxPos)
                         }
                     }
@@ -215,153 +218,98 @@ public class DualContourer {
 
     // ----------------------------------------------------------------------------
 
-    static void GenerateVertexData(
-        const VoxelIDSet& voxels,
-        const EdgeInfoMap& edges,
-        VoxelIndexMap& vertexIndices,
-        MeshBuffer* buffer)
-    {
-        MeshVertex* vert = &buffer->vertices[0];
-
-        int idxCounter = 0;
-        for (const auto& voxelID: voxels)
-        {
-            ALIGN16 vec4 p[12];
-            ALIGN16 vec4 n[12];
-
-            int idx = 0;
-            for (int i = 0; i < 12; i++)
-            {
-                const auto edgeID = voxelID + ENCODED_EDGE_OFFSETS[i];
-                const auto iter = edges.find(edgeID);
-
-                if (iter != end(edges))
-                {
-                    const auto& info = iter->second;
-                    const vec4 pos = info.pos;
-                    const vec4 normal = info.normal;
-
-                    p[idx] = pos;
-                    n[idx] = normal;
-                    idx++;
+    func generateVertexData() -> [Vertex] {
+        let vertices : [Vertex] = []
+        
+        for voxelID in activeVoxels {
+            var idx = 0
+            var localVertices : [Vertex] = []
+            for i in 0 ..< 12 {
+                let edgeIDPosition = voxelID + DualContourer.EDGE_NODE_OFFSETS[i]
+                let edgeIDAxis = i / 4
+                
+                let edgeID = PositionAndAxis(position: edgeIDPosition, axis: edgeIDAxis)
+                if let info = activeEdges[edgeID] {
+                    localVertices.append(Vertex(info.pos, info.normal))
                 }
             }
 
-            ALIGN16 vec4 nodePos;
-            qef_solve_from_points_4d(&p[0].x, &n[0].x, idx, &nodePos.x);
+            let nodePos = qef_solve_from_points_4d(localVertices)
 
-            vec4 nodeNormal;
-            for (int i = 0; i < idx; i++)
-            {
-                nodeNormal += n[i];
+            var nodeNormal = Vector.zero
+            for vertex in localVertices {
+                nodeNormal = nodeNormal + vertex.normal
             }
-            nodeNormal *= (1.f / (float)idx);
+            nodeNormal = nodeNormal * 1.0 / Double(localVertices.count)
 
-            vertexIndices[voxelID] = idxCounter++;
+            voxelIndexMap[voxelID] = vertices.count
 
-            buffer->numVertices++;
-            vert->xyz = nodePos;
-            vert->normal = nodeNormal;
-            vert++;
+            vertices.append(Vertex(nodePos, nodeNormal))
         }
 
+        return vertices
     }
 
     // ----------------------------------------------------------------------------
 
-    static void GenerateTriangles(
-        const EdgeInfoMap& edges,
-        const VoxelIndexMap& vertexIndices,
-        MeshBuffer* buffer)
-    {
-        MeshTriangle* tri = &buffer->triangles[0];
+    func generateTriangles(vertices: [Vertex]) -> [Euclid.Polygon] {
+        var triangles : [Euclid.Polygon] = []
 
-        for (const auto& pair: edges)
-        {
-            const auto& edge = pair.first;
-            const auto& info = pair.second;
+        for pair in activeEdges {
+            let info = pair.value
+            let edge = pair.key
 
-            const ivec4 basePos = DecodeVoxelUniqueID(edge);
-            const int axis = (edge >> 30) & 0xff;
+            let basePos = edge.position
+            let axis = edge.axis
 
-            const int nodeID = edge & ~0xc0000000;
-            const uint32_t voxelIDs[4] =
-            {
-                nodeID - ENCODED_EDGE_NODE_OFFSETS[axis * 4 + 0],
-                nodeID - ENCODED_EDGE_NODE_OFFSETS[axis * 4 + 1],
-                nodeID - ENCODED_EDGE_NODE_OFFSETS[axis * 4 + 2],
-                nodeID - ENCODED_EDGE_NODE_OFFSETS[axis * 4 + 3],
-            };
+            let voxelIDs = [
+                basePos - DualContourer.EDGE_NODE_OFFSETS[(axis * 4 + 0)],
+                basePos - DualContourer.EDGE_NODE_OFFSETS[(axis * 4 + 1)],
+                basePos - DualContourer.EDGE_NODE_OFFSETS[(axis * 4 + 2)],
+                basePos - DualContourer.EDGE_NODE_OFFSETS[(axis * 4 + 3)]
+            ]
 
             // attempt to find the 4 voxels which share this edge
-            int edgeVoxels[4];
-            int numFoundVoxels = 0;
-            for (int i = 0; i < 4; i++)
-            {
-                const auto iter = vertexIndices.find(voxelIDs[i]);
-                if (iter != end(vertexIndices))
-                {
-                    edgeVoxels[numFoundVoxels++] = iter->second;
+            var edgeVoxels : [Int] = []
+            for voxelID in voxelIDs {
+                if let vertexIndex = voxelIndexMap[voxelID] {
+                    edgeVoxels.append(vertexIndex)
                 }
             }
 
             // we can only generate a quad (or two triangles) if all 4 are found
-            if (numFoundVoxels < 4)
-            {
-                continue;
+            guard edgeVoxels.count >= 4 else { continue }
+
+            if (info.winding) {
+                if let tri1 = Euclid.Polygon([0, 1, 3].map({ vertices[edgeVoxels[$0]] })) {
+                    triangles.append(tri1)
+                }
+                if let tri2 = Euclid.Polygon([0, 3, 2].map({ vertices[edgeVoxels[$0]] })) {
+                    triangles.append(tri2)
+                }
+            } else {
+                if let tri1 = Euclid.Polygon([0, 3, 1].map({ vertices[edgeVoxels[$0]] })) {
+                    triangles.append(tri1)
+                }
+                if let tri2 = Euclid.Polygon([0, 2, 3].map({ vertices[edgeVoxels[$0]] })) {
+                    triangles.append(tri2)
+                }
             }
-
-            if (info.winding)
-            {
-                tri->indices_[0] = edgeVoxels[0];
-                tri->indices_[1] = edgeVoxels[1];
-                tri->indices_[2] = edgeVoxels[3];
-                tri++;
-
-                tri->indices_[0] = edgeVoxels[0];
-                tri->indices_[1] = edgeVoxels[3];
-                tri->indices_[2] = edgeVoxels[2];
-                tri++;
-            }
-            else
-            {
-                tri->indices_[0] = edgeVoxels[0];
-                tri->indices_[1] = edgeVoxels[3];
-                tri->indices_[2] = edgeVoxels[1];
-                tri++;
-
-                tri->indices_[0] = edgeVoxels[0];
-                tri->indices_[1] = edgeVoxels[2];
-                tri->indices_[2] = edgeVoxels[3];
-                tri++;
-            }
-
-            buffer->numTriangles += 2;
         }
+        return triangles
     }
 
     // ----------------------------------------------------------------------------
 
-    MeshBuffer* GenerateMesh(const SuperPrimitiveConfig& config)
-    {
-        VoxelIDSet activeVoxels;
-        EdgeInfoMap activeEdges;
+    func generateMesh() -> Mesh {
+        findActiveVoxels()
+        
+        let vertices = generateVertexData()
 
-        FindActiveVoxels(config, activeVoxels, activeEdges);
+        let triangles = generateTriangles(vertices: vertices)
 
-        MeshBuffer* buffer = new MeshBuffer;
-        buffer->vertices = (MeshVertex*)malloc(activeVoxels.size() * sizeof(MeshVertex));
-        buffer->numVertices = 0;
+        NSLog("mesh: %d vertices, %d polygon(s)\n", vertices.count, triangles.count)
 
-        VoxelIndexMap vertexIndices;
-        GenerateVertexData(activeVoxels, activeEdges, vertexIndices, buffer);
-
-        buffer->triangles = (MeshTriangle*)malloc(2 * activeEdges.size() * sizeof(MeshTriangle));
-        buffer->numTriangles = 0;
-        GenerateTriangles(activeEdges, vertexIndices, buffer);
-
-        printf("mesh: %d %d\n", buffer->numVertices, buffer->numTriangles);
-
-        return buffer;
+        return Mesh(triangles)
     }
 }
