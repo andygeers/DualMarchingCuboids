@@ -15,13 +15,6 @@ struct EdgeInfo {
     public let winding : Bool
 }
 
-extension Vector {
-    static func interpolate(_ v1 : Vector, _ v2 : Vector, _ p : Double) -> Vector {
-        let complement = 1 - p
-        return v1 * complement + v2 * p
-    }
-}
-
 private struct Position3D : Hashable {
     let x : Int
     let y : Int
@@ -33,6 +26,17 @@ private struct Position3D : Hashable {
         self.x = x
         self.y = y
         self.z = z
+    }
+}
+
+extension Vector {
+    static func interpolate(_ v1 : Vector, _ v2 : Vector, _ p : Double) -> Vector {
+        let complement = 1 - p
+        return v1 * complement + v2 * p
+    }
+    
+    fileprivate init(_ position : Position3D) {
+        self.init(Double(position.x), Double(position.y), Double(position.z))
     }
 }
 
@@ -118,10 +122,6 @@ public class DualContourer {
         
         axisIndexOffset = [1, contourTracer.G_DataWidth, contourTracer.G_DataWidth * contourTracer.G_DataHeight]
     }
-    
-    public func generate(material: Euclid.Polygon.Material = UIColor.blue) -> Mesh {
-        
-    }
 
     // ----------------------------------------------------------------------------
 
@@ -129,47 +129,44 @@ public class DualContourer {
         return (x << 0) | (y << 10) | (z << 20) | (axis << 30)
     }
     
-    private func density(_ p : Vector) -> Double {
-        
-    }
-    
-    private func findIntersection(_ p0 : Vector, _ p1 : Vector) -> Double {
-        let FIND_EDGE_INFO_STEPS = 16
-        let FIND_EDGE_INFO_INCREMENT = 1.0 / Double(FIND_EDGE_INFO_STEPS)
-
-        var minValue = Double.greatestFiniteMagnitude
-        var currentT = 0.0
-        var t = 0.0
-        for _ in 0 ..< FIND_EDGE_INFO_STEPS {
-            let p = Vector.interpolate(p0, p1, currentT)
-            let d = abs(density(p))
-            if (d < minValue) {
-                t = currentT
-                minValue = d
-            }
-
-            currentT += FIND_EDGE_INFO_INCREMENT
-        }
-
-        return t
-    }
+//    private func findIntersection(_ p0 : Vector, _ p1 : Vector) -> Double {
+//        let FIND_EDGE_INFO_STEPS = 16
+//        let FIND_EDGE_INFO_INCREMENT = 1.0 / Double(FIND_EDGE_INFO_STEPS)
+//
+//        var minValue = Double.greatestFiniteMagnitude
+//        var currentT = 0.0
+//        var t = 0.0
+//        for _ in 0 ..< FIND_EDGE_INFO_STEPS {
+//            let p = Vector.interpolate(p0, p1, currentT)
+//            let d = abs(density(p))
+//            if (d < minValue) {
+//                t = currentT
+//                minValue = d
+//            }
+//
+//            currentT += FIND_EDGE_INFO_INCREMENT
+//        }
+//
+//        return t
+//    }
 
     // ----------------------------------------------------------------------------
 
-    func findNormal(_ pos : Vector) -> Vector {
-        let H = 0.001
-        /*Vector(
-            Density(config, pos + vec4(H, 0.f, 0.f, 0.f)) - Density(config, pos - vec4(H, 0.f, 0.f, 0.f)),
-            Density(config, pos + vec4(0.f, H, 0.f, 0.f)) - Density(config, pos - vec4(0.f, H, 0.f, 0.f)),
-            Density(config, pos + vec4(0.f, 0.f, H, 0.f)) - Density(config, pos - vec4(0.f, 0.f, H, 0.f)),
-            0.f).normalize()*/
-    }
+//    func findNormal(_ pos : Vector) -> Vector {
+//        let H = 0.001
+//        /*Vector(
+//            Density(config, pos + vec4(H, 0.f, 0.f, 0.f)) - Density(config, pos - vec4(H, 0.f, 0.f, 0.f)),
+//            Density(config, pos + vec4(0.f, H, 0.f, 0.f)) - Density(config, pos - vec4(0.f, H, 0.f, 0.f)),
+//            Density(config, pos + vec4(0.f, 0.f, H, 0.f)) - Density(config, pos - vec4(0.f, 0.f, H, 0.f)),
+//            0.f).normalize()*/
+//    }
     
     func findPositionAndNormal(_ p : Vector, _ q : Vector) -> (Vector, Vector) {
-        let t = findIntersection(p, q)
-        let pos = Vector.interpolate(p, q, t) //, 1.f);
+//        let t = findIntersection(p, q)
+//        let pos = Vector.interpolate(p, q, t) //, 1.f);
+        let pos = Vector.interpolate(p, q, 0.5) //, 1.f);
 
-        let normal = findNormal(pos)
+        let normal = Vector.zero // findNormal(pos)
         
         return (pos, normal)
     }
@@ -219,10 +216,9 @@ public class DualContourer {
     // ----------------------------------------------------------------------------
 
     func generateVertexData() -> [Vertex] {
-        let vertices : [Vertex] = []
+        var vertices : [Vertex] = []
         
         for voxelID in activeVoxels {
-            var idx = 0
             var localVertices : [Vertex] = []
             for i in 0 ..< 12 {
                 let edgeIDPosition = voxelID + DualContourer.EDGE_NODE_OFFSETS[i]
@@ -234,7 +230,7 @@ public class DualContourer {
                 }
             }
 
-            let nodePos = qef_solve_from_points_4d(localVertices)
+            let nodePos = Vector(voxelID) // qef_solve_from_points_4d(localVertices)
 
             var nodeNormal = Vector.zero
             for vertex in localVertices {
@@ -252,7 +248,7 @@ public class DualContourer {
 
     // ----------------------------------------------------------------------------
 
-    func generateTriangles(vertices: [Vertex]) -> [Euclid.Polygon] {
+    func generateTriangles(vertices: [Vertex], material: Euclid.Polygon.Material) -> [Euclid.Polygon] {
         var triangles : [Euclid.Polygon] = []
 
         for pair in activeEdges {
@@ -281,17 +277,17 @@ public class DualContourer {
             guard edgeVoxels.count >= 4 else { continue }
 
             if (info.winding) {
-                if let tri1 = Euclid.Polygon([0, 1, 3].map({ vertices[edgeVoxels[$0]] })) {
+                if let tri1 = Euclid.Polygon([0, 1, 3].map({ vertices[edgeVoxels[$0]] }), material: material) {
                     triangles.append(tri1)
                 }
-                if let tri2 = Euclid.Polygon([0, 3, 2].map({ vertices[edgeVoxels[$0]] })) {
+                if let tri2 = Euclid.Polygon([0, 3, 2].map({ vertices[edgeVoxels[$0]] }), material: material) {
                     triangles.append(tri2)
                 }
             } else {
-                if let tri1 = Euclid.Polygon([0, 3, 1].map({ vertices[edgeVoxels[$0]] })) {
+                if let tri1 = Euclid.Polygon([0, 3, 1].map({ vertices[edgeVoxels[$0]] }), material: material) {
                     triangles.append(tri1)
                 }
-                if let tri2 = Euclid.Polygon([0, 2, 3].map({ vertices[edgeVoxels[$0]] })) {
+                if let tri2 = Euclid.Polygon([0, 2, 3].map({ vertices[edgeVoxels[$0]] }), material: material) {
                     triangles.append(tri2)
                 }
             }
@@ -301,12 +297,12 @@ public class DualContourer {
 
     // ----------------------------------------------------------------------------
 
-    func generateMesh() -> Mesh {
+    public func generateMesh(material: Euclid.Polygon.Material = UIColor.blue) -> Mesh {
         findActiveVoxels()
         
         let vertices = generateVertexData()
 
-        let triangles = generateTriangles(vertices: vertices)
+        let triangles = generateTriangles(vertices: vertices, material: material)
 
         NSLog("mesh: %d vertices, %d polygon(s)\n", vertices.count, triangles.count)
 
