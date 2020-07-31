@@ -19,7 +19,7 @@ private func rnd() -> Float {
 
 class ViewController: UIViewController {
 
-    var gridData : [CUnsignedChar] = []
+    var gridData : [Int] = []
     var polygons : [Euclid.Polygon] = []
     var width = 0
     var height = 0
@@ -29,7 +29,7 @@ class ViewController: UIViewController {
     
     @IBOutlet var sceneView : SCNView!
     
-    private var contourTracer : ContourTracer!
+    private var contourTracer : VoxelGrid!
     private var currentSliceIndex = 0
     private var currentSlice : Slice? = nil
     
@@ -38,7 +38,7 @@ class ViewController: UIViewController {
         // Do any additional setup after loading the view, typically from a nib.
         loadVoxels()
         
-        contourTracer = ContourTracer(G_data1: gridData, G_DataWidth: width, G_DataHeight: height, G_DataDepth: depth)
+        contourTracer = VoxelGrid(G_data1: gridData, G_DataWidth: width, G_DataHeight: height, G_DataDepth: depth)
         
         currentSliceIndex = depth - 1
         
@@ -80,11 +80,11 @@ class ViewController: UIViewController {
         
         let particle = voxelGeometry()
         
-        var k = 0
+        var k = currentSlice.offset
         for y in 0 ..< height {
             for x in 0 ..< width {
-                if currentSlice.depthCounts[k] != 0  && x < 25 && y < 25  {
-                    let depthColour = colourForDepth(currentSlice.depthCounts[k])
+                if contourTracer.G_data1[k] != 0  && x < 25 && y < 25  {
+                    let depthColour = colourForDepth(contourTracer.G_data1[k])
                     let voxelNode = generateVoxel(x: x, y: y, z: currentSliceIndex, particle: particle, colour: depthColour)
                     
                     voxels.addChildNode(voxelNode)
@@ -123,7 +123,7 @@ class ViewController: UIViewController {
     private func generateMesh() {
         NSLog("Generating mesh")
         
-        let mesh = contourTracer.climb()
+        let mesh = contourTracer.generateMesh()
         
         NSLog("Generated mesh with %d polygon(s)", mesh.polygons.count)
         

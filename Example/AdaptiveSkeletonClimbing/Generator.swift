@@ -21,12 +21,12 @@ public class Generator {
     let modelHeight : Double = 3.5
     let baseHeight : Double = 4.0
     
-    public func processImage(image: UIImage) throws -> ([CUnsignedChar], Int, Int, Int) {
+    public func processImage(image: UIImage) throws -> ([Int], Int, Int, Int) {
         self.image = image
         return generateVoxels()
     }
     
-    private func generateVoxels() -> ([CUnsignedChar], Int, Int, Int) {
+    private func generateVoxels() -> ([Int], Int, Int, Int) {
         guard let image = self.image else { return ([], 0, 0, 0) }
         
         let imageSize = image.size
@@ -99,14 +99,14 @@ public class Generator {
         return (x < 0) || (y < 0) || (x >= alphaMap.count - 1) || (y >= alphaMap[0].count - 1) || (alphaMap[x][y] == 0.0) && (alphaMap[x+1][y] == 0.0) && (alphaMap[x+1][y+1] == 0.0) && (alphaMap[x][y+1] == 0.0)
     }
     
-    private func surfaceFrom(heightMap: [[Double]], alphaMap: [[Double]]) -> ([CUnsignedChar], Int, Int, Int) {
+    private func surfaceFrom(heightMap: [[Double]], alphaMap: [[Double]]) -> ([Int], Int, Int, Int) {
         
         let height = heightMap.first!.count
         let width = heightMap.count
         let maxDepth = modelHeight + baseHeight
         let voxelDepth = Int(ceil(maxDepth))
         
-        var voxels = [CUnsignedChar](repeating: 0, count: width * height * voxelDepth)
+        var voxels = [Int](repeating: 0, count: width * height * voxelDepth)
         
         for i in 0 ..< height - 1 {
         
@@ -114,14 +114,14 @@ public class Generator {
                                 
                 if (!self.isTransparent(x: j, y: i, alphaMap: alphaMap)) {
                                     
-                    let depth = outputHeight(heightMap[j][i])
-                    let midPoint = Float(depth / 2)
+                    let depth = outputHeight(heightMap[j][i])                    
                     
-                    for k in 0 ... Int(depth) {
-                        // w should be 50 at the surface and increase in magnitude towards the middle
-                        let w = 50.0 + (midPoint - abs(Float(k) - midPoint))
+                    var value = 1
+                    for k in (0 ... Int(depth)).reversed() {
+                        // Voxel data should be 1 at the surface and count up towards the back
                         let index = j + i * width + k * (width * height)
-                        voxels[index] = CUnsignedChar(w)
+                        voxels[index] = value
+                        value += 1
                     }
                 
                 }
@@ -131,7 +131,7 @@ public class Generator {
         return (voxels, width, height, voxelDepth)
     }
     
-    private func generateVoxelsFromBitmap(_ bitmap : CGContext) -> ([CUnsignedChar], Int, Int, Int) {
+    private func generateVoxelsFromBitmap(_ bitmap : CGContext) -> ([Int], Int, Int, Int) {
         NSLog("Bitmap dimensions: %d x %d (%d)", bitmap.width, bitmap.height, bitmap.bytesPerRow)
                 
         let (heightMap, alphaMap) = generateHeightAndAlphaMap(from: bitmap)

@@ -103,7 +103,7 @@
 		B662FB934B08450530A1A521489732B3 /* FailureMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = D62695D468493106B4635C4918E90643 /* FailureMessage.swift */; settings = {COMPILER_FLAGS = "-DPRODUCT_NAME=Nimble/Nimble"; }; };
 		B75FB2158E7B938A636418590735B56F /* Plane.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9DDE41882EF69A9398DBB91BD194951 /* Plane.swift */; };
 		B7A0119D88C1DF43AFD25FB3A0B6E842 /* Expectation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FB8726DA2A5E6856B4CC6B98A12A04C /* Expectation.swift */; settings = {COMPILER_FLAGS = "-DPRODUCT_NAME=Nimble/Nimble"; }; };
-		BA4BB93FA1FB20D473F9792773DF8DD1 /* ContourTracer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 878C5C131B61CF82F08227DDD934F57C /* ContourTracer.swift */; };
+		BA4BB93FA1FB20D473F9792773DF8DD1 /* VoxelGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = 878C5C131B61CF82F08227DDD934F57C /* VoxelGrid.swift */; };
 		BAEAB2ADD34955EE77CBA4B43994B6F7 /* NMBExpectation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B598D7D9CCC208C0A31598E5303D77D /* NMBExpectation.swift */; settings = {COMPILER_FLAGS = "-DPRODUCT_NAME=Nimble/Nimble"; }; };
 		BB1619BCE35A078A932C56B2519CCB6C /* BeLogical.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B5EE79993C67D96213824FDD50F7648 /* BeLogical.swift */; settings = {COMPILER_FLAGS = "-DPRODUCT_NAME=Nimble/Nimble"; }; };
 		BD8AB3699C483B11671A85C72CE92B50 /* ExampleGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C0F3C0FE651C448D871EF87A458E1B1 /* ExampleGroup.swift */; };
@@ -295,7 +295,7 @@
 		83EED725641AA174FBCDA3BD813CA446 /* NMBExceptionCapture.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = NMBExceptionCapture.m; path = Sources/NimbleObjectiveC/NMBExceptionCapture.m; sourceTree = "<group>"; };
 		856EDF7848BC7A34AB30483D4667B5AB /* CoreText.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CoreText.swift; path = Sources/CoreText.swift; sourceTree = "<group>"; };
 		85CF0EED98A5AF3BC01BAE7807EFD257 /* AllPass.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AllPass.swift; path = Sources/Nimble/Matchers/AllPass.swift; sourceTree = "<group>"; };
-		878C5C131B61CF82F08227DDD934F57C /* ContourTracer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ContourTracer.swift; path = AdaptiveSkeletonClimbing/Classes/ContourTracer.swift; sourceTree = "<group>"; };
+		878C5C131B61CF82F08227DDD934F57C /* VoxelGrid.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = VoxelGrid.swift; path = AdaptiveSkeletonClimbing/Classes/VoxelGrid.swift; sourceTree = "<group>"; };
 		891A9501EEAC43B6B866E29097EA3707 /* QuickConfiguration.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = QuickConfiguration.m; path = Sources/QuickObjectiveC/Configuration/QuickConfiguration.m; sourceTree = "<group>"; };
 		8B7964B03C3012BFF5E5C097558E2001 /* Stringers.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Stringers.swift; path = Sources/Nimble/Utils/Stringers.swift; sourceTree = "<group>"; };
 		8C0F3C0FE651C448D871EF87A458E1B1 /* ExampleGroup.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExampleGroup.swift; path = Sources/Quick/ExampleGroup.swift; sourceTree = "<group>"; };
@@ -636,7 +636,7 @@
 		63765115B86BB0200A3C2D0F6BBB17D5 /* AdaptiveSkeletonClimbing */ = {
 			isa = PBXGroup;
 			children = (
-				878C5C131B61CF82F08227DDD934F57C /* ContourTracer.swift */,
+				878C5C131B61CF82F08227DDD934F57C /* VoxelGrid.swift */,
 				52D2409524CB430700E8762C /* Slice.swift */,
 				F7026AA3EFC1F098211F986733F56349 /* Pod */,
 				918EDCFBA4C85F6222B474A00393AF5D /* Support Files */,
@@ -1036,7 +1036,7 @@
 				E6DFB15D08A99C03F4020735857741A0 /* AdaptiveSkeletonClimbing-dummy.m in Sources */,
 				52D2408424C0855200E8762C /* DoublyLinkedList.swift in Sources */,
 				52D2409624CB430700E8762C /* Slice.swift in Sources */,
-				BA4BB93FA1FB20D473F9792773DF8DD1 /* ContourTracer.swift in Sources */,
+				BA4BB93FA1FB20D473F9792773DF8DD1 /* VoxelGrid.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
