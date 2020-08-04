@@ -46,8 +46,9 @@
 		4CBB32046E3B8844FFA021ACFC57702F /* ExpectationMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4608A8CD71C659C12E1D6CC77440B4E6 /* ExpectationMessage.swift */; settings = {COMPILER_FLAGS = "-DPRODUCT_NAME=Nimble/Nimble"; }; };
 		4E5EE3187B48F60A0FBA4EB9ACB7FD76 /* NSString+C99ExtendedIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C8C9579E6B67F901B9BFD083AD001C1 /* NSString+C99ExtendedIdentifier.swift */; };
 		5221433E6847800B0533CAADF9BABA04 /* BeCloseTo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05114CE35ECBF36CBF5EC4296C0F1063 /* BeCloseTo.swift */; settings = {COMPILER_FLAGS = "-DPRODUCT_NAME=Nimble/Nimble"; }; };
+		52C36BA124D93ADC0001E9B6 /* Iterators.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52C36BA024D93ADC0001E9B6 /* Iterators.swift */; };
+		52C36BA324D93B2E0001E9B6 /* Slice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52C36BA224D93B2E0001E9B6 /* Slice.swift */; };
 		52D2408424C0855200E8762C /* DoublyLinkedList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52D2408324C0855200E8762C /* DoublyLinkedList.swift */; };
-		52D2409624CB430700E8762C /* Slice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52D2409524CB430700E8762C /* Slice.swift */; };
 		53B30596B1EA5F0845A886843FB9E859 /* CwlCatchException.swift in Sources */ = {isa = PBXBuildFile; fileRef = A045C37EAD0682BBDD4C513553DAC8F2 /* CwlCatchException.swift */; settings = {COMPILER_FLAGS = "-DPRODUCT_NAME=Nimble/Nimble"; }; };
 		543967CB633CDE86DFD53581EAE1A35D /* BeEmpty.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C45C484738A0F1B793E58F953275C5D /* BeEmpty.swift */; settings = {COMPILER_FLAGS = "-DPRODUCT_NAME=Nimble/Nimble"; }; };
 		54A61062B9FB72C6BA0054B2A685ED0E /* Equal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 629D6F05E5B7EB2FB73DD7A2117595F9 /* Equal.swift */; settings = {COMPILER_FLAGS = "-DPRODUCT_NAME=Nimble/Nimble"; }; };
@@ -256,8 +257,9 @@
 		4F142FAC26DFCB41515165E023DAF3F1 /* World.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = World.swift; path = Sources/Quick/World.swift; sourceTree = "<group>"; };
 		5235E2EDB4A4501B7C53BAB15FD65D2D /* NSBundle+CurrentTestBundle.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "NSBundle+CurrentTestBundle.swift"; path = "Sources/Quick/NSBundle+CurrentTestBundle.swift"; sourceTree = "<group>"; };
 		525BBAD79F145A4055C76E975F2789B9 /* Rotation.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Rotation.swift; path = Sources/Rotation.swift; sourceTree = "<group>"; };
+		52C36BA024D93ADC0001E9B6 /* Iterators.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Iterators.swift; path = AdaptiveSkeletonClimbing/Classes/Iterators.swift; sourceTree = "<group>"; };
+		52C36BA224D93B2E0001E9B6 /* Slice.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Slice.swift; path = AdaptiveSkeletonClimbing/Classes/Slice.swift; sourceTree = "<group>"; };
 		52D2408324C0855200E8762C /* DoublyLinkedList.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = DoublyLinkedList.swift; path = ../../SwiftAlgirithmClub/DoublyLinkedList.swift; sourceTree = "<group>"; };
-		52D2409524CB430700E8762C /* Slice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Slice.swift; sourceTree = "<group>"; };
 		54F728390E9ADE5C2AE8FD9FBE47CEC4 /* AdaptiveSkeletonClimbing-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "AdaptiveSkeletonClimbing-umbrella.h"; sourceTree = "<group>"; };
 		55BAA2C18078300D28AA54D2ACB41FFB /* Functional.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Functional.swift; path = Sources/Nimble/Utils/Functional.swift; sourceTree = "<group>"; };
 		5891E35D297FD33B20A63F013A75A0E4 /* QuickConfiguration.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = QuickConfiguration.h; path = Sources/QuickObjectiveC/Configuration/QuickConfiguration.h; sourceTree = "<group>"; };
@@ -636,8 +638,9 @@
 		63765115B86BB0200A3C2D0F6BBB17D5 /* AdaptiveSkeletonClimbing */ = {
 			isa = PBXGroup;
 			children = (
+				52C36BA224D93B2E0001E9B6 /* Slice.swift */,
 				878C5C131B61CF82F08227DDD934F57C /* VoxelGrid.swift */,
-				52D2409524CB430700E8762C /* Slice.swift */,
+				52C36BA024D93ADC0001E9B6 /* Iterators.swift */,
 				F7026AA3EFC1F098211F986733F56349 /* Pod */,
 				918EDCFBA4C85F6222B474A00393AF5D /* Support Files */,
 			);
@@ -1033,9 +1036,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				52C36BA324D93B2E0001E9B6 /* Slice.swift in Sources */,
 				E6DFB15D08A99C03F4020735857741A0 /* AdaptiveSkeletonClimbing-dummy.m in Sources */,
 				52D2408424C0855200E8762C /* DoublyLinkedList.swift in Sources */,
-				52D2409624CB430700E8762C /* Slice.swift in Sources */,
+				52C36BA124D93ADC0001E9B6 /* Iterators.swift in Sources */,
 				BA4BB93FA1FB20D473F9792773DF8DD1 /* VoxelGrid.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

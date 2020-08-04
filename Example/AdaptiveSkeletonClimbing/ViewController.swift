@@ -38,7 +38,7 @@ class ViewController: UIViewController {
         // Do any additional setup after loading the view, typically from a nib.
         loadVoxels()
         
-        contourTracer = VoxelGrid(G_data1: gridData, G_DataWidth: width, G_DataHeight: height, G_DataDepth: depth)
+        contourTracer = VoxelGrid(data: gridData, width: width, height: height, depth: depth)
         
         currentSliceIndex = depth - 1
         
@@ -83,8 +83,8 @@ class ViewController: UIViewController {
         var k = currentSlice.offset
         for y in 0 ..< height {
             for x in 0 ..< width {
-                if contourTracer.G_data1[k] != 0  && x < 25 && y < 25  {
-                    let depthColour = colourForDepth(contourTracer.G_data1[k])
+                if contourTracer.data[k] != 0  && x < 25 && y < 25  {
+                    let depthColour = colourForDepth(contourTracer.data[k])
                     let voxelNode = generateVoxel(x: x, y: y, z: currentSliceIndex, particle: particle, colour: depthColour)
                     
                     voxels.addChildNode(voxelNode)
@@ -100,13 +100,13 @@ class ViewController: UIViewController {
     }
     
     private func colourForSlice(_ z : Int) -> UIColor {
-        let saturation = CGFloat(z + 1) / CGFloat(contourTracer.G_DataDepth + 1)
+        let saturation = CGFloat(z + 1) / CGFloat(contourTracer.depth + 1)
         let hue : CGFloat = 0.7 + saturation * 0.2
         return UIColor(hue: hue, saturation: saturation, brightness: 1.0, alpha: 0.6)
     }
     
     private func colourForDepth(_ depth : Int) -> UIColor {
-        let saturation = CGFloat(abs(depth) + 1) / CGFloat(contourTracer.G_DataDepth + 1)
+        let saturation = CGFloat(abs(depth) + 1) / CGFloat(contourTracer.depth + 1)
         let hue : CGFloat = (depth > 0 ? 0.5 : 0.0) + saturation * 0.2
         return UIColor(hue: hue, saturation: saturation, brightness: 1.0, alpha: 1.0)
     }
