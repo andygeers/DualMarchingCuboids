@@ -11,16 +11,16 @@ public class VoxelGrid {
 
     static let G_Threshold = 50.0
     
-    public let data : [Int]
+    public var data : [Int]
     public let width : Int
     public let height : Int
     public let depth : Int
     
-    public init(data : [Int], width : Int, height : Int, depth : Int) {
-        self.data = data
+    public init(width : Int, height : Int, depth : Int) {
         self.width = width
         self.height = height
         self.depth = depth
+        self.data = [Int](repeating: 0, count: width * height * depth)
     }
     
     public func generateMesh() -> Mesh {

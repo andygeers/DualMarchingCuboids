@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct XYIterator : IteratorProtocol {
+public struct XYIterator : IteratorProtocol, Sequence {
     
     private let grid : VoxelGrid
     private let xRange : Range<Int>
@@ -45,3 +45,34 @@ public struct XYIterator : IteratorProtocol {
     }
 }
 
+public struct ZIterator : IteratorProtocol, Sequence {
+
+    private var x : Int
+    private var y : Int
+    private var z : Int
+    private let zRange : Range<Int>
+    private var index : Int
+    private let layerOffset : Int
+
+    init(grid: VoxelGrid, x : Int, y : Int, zRange : Range<Int>) {
+        self.x = x
+        self.y = y
+        self.zRange = zRange
+        
+        layerOffset = (grid.width * grid.height)
+        
+        z = zRange.lowerBound - 1
+        index = x + y * grid.width + z * layerOffset
+    }
+
+    public mutating func next() -> (Int, Int, Int, Int)? {
+        z += 1
+        index += layerOffset
+        if (z >= zRange.upperBound) {
+            return nil
+        } else {
+            return (x, y, z, index)
+        }
+    }
+
+}

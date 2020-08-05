@@ -29,7 +29,7 @@ class ViewController: UIViewController {
     
     @IBOutlet var sceneView : SCNView!
     
-    private var contourTracer : VoxelGrid!
+    private var grid : VoxelGrid!
     private var currentSliceIndex = 0
     private var currentSlice : Slice? = nil
     
@@ -37,8 +37,6 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         loadVoxels()
-        
-        contourTracer = VoxelGrid(data: gridData, width: width, height: height, depth: depth)
         
         currentSliceIndex = depth - 1
         
@@ -59,7 +57,7 @@ class ViewController: UIViewController {
         if currentSlice != nil {
             currentSliceIndex -= 1
         }
-        guard let currentSlice = XYSlice(contourTracer: contourTracer, z: currentSliceIndex, previousSlice: currentSlice) else { return }
+        guard let currentSlice = XYSlice(contourTracer: grid, z: currentSliceIndex, previousSlice: currentSlice) else { return }
         
         var newPolygons : [Euclid.Polygon] = []
         currentSlice.generatePolygons(&newPolygons, material: colourForSlice(currentSliceIndex))
@@ -83,8 +81,8 @@ class ViewController: UIViewController {
         var k = currentSlice.offset
         for y in 0 ..< height {
             for x in 0 ..< width {
-                if contourTracer.data[k] != 0  && x < 25 && y < 25  {
-                    let depthColour = colourForDepth(contourTracer.data[k])
+                if grid.data[k] != 0  && x < 25 && y < 25  {
+                    let depthColour = colourForDepth(grid.data[k])
                     let voxelNode = generateVoxel(x: x, y: y, z: currentSliceIndex, particle: particle, colour: depthColour)
                     
                     voxels.addChildNode(voxelNode)
@@ -100,30 +98,48 @@ class ViewController: UIViewController {
     }
     
     private func colourForSlice(_ z : Int) -> UIColor {
-        let saturation = CGFloat(z + 1) / CGFloat(contourTracer.depth + 1)
+        let saturation = CGFloat(z + 1) / CGFloat(grid.depth + 1)
         let hue : CGFloat = 0.7 + saturation * 0.2
         return UIColor(hue: hue, saturation: saturation, brightness: 1.0, alpha: 0.6)
     }
     
     private func colourForDepth(_ depth : Int) -> UIColor {
-        let saturation = CGFloat(abs(depth) + 1) / CGFloat(contourTracer.depth + 1)
+        let saturation = CGFloat(abs(depth) + 1) / CGFloat(grid.depth + 1)
         let hue : CGFloat = (depth > 0 ? 0.5 : 0.0) + saturation * 0.2
         return UIColor(hue: hue, saturation: saturation, brightness: 1.0, alpha: 1.0)
     }
     
     private func loadVoxels() {
         guard let image = UIImage(named: "01_bricks") else { return }
+        
         do {
-            (gridData, width, height, depth) = try Generator().processImage(image: image)
+            let brickTexture = try VoxelTexture(image: image)
+            let generator = Generator(texture: brickTexture)
+            
+            let maxDepth = generator.modelHeight + generator.baseHeight
+            depth = Int(ceil(maxDepth))
+            
+            width = brickTexture.width
+            height = brickTexture.height
+            
+            grid = VoxelGrid(width: width, height: height, depth: depth)
+            
+            generator.generateSurface(in: grid)
         } catch {
+            width = 10
+            height = 10
+            depth = 10
+            
+            grid = VoxelGrid(width: width, height: height, depth: depth)
             return
         }
+        
     }
     
     private func generateMesh() {
         NSLog("Generating mesh")
         
-        let mesh = contourTracer.generateMesh()
+        let mesh = grid.generateMesh()
         
         NSLog("Generated mesh with %d polygon(s)", mesh.polygons.count)
         

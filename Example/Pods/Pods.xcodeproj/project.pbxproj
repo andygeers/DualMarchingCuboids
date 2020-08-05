@@ -45,6 +45,8 @@
 		4B97BD308458A93E1F03EF7A7D5D4DCE /* RaisesException.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22B6CD4A6D061008FE0C14BF5BE4F5BA /* RaisesException.swift */; settings = {COMPILER_FLAGS = "-DPRODUCT_NAME=Nimble/Nimble"; }; };
 		4CBB32046E3B8844FFA021ACFC57702F /* ExpectationMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4608A8CD71C659C12E1D6CC77440B4E6 /* ExpectationMessage.swift */; settings = {COMPILER_FLAGS = "-DPRODUCT_NAME=Nimble/Nimble"; }; };
 		4E5EE3187B48F60A0FBA4EB9ACB7FD76 /* NSString+C99ExtendedIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C8C9579E6B67F901B9BFD083AD001C1 /* NSString+C99ExtendedIdentifier.swift */; };
+		522054CA24DA930E0022185D /* Generator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 522054C924DA930E0022185D /* Generator.swift */; };
+		522054CC24DA933F0022185D /* VoxelTexture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 522054CB24DA933F0022185D /* VoxelTexture.swift */; };
 		5221433E6847800B0533CAADF9BABA04 /* BeCloseTo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05114CE35ECBF36CBF5EC4296C0F1063 /* BeCloseTo.swift */; settings = {COMPILER_FLAGS = "-DPRODUCT_NAME=Nimble/Nimble"; }; };
 		52C36BA124D93ADC0001E9B6 /* Iterators.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52C36BA024D93ADC0001E9B6 /* Iterators.swift */; };
 		52C36BA324D93B2E0001E9B6 /* Slice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52C36BA224D93B2E0001E9B6 /* Slice.swift */; };
@@ -255,6 +257,8 @@
 		4C861FE5623022BDA624BCC5D4B72ECD /* mach_excServer.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = mach_excServer.c; path = Carthage/Checkouts/CwlPreconditionTesting/Sources/CwlMachBadInstructionHandler/mach_excServer.c; sourceTree = "<group>"; };
 		4E2A28F679F602DD74A7170B8E4D4B09 /* QuickSelectedTestSuiteBuilder.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = QuickSelectedTestSuiteBuilder.swift; path = Sources/Quick/QuickSelectedTestSuiteBuilder.swift; sourceTree = "<group>"; };
 		4F142FAC26DFCB41515165E023DAF3F1 /* World.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = World.swift; path = Sources/Quick/World.swift; sourceTree = "<group>"; };
+		522054C924DA930E0022185D /* Generator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Generator.swift; path = AdaptiveSkeletonClimbing/Classes/Generator.swift; sourceTree = "<group>"; };
+		522054CB24DA933F0022185D /* VoxelTexture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = VoxelTexture.swift; path = AdaptiveSkeletonClimbing/Classes/VoxelTexture.swift; sourceTree = "<group>"; };
 		5235E2EDB4A4501B7C53BAB15FD65D2D /* NSBundle+CurrentTestBundle.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "NSBundle+CurrentTestBundle.swift"; path = "Sources/Quick/NSBundle+CurrentTestBundle.swift"; sourceTree = "<group>"; };
 		525BBAD79F145A4055C76E975F2789B9 /* Rotation.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Rotation.swift; path = Sources/Rotation.swift; sourceTree = "<group>"; };
 		52C36BA024D93ADC0001E9B6 /* Iterators.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Iterators.swift; path = AdaptiveSkeletonClimbing/Classes/Iterators.swift; sourceTree = "<group>"; };
@@ -641,6 +645,8 @@
 				52C36BA224D93B2E0001E9B6 /* Slice.swift */,
 				878C5C131B61CF82F08227DDD934F57C /* VoxelGrid.swift */,
 				52C36BA024D93ADC0001E9B6 /* Iterators.swift */,
+				522054C924DA930E0022185D /* Generator.swift */,
+				522054CB24DA933F0022185D /* VoxelTexture.swift */,
 				F7026AA3EFC1F098211F986733F56349 /* Pod */,
 				918EDCFBA4C85F6222B474A00393AF5D /* Support Files */,
 			);
@@ -1039,7 +1045,9 @@
 				52C36BA324D93B2E0001E9B6 /* Slice.swift in Sources */,
 				E6DFB15D08A99C03F4020735857741A0 /* AdaptiveSkeletonClimbing-dummy.m in Sources */,
 				52D2408424C0855200E8762C /* DoublyLinkedList.swift in Sources */,
+				522054CA24DA930E0022185D /* Generator.swift in Sources */,
 				52C36BA124D93ADC0001E9B6 /* Iterators.swift in Sources */,
+				522054CC24DA933F0022185D /* VoxelTexture.swift in Sources */,
 				BA4BB93FA1FB20D473F9792773DF8DD1 /* VoxelGrid.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
