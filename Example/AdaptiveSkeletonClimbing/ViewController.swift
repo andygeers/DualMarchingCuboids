@@ -59,7 +59,7 @@ class ViewController: UIViewController {
         if currentSlice != nil {
             currentSliceIndex -= 1
         }
-        guard let currentSlice = Slice(contourTracer: contourTracer, z: currentSliceIndex, previousSlice: currentSlice) else { return }
+        guard let currentSlice = XYSlice(contourTracer: contourTracer, z: currentSliceIndex, previousSlice: currentSlice) else { return }
         
         var newPolygons : [Euclid.Polygon] = []
         currentSlice.generatePolygons(&newPolygons, material: colourForSlice(currentSliceIndex))

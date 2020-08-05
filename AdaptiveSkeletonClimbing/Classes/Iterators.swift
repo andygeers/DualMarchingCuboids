@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct XYIterator : IteratorProtocol, Sequence {
+public struct XYIterator : IteratorProtocol {
     
     private let grid : VoxelGrid
     private let xRange : Range<Int>
