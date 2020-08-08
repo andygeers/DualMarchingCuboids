@@ -73,8 +73,9 @@ class ViewController: UIViewController {
             let particle = voxelGeometry()
             
             for (x, y, z, _, _, k) in currentSlice {
-                if grid.data[k] != 0 && x < 25 && y < 25 && z < 25 {
-                    let depthColour = colourForDepth(grid.data[k])
+                let cellData = grid.data[k] >> 2
+                if cellData != 0 && x < 25 && y < 25 && z < 25 {
+                    let depthColour = colourForDepth(cellData)
                     let voxelNode = generateVoxel(x: x, y: y, z: z, particle: particle, colour: depthColour)
                     
                     voxels.addChildNode(voxelNode)
@@ -119,12 +120,10 @@ class ViewController: UIViewController {
             
             grid = VoxelGrid(width: width, height: height, depth: depth)
             
-//            guard let xySlice = XYSlice(grid: grid, z: 0) else { return }
-//
-//            generator.generateSurface(on: xySlice)
+            guard let xySlice = XYSlice(grid: grid, z: grid.depth - maxDepth - 1) else { return }
+            generator.generateSurface(on: xySlice)
             
-            guard let yzSlice = YZSlice(grid: grid, x: 0) else { return }
-            
+            guard let yzSlice = YZSlice(grid: grid, x: grid.width - maxDepth - 1) else { return }
             generator.generateSurface(on: yzSlice)
             
         } else {
@@ -154,12 +153,12 @@ class ViewController: UIViewController {
         let node = SCNNode(geometry: geometry)
         scene.rootNode.addChildNode(node)
         
-        let cameraNode = SCNNode()
-        let camera = SCNCamera()
-        cameraNode.camera = camera
-        scene.rootNode.addChildNode(cameraNode)
-        cameraNode.position = SCNVector3(50.0, 0.0, 0.0)
-        cameraNode.look(at: SCNVector3(0.0, 0.0, 0.0))
+//        let cameraNode = SCNNode()
+//        let camera = SCNCamera()
+//        cameraNode.camera = camera
+//        scene.rootNode.addChildNode(cameraNode)
+//        cameraNode.position = SCNVector3(150.0, 0.0, 150.0)
+//        cameraNode.look(at: SCNVector3(0.0, 0.0, 0.0))
         
         self.sceneView.scene = scene
         
@@ -184,7 +183,8 @@ class ViewController: UIViewController {
         let cameraNode = SCNNode()
         let camera = SCNCamera()
         cameraNode.camera = camera
-        cameraNode.position = SCNVector3(CGFloat(width) / 2.0, CGFloat(height) / 2.0, 50.0)
+        camera.zFar = 200.0
+        cameraNode.position = SCNVector3(CGFloat(width) * 0.5, CGFloat(height) / 2.0, CGFloat(depth) * 1.5)
         cameraNode.look(at: SCNVector3(CGFloat(width) / 2.0, CGFloat(height) / 2.0, 0.0))
         scene.rootNode.addChildNode(cameraNode)
     }

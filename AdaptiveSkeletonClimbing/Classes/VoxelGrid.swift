@@ -7,6 +7,12 @@
 
 import Euclid
 
+enum VoxelAxis : Int {
+    case none = 0
+    case xy = 1
+    case yz = 2
+}
+
 public class VoxelGrid : Sequence {
 
     static let G_Threshold = 50.0

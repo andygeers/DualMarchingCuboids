@@ -43,7 +43,7 @@ public class Generator {
                 var value = 1
                 for k in slice.perpendicularIndices(range: (0 ..< depth)).reversed() {
                     // Voxel data should be 1 at the surface and count up towards the back
-                    slice.grid.data[index + k] = value
+                    slice.grid.data[index + k] = slice.grid.data[index + k] | (value << 2) | slice.axisMask.rawValue
                     value += 1
                 }
             }

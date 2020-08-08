@@ -53,9 +53,11 @@ public class Slice : Sequence {
     }
     
     public var layerDepth : Int {
-        get {
-            return 0
-        }
+        return 0
+    }
+    
+    var axisMask : VoxelAxis {
+        return .none
     }
     
     public func makeIterator() -> SliceAxisIterator {
@@ -76,14 +78,14 @@ public class Slice : Sequence {
     
     public func generatePolygons(_ polygons : inout [Euclid.Polygon], material: Euclid.Polygon.Material = UIColor.blue) {
                 
-        NSLog("Offset 1 is %@", String(describing: Slice.vertexOffsets[1].rotated(by: self.rotation)))
-        
         for (x, y, z, _, _, index) in self {
             
-            let depth = grid.data[index]
+            let cellData = grid.data[index]
+            let depth = cellData >> 2
+            let axes = cellData & 0x3
                 
             // See if we're newly filled
-            if (depth == 1) {
+            if (depth == 1) && (axes == self.axisMask.rawValue) {
                 
                 let depths = findNeighbouringDepths(x: x, y: y, z: z, index: index)
                 let centre = Vector(Double(x), Double(y), Double(z))
@@ -111,6 +113,19 @@ public class Slice : Sequence {
     fileprivate func findNeighbouringDepths(x : Int, y : Int, z : Int, index : Int) -> [Int] {
         return []
     }
+    
+    fileprivate func dataToDepths(_ data : [Int]) -> [Int] {
+        let mask = self.axisMask.rawValue
+        
+        return data.map { (d : Int) in
+            // Only return depths in the same axis
+            if (d & mask == mask) {
+                return d >> 2
+            } else {
+                return 0
+            }
+        }
+    }
 }
 
 public class XYSlice : Slice {
@@ -132,9 +147,11 @@ public class XYSlice : Slice {
     }
     
     override public var layerDepth : Int {
-        get {
-            return z
-        }
+        return z
+    }
+    
+    override var axisMask : VoxelAxis {
+        return .xy
     }
     
     override public func makeIterator() -> SliceAxisIterator {
@@ -160,7 +177,7 @@ public class XYSlice : Slice {
             6/////7////8
          */
         // See if any of the other eight vertices are available yet
-        return [
+        return dataToDepths([
             grid.data[index],
             x < grid.width ? grid.data[index + 1] : 0,
             y < grid.height ? grid.data[index + grid.width] : 0,
@@ -170,7 +187,7 @@ public class XYSlice : Slice {
             x > 0 && y > 0 ? grid.data[index - 1 - grid.width] : 0,
             y > 0 ? grid.data[index - grid.width] : 0,
             x < grid.width && y > 0 ? grid.data[index + 1 - grid.width] : 0
-        ]
+        ])
     }
 }
 
@@ -195,9 +212,11 @@ public class YZSlice : Slice {
     }
     
     override public var layerDepth : Int {
-        get {
-            return x
-        }
+        return x
+    }
+    
+    override var axisMask : VoxelAxis {
+        return .yz
     }
     
     override public func makeIterator() -> SliceAxisIterator {
@@ -224,7 +243,7 @@ public class YZSlice : Slice {
          */
         // See if any of the other eight vertices are available yet
         let layerOffset = grid.width * grid.height
-        return [
+        return dataToDepths([
             grid.data[index],
             z < grid.depth ? grid.data[index + layerOffset] : 0,
             y < grid.height ? grid.data[index + grid.width] : 0,
@@ -234,7 +253,7 @@ public class YZSlice : Slice {
             z > 0 && y > 0 ? grid.data[index - layerOffset - grid.width] : 0,
             y > 0 ? grid.data[index - grid.width] : 0,
             z < grid.depth && y > 0 ? grid.data[index + layerOffset - grid.width] : 0
-        ]
+        ])
     }
     
     override fileprivate func applyVertexOrdering(_ vertexPositions : [Vector]) -> [Vector] {
