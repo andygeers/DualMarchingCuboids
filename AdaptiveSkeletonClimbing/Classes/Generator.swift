@@ -30,29 +30,25 @@ public class Generator {
         return (x < 0) || (y < 0) || (x >= alphaMap.count - 1) || (y >= alphaMap[0].count - 1) || (alphaMap[x][y] == 0.0) && (alphaMap[x+1][y] == 0.0) && (alphaMap[x+1][y+1] == 0.0) && (alphaMap[x][y+1] == 0.0)
     }
     
-    public func generateSurface(in grid: VoxelGrid) {
+    public func generateSurface(on slice: Slice) {
                 
-        let iterator = XYIterator(grid: grid, xRange: 0 ..< texture.width - 1, yRange: 0 ..< texture.height - 1, z: 0)
+        let iterator = slice.iterator(range1: 0 ..< texture.width - 1, yRange: 0 ..< texture.height - 1)
         
-        for (j, i, _, index) in iterator {
-                                
+        for (_, _, _, j, i, index) in iterator {
+            
             if (!self.isTransparent(x: j, y: i, alphaMap: texture.alphaMap)) {
                                 
                 let depth = Int(outputHeight(texture.heightMap[j][i]))
                 
                 var value = 1
-                for k in perpendicularIndices(grid: grid, range: (0 ..< depth)) {
+                for k in slice.perpendicularIndices(range: (0 ..< depth)).reversed() {
                     // Voxel data should be 1 at the surface and count up towards the back
-                    grid.data[index + k] = value
+                    slice.grid.data[index + k] = value
                     value += 1
                 }
             }
         }
-    }
-    
-    private func perpendicularIndices(grid: VoxelGrid, range: Range<Int>) -> [Int] {
-        return ZIterator(grid: grid, x: 0, y: 0, zRange: range).map { $0.3 }.reversed()
-    }
+    }        
     
     private func outputHeight(_ height : Double) -> Double {
         if (height == Generator.HOLE_DEPTH) {

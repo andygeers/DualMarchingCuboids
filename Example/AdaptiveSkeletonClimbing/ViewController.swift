@@ -30,16 +30,12 @@ class ViewController: UIViewController {
     @IBOutlet var sceneView : SCNView!
     
     private var grid : VoxelGrid!
-    private var currentSliceIndex = 0
-    private var currentSlice : Slice? = nil
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         loadVoxels()
-        
-        currentSliceIndex = depth - 1
-        
+                
         initialiseScene()
         
         //generateMesh()
@@ -54,47 +50,41 @@ class ViewController: UIViewController {
     private func visualiseNextSlice() {
         guard let scene = self.sceneView.scene else { return }
         
-        if currentSlice != nil {
-            currentSliceIndex -= 1
-        }
-        guard let currentSlice = XYSlice(contourTracer: grid, z: currentSliceIndex, previousSlice: currentSlice) else { return }
+        for currentSlice in grid {
         
-        var newPolygons : [Euclid.Polygon] = []
-        currentSlice.generatePolygons(&newPolygons, material: colourForSlice(currentSliceIndex))
-        polygons.append(contentsOf: newPolygons)
-        
-        let mesh = Mesh(newPolygons)
-        let geom = SCNGeometry(mesh, materialLookup: {
-            let material = SCNMaterial()
-            material.diffuse.contents = $0
-            return material
-        })
-        let node = SCNNode(geometry: geom)
-        scene.rootNode.addChildNode(node)
-        
-        self.currentSlice = currentSlice
-        
-        let voxels = SCNNode()
-        
-        let particle = voxelGeometry()
-        
-        var k = currentSlice.offset
-        for y in 0 ..< height {
-            for x in 0 ..< width {
-                if grid.data[k] != 0  && x < 25 && y < 25  {
+            var newPolygons : [Euclid.Polygon] = []
+            currentSlice.generatePolygons(&newPolygons, material: colourForSlice(currentSlice.layerDepth))
+            polygons.append(contentsOf: newPolygons)
+            
+            let mesh = Mesh(newPolygons)
+            
+            sceneView.pointOfView?.look(at: SCNVector3(mesh.bounds.center))
+            
+            let geom = SCNGeometry(mesh, materialLookup: {
+                let material = SCNMaterial()
+                material.diffuse.contents = $0
+                return material
+            })
+            let node = SCNNode(geometry: geom)
+            scene.rootNode.addChildNode(node)
+            
+            let voxels = SCNNode()
+            
+            let particle = voxelGeometry()
+            
+            for (x, y, z, _, _, k) in currentSlice {
+                if grid.data[k] != 0 && x < 25 && y < 25 && z < 25 {
                     let depthColour = colourForDepth(grid.data[k])
-                    let voxelNode = generateVoxel(x: x, y: y, z: currentSliceIndex, particle: particle, colour: depthColour)
+                    let voxelNode = generateVoxel(x: x, y: y, z: z, particle: particle, colour: depthColour)
                     
                     voxels.addChildNode(voxelNode)
                 }
-                
-                k += 1
             }
+            
+            NSLog("Found %d voxel(s)", voxels.childNodes.count)
+            
+            scene.rootNode.addChildNode(voxels)
         }
-        
-        NSLog("Found %d voxel(s)", voxels.childNodes.count)
-        
-        scene.rootNode.addChildNode(voxels)
     }
     
     private func colourForSlice(_ z : Int) -> UIColor {
@@ -112,26 +102,37 @@ class ViewController: UIViewController {
     private func loadVoxels() {
         guard let image = UIImage(named: "01_bricks") else { return }
         
+        let brickTexture : VoxelTexture?
         do {
-            let brickTexture = try VoxelTexture(image: image)
+            brickTexture = try VoxelTexture(image: image)
+        } catch {
+            brickTexture = nil
+        }
+        
+        if let brickTexture = brickTexture {
             let generator = Generator(texture: brickTexture)
             
-            let maxDepth = generator.modelHeight + generator.baseHeight
-            depth = Int(ceil(maxDepth))
-            
+            let maxDepth = Int(ceil(generator.modelHeight + generator.baseHeight))
             width = brickTexture.width
             height = brickTexture.height
+            depth = brickTexture.width
             
             grid = VoxelGrid(width: width, height: height, depth: depth)
             
-            generator.generateSurface(in: grid)
-        } catch {
+//            guard let xySlice = XYSlice(grid: grid, z: 0) else { return }
+//
+//            generator.generateSurface(on: xySlice)
+            
+            guard let yzSlice = YZSlice(grid: grid, x: 0) else { return }
+            
+            generator.generateSurface(on: yzSlice)
+            
+        } else {
             width = 10
             height = 10
             depth = 10
             
             grid = VoxelGrid(width: width, height: height, depth: depth)
-            return
         }
         
     }
@@ -156,7 +157,8 @@ class ViewController: UIViewController {
         let cameraNode = SCNNode()
         let camera = SCNCamera()
         cameraNode.camera = camera
-        cameraNode.position = SCNVector3(0.0, 50.0, 50.0)
+        scene.rootNode.addChildNode(cameraNode)
+        cameraNode.position = SCNVector3(50.0, 0.0, 0.0)
         cameraNode.look(at: SCNVector3(0.0, 0.0, 0.0))
         
         self.sceneView.scene = scene

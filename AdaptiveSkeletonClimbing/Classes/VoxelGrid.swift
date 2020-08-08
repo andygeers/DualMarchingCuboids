@@ -7,7 +7,7 @@
 
 import Euclid
 
-public class VoxelGrid {
+public class VoxelGrid : Sequence {
 
     static let G_Threshold = 50.0
     
@@ -25,5 +25,9 @@ public class VoxelGrid {
     
     public func generateMesh() -> Mesh {
         return Mesh([])
+    }
+    
+    public func makeIterator() -> SlicesIterator {
+        return SlicesIterator(grid: self)
     }
 }

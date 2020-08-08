@@ -7,7 +7,15 @@
 
 import Foundation
 
-public struct XYIterator : IteratorProtocol, Sequence {
+public class SliceAxisIterator : IteratorProtocol, Sequence {
+    
+    public func next() -> (Int, Int, Int, Int, Int, Int)? {
+        return nil
+    }
+    
+}
+
+public class XYIterator : SliceAxisIterator {
     
     private let grid : VoxelGrid
     private let xRange : Range<Int>
@@ -25,10 +33,10 @@ public struct XYIterator : IteratorProtocol, Sequence {
         x = xRange.lowerBound - 1
         y = yRange.lowerBound
         self.z = z
-        index = xRange.lowerBound + yRange.lowerBound * grid.width + z * (grid.width * grid.height) - 1
+        index = x + y * grid.width + z * (grid.width * grid.height)
     }
     
-    public mutating func next() -> (Int, Int, Int, Int)? {
+    override public func next() -> (Int, Int, Int, Int, Int, Int)? {
         x += 1
         index += 1
         if (x >= xRange.upperBound) {
@@ -41,11 +49,11 @@ public struct XYIterator : IteratorProtocol, Sequence {
             }
         }
         
-        return (x, y, z, index)
+        return (x, y, z, x, y, index)
     }
 }
 
-public struct ZIterator : IteratorProtocol, Sequence {
+public class ZIterator : IteratorProtocol, Sequence {
 
     private var x : Int
     private var y : Int
@@ -65,7 +73,7 @@ public struct ZIterator : IteratorProtocol, Sequence {
         index = x + y * grid.width + z * layerOffset
     }
 
-    public mutating func next() -> (Int, Int, Int, Int)? {
+    public func next() -> (Int, Int, Int, Int)? {
         z += 1
         index += layerOffset
         if (z >= zRange.upperBound) {
@@ -75,4 +83,94 @@ public struct ZIterator : IteratorProtocol, Sequence {
         }
     }
 
+}
+
+public class YZIterator : SliceAxisIterator {
+    
+    private let grid : VoxelGrid
+    private let yRange : Range<Int>
+    private let zRange : Range<Int>
+    private let x : Int
+    private var y : Int
+    private var z : Int
+    private var index : Int
+    
+    init(grid: VoxelGrid, x : Int, yRange : Range<Int>, zRange : Range<Int>) {
+        self.grid = grid
+        self.yRange = yRange
+        self.zRange = zRange
+        
+        self.x = x
+        y = yRange.lowerBound
+        z = zRange.lowerBound - 1
+        
+        index = x + y * grid.width + z * (grid.width * grid.height)
+    }
+    
+    override public func next() -> (Int, Int, Int, Int, Int, Int)? {
+        z += 1
+        index += grid.width * grid.height
+        if (z >= zRange.upperBound) {
+            z = zRange.lowerBound
+            y += 1
+            
+            if (y >= yRange.upperBound) {
+                return nil
+            }
+            
+            index = x + y * grid.width + z * (grid.width * grid.height)
+        }
+        
+        return (x, y, z, z, y, index)
+    }
+}
+
+public class XIterator : IteratorProtocol, Sequence {
+
+    private var x : Int
+    private var y : Int
+    private var z : Int
+    private let xRange : Range<Int>
+    private var index : Int
+
+    init(grid: VoxelGrid, xRange : Range<Int>, y : Int, z : Int) {
+        self.y = y
+        self.z = z
+        self.xRange = xRange
+        
+        x = xRange.lowerBound - 1
+        index = x + y * grid.width + z * (grid.width * grid.height)
+    }
+
+    public func next() -> (Int, Int, Int, Int)? {
+        x += 1
+        index += 1
+        if (x >= xRange.upperBound) {
+            return nil
+        } else {
+            return (x, y, z, index)
+        }
+    }
+
+}
+
+public struct SlicesIterator : IteratorProtocol {
+    let grid : VoxelGrid
+    var currentSliceIndex : Int
+    var previousSlice : Slice? = nil
+    
+    public init(grid: VoxelGrid) {
+        self.grid = grid
+        
+        //currentSliceIndex = grid.depth - 1
+        currentSliceIndex = grid.width
+    }
+    
+    public mutating func next() -> Slice? {
+        currentSliceIndex -= 1
+        //guard let currentSlice = XYSlice(grid: grid, z: currentSliceIndex, previousSlice: currentSlice) else { return nil }
+        guard let currentSlice = YZSlice(grid: grid, x: currentSliceIndex, previousSlice: previousSlice) else { return nil }
+        previousSlice = currentSlice
+        return currentSlice
+    }
 }
