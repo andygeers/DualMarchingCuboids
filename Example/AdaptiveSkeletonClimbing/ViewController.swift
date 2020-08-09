@@ -74,7 +74,7 @@ class ViewController: UIViewController {
             
             for (x, y, z, _, _, k) in currentSlice {
                 let cellData = grid.data[k] >> 2
-                if cellData != 0 && x < 25 && y < 25 && z < 25 {
+                if cellData != 0 && grid.data[k] & 0x3 == 1 && (x < 25 || y < 25 || z < 25) && false {
                     let depthColour = colourForDepth(cellData)
                     let voxelNode = generateVoxel(x: x, y: y, z: z, particle: particle, colour: depthColour)
                     
@@ -198,34 +198,6 @@ class ViewController: UIViewController {
         
         self.sceneView.allowsCameraControl = true
         self.sceneView.showsStatistics = true
-    }
-    
-    private func visualiseVoxels() {
-        
-        guard let scene = self.sceneView.scene else { return }
-        
-        let voxels = SCNNode()
-        
-        let particle = voxelGeometry()
-        
-        var k = 0
-        for z in 0 ..< depth {
-            for y in 0 ..< height {
-                for x in 0 ..< width {
-                    if gridData[k] >= threshold {
-                        let voxelNode = generateVoxel(x: x, y: y, z: z, particle: particle)
-                        
-                        voxels.addChildNode(voxelNode)
-                    }
-                    
-                    k += 1
-                }
-            }
-        }
-        
-        NSLog("Found %d voxel(s)", voxels.childNodes.count)
-        
-        scene.rootNode.addChildNode(voxels)
     }
 
     @IBAction func nextSlice() {

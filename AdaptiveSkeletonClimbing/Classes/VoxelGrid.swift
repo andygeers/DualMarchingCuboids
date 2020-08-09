@@ -22,6 +22,8 @@ public class VoxelGrid : Sequence {
     public let height : Int
     public let depth : Int
     
+    internal var boundingBoxes : [VoxelBoundingBox] = []
+    
     public init(width : Int, height : Int, depth : Int) {
         self.width = width
         self.height = height
@@ -35,5 +37,9 @@ public class VoxelGrid : Sequence {
     
     public func makeIterator() -> SlicesIterator {
         return SlicesIterator(grid: self)
+    }
+    
+    internal func addBoundingBox(_ bounds: VoxelBoundingBox) {
+        boundingBoxes.append(bounds)
     }
 }

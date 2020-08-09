@@ -34,11 +34,14 @@ public class Generator {
                 
         let iterator = slice.iterator(range1: 0 ..< texture.width - 1, yRange: 0 ..< texture.height - 1)
         
-        for (_, _, _, j, i, index) in iterator {
+        var bounds = VoxelBoundingBox(min: VoxelCoordinates.max, max: VoxelCoordinates.zero, axis: slice.axisMask)
+        
+        for (x, y, z, j, i, index) in iterator {
             
             if (!self.isTransparent(x: j, y: i, alphaMap: texture.alphaMap)) {
-                                
                 let depth = Int(outputHeight(texture.heightMap[j][i]))
+                
+                bounds.merge(VoxelCoordinates(x: x, y: y, z: z), depth: depth)
                 
                 var value = 1
                 for k in slice.perpendicularIndices(range: (0 ..< depth)).reversed() {
@@ -48,6 +51,11 @@ public class Generator {
                 }
             }
         }
+        
+        NSLog("New bounds: %@ to %@", String(describing: bounds.min), String(describing: bounds.max))
+        
+        // Add a bounding box
+        slice.grid.addBoundingBox(bounds)
     }        
     
     private func outputHeight(_ height : Double) -> Double {

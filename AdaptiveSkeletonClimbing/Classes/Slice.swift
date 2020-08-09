@@ -159,7 +159,7 @@ public class XYSlice : Slice {
     }
     
     override public func iterator(range1 : Range<Int>, yRange : Range<Int>) -> Iterator {
-        return XYIterator(grid: grid, xRange: range1, yRange: yRange, z: 0)
+        return XYIterator(grid: grid, xRange: range1, yRange: yRange, z: self.z)
     }
     
     override public func perpendicularIndices(range: Range<Int>) -> [Int] {
@@ -224,7 +224,7 @@ public class YZSlice : Slice {
     }
     
     override public func iterator(range1 : Range<Int>, yRange : Range<Int>) -> Iterator {
-        return YZIterator(grid: grid, x: 0, yRange: yRange, zRange: range1)
+        return YZIterator(grid: grid, x: self.x, yRange: yRange, zRange: range1)
     }
     
     override public func perpendicularIndices(range: Range<Int>) -> [Int] {

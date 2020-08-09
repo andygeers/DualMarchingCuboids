@@ -158,19 +158,64 @@ public struct SlicesIterator : IteratorProtocol {
     let grid : VoxelGrid
     var currentSliceIndex : Int
     var previousSlice : Slice? = nil
+    var boundingBox : VoxelBoundingBox
+    var boundingBoxIndex : Int
     
     public init(grid: VoxelGrid) {
         self.grid = grid
         
+        boundingBoxIndex = 0
+        guard boundingBoxIndex < grid.boundingBoxes.count else {
+            currentSliceIndex = Int.max
+            boundingBox = VoxelBoundingBox(min: VoxelCoordinates.zero, max: VoxelCoordinates.zero, axis: .none)
+            return
+        }
+        
+        boundingBox = grid.boundingBoxes[boundingBoxIndex]
+        
         //currentSliceIndex = grid.depth - 1
-        currentSliceIndex = grid.width
+        currentSliceIndex = boundingBox.finalIndex + 1
     }
     
     public mutating func next() -> Slice? {
         currentSliceIndex -= 1
-        //guard let currentSlice = XYSlice(grid: grid, z: currentSliceIndex, previousSlice: currentSlice) else { return nil }
-        guard let currentSlice = YZSlice(grid: grid, x: currentSliceIndex, previousSlice: previousSlice) else { return nil }
-        previousSlice = currentSlice
+        
+        while (currentSliceIndex < boundingBox.firstIndex) {
+            nextBoundingBox()
+        }
+        
+        var currentSlice : Slice? = nil
+        
+        while (currentSlice == nil) {
+            switch (boundingBox.axis) {
+            case .xy:
+                currentSlice = XYSlice(grid: grid, z: currentSliceIndex, previousSlice: previousSlice)
+                
+            case .yz:
+                currentSlice = YZSlice(grid: grid, x: currentSliceIndex, previousSlice: previousSlice)
+                    
+            default:
+                return nil
+            }
+            
+            if (currentSlice == nil) {
+                nextBoundingBox()
+            }
+            
+            previousSlice = currentSlice
+        }
         return currentSlice
+    }
+    
+    private mutating func nextBoundingBox() {
+        boundingBoxIndex += 1
+        if (boundingBoxIndex >= grid.boundingBoxes.count) {
+            currentSliceIndex = Int.max
+            boundingBox = VoxelBoundingBox(min: VoxelCoordinates.zero, max: VoxelCoordinates.zero, axis: .none)
+            return
+        }
+        boundingBox = grid.boundingBoxes[boundingBoxIndex]
+        currentSliceIndex = boundingBox.finalIndex
+        previousSlice = nil
     }
 }
