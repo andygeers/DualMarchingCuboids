@@ -87,7 +87,8 @@ public class Slice : Sequence {
             // See if we're newly filled
             if (depth == 1) && (axes == self.axisMask.rawValue) {
                 
-                let depths = findNeighbouringDepths(x: x, y: y, z: z, index: index)
+                let neighbouring = findNeighbouringData(x: x, y: y, z: z, index: index)
+                let depths = dataToDepths(neighbouring)
                 let centre = Vector(Double(x), Double(y), Double(z))
                 
                 // We will include a polygon if:
@@ -110,7 +111,7 @@ public class Slice : Sequence {
         }
     }
     
-    fileprivate func findNeighbouringDepths(x : Int, y : Int, z : Int, index : Int) -> [Int] {
+    fileprivate func findNeighbouringData(x : Int, y : Int, z : Int, index : Int) -> [Int] {
         return []
     }
     
@@ -119,7 +120,7 @@ public class Slice : Sequence {
         
         return data.map { (d : Int) in
             // Only return depths in the same axis
-            if (d & mask == mask) {
+            if (d & 0x3 == mask) {
                 return d >> 2
             } else {
                 return 0
@@ -166,7 +167,7 @@ public class XYSlice : Slice {
         return ZIterator(grid: grid, x: 0, y: 0, zRange: range).map { $0.3 }
     }
     
-    override fileprivate func findNeighbouringDepths(x : Int, y : Int, z : Int, index : Int) -> [Int] {
+    override fileprivate func findNeighbouringData(x : Int, y : Int, z : Int, index : Int) -> [Int] {
         /*
             5/////2////3
             //  ///  ///
@@ -177,7 +178,7 @@ public class XYSlice : Slice {
             6/////7////8
          */
         // See if any of the other eight vertices are available yet
-        return dataToDepths([
+        return [
             grid.data[index],
             x < grid.width ? grid.data[index + 1] : 0,
             y < grid.height ? grid.data[index + grid.width] : 0,
@@ -187,7 +188,7 @@ public class XYSlice : Slice {
             x > 0 && y > 0 ? grid.data[index - 1 - grid.width] : 0,
             y > 0 ? grid.data[index - grid.width] : 0,
             x < grid.width && y > 0 ? grid.data[index + 1 - grid.width] : 0
-        ])
+        ]
     }
 }
 
@@ -231,7 +232,7 @@ public class YZSlice : Slice {
         return XIterator(grid: grid, xRange: range, y: 0, z: 0).map { $0.3 }
     }
     
-    override fileprivate func findNeighbouringDepths(x : Int, y : Int, z : Int, index : Int) -> [Int] {
+    override fileprivate func findNeighbouringData(x : Int, y : Int, z : Int, index : Int) -> [Int] {
         /*
             5/////2////3
             //  ///  ///
@@ -243,7 +244,7 @@ public class YZSlice : Slice {
          */
         // See if any of the other eight vertices are available yet
         let layerOffset = grid.width * grid.height
-        return dataToDepths([
+        return [
             grid.data[index],
             z < grid.depth ? grid.data[index + layerOffset] : 0,
             y < grid.height ? grid.data[index + grid.width] : 0,
@@ -253,7 +254,7 @@ public class YZSlice : Slice {
             z > 0 && y > 0 ? grid.data[index - layerOffset - grid.width] : 0,
             y > 0 ? grid.data[index - grid.width] : 0,
             z < grid.depth && y > 0 ? grid.data[index + layerOffset - grid.width] : 0
-        ])
+        ]
     }
     
     override fileprivate func applyVertexOrdering(_ vertexPositions : [Vector]) -> [Vector] {
