@@ -138,10 +138,10 @@ public class XYSlice : Slice {
         let previousXYSlice = previousSlice as? XYSlice
         
         self.z = z
-        let previousZ = (previousXYSlice?.z ?? (z == 0 ? -1 : grid.depth))
+        let previousZ = previousXYSlice?.z ?? grid.depth
         self.zOffset = Double(z - previousZ)
         
-        let axis = Vector(0.0, 0.0, zOffset)
+        let axis = Vector(0.0, 0.0, zOffset).normalized()
         
         super.init(grid: grid, previousSlice: previousSlice, rotation: Rotation.identity, axis: axis)
     }
@@ -201,10 +201,10 @@ public class YZSlice : Slice {
         let previousYZSlice = previousSlice as? YZSlice
         
         self.x = x
-        let previousX = (previousYZSlice?.x ?? (x == 0 ? -1 : grid.width))
+        let previousX = previousYZSlice?.x ?? grid.width
         self.xOffset = Double(x - previousX)
         
-        let axis = Vector(xOffset, 0.0, 0.0)
+        let axis = Vector(xOffset, 0.0, 0.0).normalized()
         
         let rotation = Rotation(axis: Vector(0.0, 1.0, 0.0), radians: Double.pi / 2.0)!
         
