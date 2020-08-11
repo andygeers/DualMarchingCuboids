@@ -42,9 +42,9 @@ public class VoxelGrid : Sequence {
     
     internal func addBoundingBox(_ bounds: VoxelBoundingBox) {
         // See if this bounds intersects any intersecting bounds
-        for intersection in findIntersections(with: bounds) {
-            mergeIntersection(intersection)
-        }
+//        for intersection in findIntersections(with: bounds) {
+//            mergeIntersection(intersection)
+//        }
         
         boundingBoxes.append(bounds)
     }

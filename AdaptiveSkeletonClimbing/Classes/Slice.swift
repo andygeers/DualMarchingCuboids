@@ -324,7 +324,9 @@ public class MarchingCubesSlice : XYSlice {
                 
                 let positions = edges.map { (MarchingCubes.vertexOffsets[$0[0]] + MarchingCubes.vertexOffsets[$0[1]]) / 2.0 + centre }
                 
-                if let poly = Polygon(positions.map { Vertex($0, Vector.zero) }, material: UIColor.blue) {
+                let plane = Plane(points: positions)
+                
+                if let poly = Polygon(positions.map { Vertex($0, plane?.normal ?? Vector.zero) }, material: material) {
                     polygons.append(poly)
                 }
             }
