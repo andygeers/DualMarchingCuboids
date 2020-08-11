@@ -11,6 +11,7 @@ enum VoxelAxis : Int {
     case none = 0
     case xy = 1
     case yz = 2
+    case multiple = 3
 }
 
 public class VoxelGrid : Sequence {
@@ -40,6 +41,47 @@ public class VoxelGrid : Sequence {
     }
     
     internal func addBoundingBox(_ bounds: VoxelBoundingBox) {
+        // See if this bounds intersects any intersecting bounds
+        for intersection in findIntersections(with: bounds) {
+            mergeIntersection(intersection)
+        }
+        
         boundingBoxes.append(bounds)
+    }
+    
+    private func mergeIntersection(_ intersection : VoxelBoundingBox) {
+        // Partition the bounding boxes so that all of the overlapping ones are together
+        let firstOverlappingIndex = boundingBoxes.partition(by: { $0.axis == .multiple })
+        
+        var hasMerged = false
+        for i in firstOverlappingIndex ..< boundingBoxes.count {
+            if (boundingBoxes[i].intersects(with: intersection)) {
+                // Let's remove this element, merge and then re-insert the result
+                boundingBoxes.swapAt(i, boundingBoxes.count - 1)
+                var overlapping = boundingBoxes.popLast()!
+                overlapping.merge(intersection)
+                mergeIntersection(overlapping)
+                hasMerged = true
+                break
+            }
+        }
+        
+        if (!hasMerged) {
+            boundingBoxes.append(intersection)
+        }
+    }
+    
+    private func findIntersections(with bounds : VoxelBoundingBox) -> [VoxelBoundingBox] {
+        
+        var intersections : [VoxelBoundingBox] = []
+        for otherBounds in boundingBoxes {
+            guard otherBounds.axis != .multiple else { continue }
+            
+            if let intersection = bounds.intersection(with: otherBounds) {
+                // See if this intersects any existing intersections
+                intersections.append(intersection)
+            }
+        }
+        return intersections
     }
 }

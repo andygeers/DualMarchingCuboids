@@ -45,6 +45,8 @@ public class Slice : Sequence {
     fileprivate let previousSlice : Slice?
     fileprivate let rotation : Rotation
     
+    var bounds : VoxelBoundingBox? = nil
+    
     public init?(grid: VoxelGrid, previousSlice: Slice?, rotation: Rotation, axis: Vector) {
         self.grid = grid
         self.previousSlice = previousSlice
@@ -61,7 +63,7 @@ public class Slice : Sequence {
     }
     
     public func makeIterator() -> SliceAxisIterator {
-        return XYIterator(grid: grid, xRange: 0 ..< grid.width, yRange: 0 ..< grid.height, z: 0)
+        return XYIterator(grid: grid, xRange: (bounds?.min.x ?? 0) ..< (bounds?.max.x ?? grid.width), yRange: (bounds?.min.y ?? 0) ..< (bounds?.max.y ?? grid.height), z: 0)
     }
     
     public func iterator(range1 : Range<Int>, yRange : Range<Int>) -> Iterator {
@@ -156,7 +158,7 @@ public class XYSlice : Slice {
     }
     
     override public func makeIterator() -> SliceAxisIterator {
-        return XYIterator(grid: grid, xRange: 0 ..< grid.width, yRange: 0 ..< grid.height, z: self.z)
+        return XYIterator(grid: grid, xRange: (bounds?.min.x ?? 0) ..< (bounds?.max.x ?? grid.width), yRange: (bounds?.min.y ?? 0) ..< (bounds?.max.y ?? grid.height), z: self.z)
     }
     
     override public func iterator(range1 : Range<Int>, yRange : Range<Int>) -> Iterator {
@@ -221,7 +223,7 @@ public class YZSlice : Slice {
     }
     
     override public func makeIterator() -> SliceAxisIterator {
-        return YZIterator(grid: grid, x: self.x, yRange: 0 ..< grid.height, zRange: 0 ..< grid.depth)
+        return YZIterator(grid: grid, x: self.x, yRange: (bounds?.min.y ?? 0) ..< (bounds?.max.y ?? grid.height), zRange: (bounds?.min.z ?? 0) ..< (bounds?.max.z ?? grid.depth))
     }
     
     override public func iterator(range1 : Range<Int>, yRange : Range<Int>) -> Iterator {
@@ -261,4 +263,47 @@ public class YZSlice : Slice {
         // It feels like there is a bug lurking here, but I can't understand it yet
         return vertexPositions.reversed()
     }
+}
+
+public class MarchingCubesSlice : XYSlice {
+    
+    override var axisMask : VoxelAxis {
+        return .multiple
+    }
+    
+    override public func generatePolygons(_ polygons : inout [Euclid.Polygon], material: Euclid.Polygon.Material = UIColor.blue) {
+                
+        for (x, y, z, _, _, index) in self {
+            
+            let cellData = grid.data[index]
+            let depth = cellData >> 2
+            let axes = cellData & 0x3
+                
+            // See if we're newly filled
+            if (depth == 1) && (axes == self.axisMask.rawValue) {
+                
+                let neighbouring = findNeighbouringData(x: x, y: y, z: z, index: index)
+                let depths = dataToDepths(neighbouring)
+                let centre = Vector(Double(x), Double(y), Double(z))
+                
+                // We will include a polygon if:
+                //    a) All the corners are present
+                //AND b) The corners are 'after' our vertex
+                // OR c) At least one of the corners is from a previous layer
+                let polyIndices = Slice.polygonIndices.filter { (indices) in
+                    indices.allSatisfy({ depths[$0] > 0 }) &&
+                    indices.contains(where: { $0 <= 3 || depths[$0] > depths[0] })
+                }
+                let vertexPositions = polyIndices.map { (indices) in
+                    applyVertexOrdering(indices.map { centre + Slice.vertexOffsets[$0].rotated(by: self.rotation) - self.axis * (Double(depths[$0] - 1)) })
+                }
+                for positions in vertexPositions {
+                    if let poly = Polygon(positions.map { Vertex($0, Vector.zero) }, material: material) {
+                        polygons.append(poly)
+                    }
+                }
+            }
+        }
+    }
+        
 }
