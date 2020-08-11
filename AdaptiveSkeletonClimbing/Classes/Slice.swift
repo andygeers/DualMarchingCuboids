@@ -271,36 +271,61 @@ public class MarchingCubesSlice : XYSlice {
         return .multiple
     }
     
+    override fileprivate func findNeighbouringData(x: Int, y: Int, z: Int, index: Int) -> [Int] {
+        
+        let nextZ = grid.width * grid.height
+        let nextY = grid.width
+        
+        return [
+            grid.data[index],
+            z + 1 < grid.depth ? grid.data[index + nextZ] : 0,
+            x + 1 < grid.width && z + 1 < grid.depth ? grid.data[index + nextZ + 1] : 0,
+            x + 1 < grid.width ? grid.data[index + 1] : 0,
+            y + 1 < grid.height ? grid.data[index + nextY] : 0,
+            y + 1 < grid.height && z + 1 < grid.depth ? grid.data[index + nextZ + nextY] : 0,
+            x + 1 < grid.width && y + 1 < grid.height && z + 1 < grid.depth ? grid.data[index + nextZ + 1 + nextY] : 0,
+            x + 1 < grid.width && y + 1 < grid.height ? grid.data[index + 1 + nextY] : 0
+        ]
+    }
+    
     override public func generatePolygons(_ polygons : inout [Euclid.Polygon], material: Euclid.Polygon.Material = UIColor.blue) {
                 
         for (x, y, z, _, _, index) in self {
             
-            let cellData = grid.data[index]
-            let depth = cellData >> 2
-            let axes = cellData & 0x3
-                
-            // See if we're newly filled
-            if (depth == 1) && (axes == self.axisMask.rawValue) {
-                
-                let neighbouring = findNeighbouringData(x: x, y: y, z: z, index: index)
-                let depths = dataToDepths(neighbouring)
-                let centre = Vector(Double(x), Double(y), Double(z))
-                
-                // We will include a polygon if:
-                //    a) All the corners are present
-                //AND b) The corners are 'after' our vertex
-                // OR c) At least one of the corners is from a previous layer
-                let polyIndices = Slice.polygonIndices.filter { (indices) in
-                    indices.allSatisfy({ depths[$0] > 0 }) &&
-                    indices.contains(where: { $0 <= 3 || depths[$0] > depths[0] })
-                }
-                let vertexPositions = polyIndices.map { (indices) in
-                    applyVertexOrdering(indices.map { centre + Slice.vertexOffsets[$0].rotated(by: self.rotation) - self.axis * (Double(depths[$0] - 1)) })
-                }
-                for positions in vertexPositions {
-                    if let poly = Polygon(positions.map { Vertex($0, Vector.zero) }, material: material) {
-                        polygons.append(poly)
+            let neighbours = findNeighbouringData(x: x, y: y, z: z, index: index)
+            
+            var cubeIndex = 0
+            var wasMixed = false
+            for (vertexIndex, value) in neighbours.enumerated() {
+                if (value >> 2 != 0) {
+                    cubeIndex |= 1 << vertexIndex
+                    
+                    if (value & 0x3 == VoxelAxis.multiple.rawValue) {
+                        wasMixed = true
                     }
+                }
+            }
+            //Where cubeindex |= 2^i means that ith bit of cubeindex is set to 1
+            
+            let centre = Vector(Double(x), Double(y), Double(z))                        
+            
+            //check if its completely inside or outside
+            guard MarchingCubes.edgeTable[cubeIndex] != 0 else { continue }
+            //guard wasMixed else { continue }
+
+            //now build the triangles using triTable
+            for n in stride(from: 0, to: MarchingCubes.triTable[cubeIndex].count, by: 3) {
+                
+                let edges = [
+                    MarchingCubes.edgeVertices[MarchingCubes.triTable[cubeIndex][n + 2]],
+                    MarchingCubes.edgeVertices[MarchingCubes.triTable[cubeIndex][n + 1]],
+                    MarchingCubes.edgeVertices[MarchingCubes.triTable[cubeIndex][n]]
+                ]
+                
+                let positions = edges.map { (MarchingCubes.vertexOffsets[$0[0]] + MarchingCubes.vertexOffsets[$0[1]]) / 2.0 + centre }
+                
+                if let poly = Polygon(positions.map { Vertex($0, Vector.zero) }, material: UIColor.blue) {
+                    polygons.append(poly)
                 }
             }
         }

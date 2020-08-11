@@ -50,6 +50,8 @@ class ViewController: UIViewController {
     private func visualiseNextSlice() {
         guard let scene = self.sceneView.scene else { return }
         
+        var polygonCount = 0
+        
         for currentSlice in grid {
         
             var newPolygons : [Euclid.Polygon] = []
@@ -57,6 +59,7 @@ class ViewController: UIViewController {
             polygons.append(contentsOf: newPolygons)
             
             let mesh = Mesh(newPolygons)
+            polygonCount += mesh.polygons.count
             
             sceneView.pointOfView?.look(at: SCNVector3(mesh.bounds.center))
             
@@ -86,6 +89,8 @@ class ViewController: UIViewController {
             
             scene.rootNode.addChildNode(voxels)
         }
+        
+        NSLog("Generated %d polygon(s)", polygonCount)
     }
     
     private func colourForSlice(_ z : Int) -> UIColor {
@@ -124,7 +129,7 @@ class ViewController: UIViewController {
             generator.generateSurface(on: xySlice)
             
             guard let yzSlice = YZSlice(grid: grid, x: grid.width - maxDepth - 1) else { return }
-            generator.generateSurface(on: yzSlice)
+            generator.generateSurface(on: yzSlice)                        
             
         } else {
             width = 10
