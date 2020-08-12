@@ -317,9 +317,9 @@ public class MarchingCubesSlice : XYSlice {
             for n in stride(from: 0, to: MarchingCubes.triTable[cubeIndex].count, by: 3) {
                 
                 let edges = [
-                    MarchingCubes.edgeVertices[MarchingCubes.triTable[cubeIndex][n + 2]],
+                    MarchingCubes.edgeVertices[MarchingCubes.triTable[cubeIndex][n]],
                     MarchingCubes.edgeVertices[MarchingCubes.triTable[cubeIndex][n + 1]],
-                    MarchingCubes.edgeVertices[MarchingCubes.triTable[cubeIndex][n]]
+                    MarchingCubes.edgeVertices[MarchingCubes.triTable[cubeIndex][n + 2]]
                 ]
                 
                 let positions = edges.map { (MarchingCubes.vertexOffsets[$0[0]] + MarchingCubes.vertexOffsets[$0[1]]) / 2.0 + centre }
