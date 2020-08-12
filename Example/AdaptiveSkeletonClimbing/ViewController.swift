@@ -194,10 +194,47 @@ class ViewController: UIViewController {
         scene.rootNode.addChildNode(cameraNode)
     }
     
+    private func addLighting(to scene : SCNScene) {
+        let height : Float = 1.0
+        
+        let spotLight = SCNLight()
+        spotLight.type = .directional
+        spotLight.intensity = 600
+        spotLight.color = UIColor.white
+        let spotNode = SCNNode()
+        spotNode.light = spotLight
+        spotNode.position = SCNVector3(x: 3, y: height, z: 3)
+        spotNode.look(at: SCNVector3(x: 0, y: 0, z: 0))
+        scene.rootNode.addChildNode(spotNode)
+        
+        let spotLight2 = SCNLight()
+        spotLight2.type = .directional
+        spotLight2.intensity = 600
+        spotLight2.color = UIColor.white
+        let spotNode2 = SCNNode()
+        spotNode2.light = spotLight
+        scene.rootNode.addChildNode(spotNode2)
+        spotNode2.position = SCNVector3(x: -3, y: height, z: -3)
+        spotNode2.look(at: SCNVector3(x: 0, y: 0, z: 0))
+        
+        //spotNode.look(at: SCNVector3(x: 0, y: 0, z: 0))
+        
+        let ambientLight = SCNLight()
+        ambientLight.type = .ambient
+        ambientLight.intensity = 100
+        ambientLight.color = UIColor.white
+        let ambientNode = SCNNode()
+        ambientNode.light = ambientLight
+        scene.rootNode.addChildNode(ambientNode)
+    }
+    
     private func initialiseScene() {
         let scene = SCNScene()
         
+        self.sceneView.autoenablesDefaultLighting = false
+        
         addCamera(to: scene)
+        addLighting(to: scene)
         
         self.sceneView.scene = scene
         
