@@ -11,15 +11,15 @@
 
 import Euclid
 
-struct MarchingCubes {
-    static let vertexOffsets = [
+public struct MarchingCubes {
+    public static let vertexOffsets = [
         Vector.zero,
-        Vector(0, 0, 1),
-        Vector(1, 0, 1),
+        Vector(0, 0, -1),
+        Vector(1, 0, -1),
         Vector(1, 0, 0),
         Vector(0, 1, 0),
-        Vector(0, 1, 1),
-        Vector(1, 1, 1),
+        Vector(0, 1, -1),
+        Vector(1, 1, -1),
         Vector(1, 1, 0)
     ]
     

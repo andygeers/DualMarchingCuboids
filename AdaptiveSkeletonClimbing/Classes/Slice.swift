@@ -278,12 +278,12 @@ public class MarchingCubesSlice : XYSlice {
         
         return [
             grid.data[index],
-            z + 1 < grid.depth ? grid.data[index + nextZ] : 0,
-            x + 1 < grid.width && z + 1 < grid.depth ? grid.data[index + nextZ + 1] : 0,
+            z > 0 ? grid.data[index - nextZ] : 0,
+            x + 1 < grid.width && z > 0 ? grid.data[index - nextZ + 1] : 0,
             x + 1 < grid.width ? grid.data[index + 1] : 0,
             y + 1 < grid.height ? grid.data[index + nextY] : 0,
-            y + 1 < grid.height && z + 1 < grid.depth ? grid.data[index + nextZ + nextY] : 0,
-            x + 1 < grid.width && y + 1 < grid.height && z + 1 < grid.depth ? grid.data[index + nextZ + 1 + nextY] : 0,
+            y + 1 < grid.height && z > 0 ? grid.data[index - nextZ + nextY] : 0,
+            x + 1 < grid.width && y + 1 < grid.height && z > 0 ? grid.data[index - nextZ + 1 + nextY] : 0,
             x + 1 < grid.width && y + 1 < grid.height ? grid.data[index + 1 + nextY] : 0
         ]
     }
