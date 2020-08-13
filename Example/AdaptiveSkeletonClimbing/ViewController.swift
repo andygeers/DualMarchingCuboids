@@ -119,9 +119,9 @@ class ViewController: UIViewController {
             let generator = Generator(texture: brickTexture)
             
             let maxDepth = Int(ceil(generator.modelHeight + generator.baseHeight))
-            width = brickTexture.width
-            height = brickTexture.height
-            depth = brickTexture.width
+            width = brickTexture.width + 1
+            height = brickTexture.height + 1
+            depth = brickTexture.width + 1
             
             grid = VoxelGrid(width: width, height: height, depth: depth)
             

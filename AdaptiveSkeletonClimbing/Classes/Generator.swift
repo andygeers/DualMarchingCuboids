@@ -32,7 +32,7 @@ public class Generator {
     
     public func generateSurface(on slice: Slice) {
                 
-        let iterator = slice.iterator(range1: 0 ..< texture.width - 1, yRange: 0 ..< texture.height - 1)
+        let iterator = slice.iterator(range1: 1 ..< texture.width, yRange: 1 ..< texture.height)
         
         var bounds = VoxelBoundingBox(min: VoxelCoordinates.max, max: VoxelCoordinates.zero, axis: slice.axisMask)
         
