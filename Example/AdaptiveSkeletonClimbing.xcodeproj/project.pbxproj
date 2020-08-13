@@ -9,6 +9,10 @@
 /* Begin PBXBuildFile section */
 		055BC3E189333A8051C1F631 /* Pods_AdaptiveSkeletonClimbing_Example.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F1A78E8D046464641BE13353 /* Pods_AdaptiveSkeletonClimbing_Example.framework */; };
 		3C2DEC8FB3E907E51F64394B /* Pods_AdaptiveSkeletonClimbing_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04A3A9289A6793BEB89FBB07 /* Pods_AdaptiveSkeletonClimbing_Tests.framework */; };
+		522054D524E515610022185D /* corrugated_iron.png in Resources */ = {isa = PBXBuildFile; fileRef = 522054D124E5155F0022185D /* corrugated_iron.png */; };
+		522054D624E515610022185D /* 03_tiles.png in Resources */ = {isa = PBXBuildFile; fileRef = 522054D224E515600022185D /* 03_tiles.png */; };
+		522054D724E515610022185D /* 02_wood.png in Resources */ = {isa = PBXBuildFile; fileRef = 522054D324E515600022185D /* 02_wood.png */; };
+		522054D824E515610022185D /* french_tiles.png in Resources */ = {isa = PBXBuildFile; fileRef = 522054D424E515600022185D /* french_tiles.png */; };
 		52D2409424C9D92D00E8762C /* 01_bricks.png in Resources */ = {isa = PBXBuildFile; fileRef = 52D2409324C9D92D00E8762C /* 01_bricks.png */; };
 		607FACD61AFB9204008FA782 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACD51AFB9204008FA782 /* AppDelegate.swift */; };
 		607FACD81AFB9204008FA782 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACD71AFB9204008FA782 /* ViewController.swift */; };
@@ -31,6 +35,10 @@
 /* Begin PBXFileReference section */
 		04A3A9289A6793BEB89FBB07 /* Pods_AdaptiveSkeletonClimbing_Tests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_AdaptiveSkeletonClimbing_Tests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		31921094211BFFE5DDE5D033 /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
+		522054D124E5155F0022185D /* corrugated_iron.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = corrugated_iron.png; sourceTree = "<group>"; };
+		522054D224E515600022185D /* 03_tiles.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 03_tiles.png; sourceTree = "<group>"; };
+		522054D324E515600022185D /* 02_wood.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 02_wood.png; sourceTree = "<group>"; };
+		522054D424E515600022185D /* french_tiles.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = french_tiles.png; sourceTree = "<group>"; };
 		52D2409324C9D92D00E8762C /* 01_bricks.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 01_bricks.png; sourceTree = "<group>"; };
 		5964F16A125134555814FD75 /* Pods-AdaptiveSkeletonClimbing_Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AdaptiveSkeletonClimbing_Example.debug.xcconfig"; path = "Target Support Files/Pods-AdaptiveSkeletonClimbing_Example/Pods-AdaptiveSkeletonClimbing_Example.debug.xcconfig"; sourceTree = "<group>"; };
 		5E4E517534F59BDE1D03E8D7 /* Pods-AdaptiveSkeletonClimbing_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AdaptiveSkeletonClimbing_Example.release.xcconfig"; path = "Target Support Files/Pods-AdaptiveSkeletonClimbing_Example/Pods-AdaptiveSkeletonClimbing_Example.release.xcconfig"; sourceTree = "<group>"; };
@@ -120,6 +128,10 @@
 		607FACD31AFB9204008FA782 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				522054D324E515600022185D /* 02_wood.png */,
+				522054D224E515600022185D /* 03_tiles.png */,
+				522054D124E5155F0022185D /* corrugated_iron.png */,
+				522054D424E515600022185D /* french_tiles.png */,
 				52D2409324C9D92D00E8762C /* 01_bricks.png */,
 				607FACD41AFB9204008FA782 /* Info.plist */,
 			);
@@ -251,10 +263,14 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				522054D624E515610022185D /* 03_tiles.png in Resources */,
+				522054D824E515610022185D /* french_tiles.png in Resources */,
 				607FACDB1AFB9204008FA782 /* Main.storyboard in Resources */,
 				607FACE01AFB9204008FA782 /* LaunchScreen.xib in Resources */,
 				52D2409424C9D92D00E8762C /* 01_bricks.png in Resources */,
+				522054D524E515610022185D /* corrugated_iron.png in Resources */,
 				607FACDD1AFB9204008FA782 /* Images.xcassets in Resources */,
+				522054D724E515610022185D /* 02_wood.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

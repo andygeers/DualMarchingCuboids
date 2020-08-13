@@ -106,7 +106,7 @@ class ViewController: UIViewController {
     }
     
     private func loadVoxels() {
-        guard let image = UIImage(named: "01_bricks") else { return }
+        guard let image = UIImage(named: "french_tiles") else { return }
         
         let brickTexture : VoxelTexture?
         do {
