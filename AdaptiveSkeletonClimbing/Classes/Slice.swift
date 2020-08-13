@@ -290,8 +290,9 @@ public class MarchingCubesSlice : XYSlice {
     
     private func interpolatePositions(p1: Vector, p2: Vector, v1: Int, v2: Int) -> Vector {
         
-        let targetValue = 1.0 / 4.0
-        //let targetValue = 1.0 / (3.5 + 4.0)
+        // I don't understand where this number 4.0 comes from,
+        // but experimentally it seems to yield the nicest results...
+        let targetValue = 1.0 / 4.0        
         
         let value1 = v1 >> 2
         let value2 = v2 >> 2
