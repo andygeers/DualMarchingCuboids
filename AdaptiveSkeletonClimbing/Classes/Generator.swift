@@ -36,18 +36,36 @@ public class Generator {
         
         var bounds = VoxelBoundingBox(min: VoxelCoordinates.max, max: VoxelCoordinates.zero, axis: slice.axisMask)
         
+        let maxDepth = self.baseHeight + self.modelHeight
+        
         for (x, y, z, j, i, index) in iterator {
             
             if (!self.isTransparent(x: j, y: i, alphaMap: texture.alphaMap)) {
-                let depth = Int(outputHeight(texture.heightMap[j][i]))
+                let depth = outputHeight(texture.heightMap[j][i])
+                let intDepth = Int(depth)
                 
-                bounds.merge(VoxelCoordinates(x: x, y: y, z: z), depth: depth)
+                bounds.merge(VoxelCoordinates(x: x, y: y, z: z), depth: intDepth)
                 
+                let distanceFromSurface = Int((depth - Double(intDepth)) * 255)
                 var value = 1
-                for k in slice.perpendicularIndices(range: (0 ..< depth)).reversed() {
+                for k in slice.perpendicularIndices(range: (0 ..< intDepth)).reversed() {
+                    
+                    guard index + k < slice.grid.data.count else { continue }
+                    
+                    // See if this cell is vacant or not
+                    let fillValue : Int
+                    if (slice.grid.data[index + k] == 0) {
+                        // There are 255 potential depths at the surface,
+                        // so that gives us our depth resolution
+                        fillValue = value + distanceFromSurface
+                    } else {
+                        // Mixed areas should just be treated as max height
+                        fillValue = 255
+                    }
+                    
                     // Voxel data should be 1 at the surface and count up towards the back
-                    slice.grid.data[index + k] = slice.grid.data[index + k] | (value << 2) | slice.axisMask.rawValue
-                    value += 1
+                    slice.grid.data[index + k] = slice.grid.data[index + k] | (fillValue << 2) | slice.axisMask.rawValue
+                    value += 255
                 }
             }
         }

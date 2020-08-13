@@ -289,19 +289,25 @@ public class MarchingCubesSlice : XYSlice {
     }
     
     private func interpolatePositions(p1: Vector, p2: Vector, v1: Int, v2: Int) -> Vector {
-        let targetValue = 0.5
+        
+        let targetValue = 1.0 / 4.0
+        //let targetValue = 1.0 / (3.5 + 4.0)
         
         let value1 = v1 >> 2
         let value2 = v2 >> 2
         
-        let diff = Double(value2 - value1)
+        assert((value1 == 0 || value2 == 0) && (value1 != 0 || value2 != 0))
+        
+        let diff = Double(value2 - value1) / 255.0
         let offset : Double
         if (diff >= 0.0) {
-            offset = targetValue / diff
+            offset = Swift.min(targetValue / diff, 1.0)
         } else {
-            offset = 1.0 + targetValue / diff
+            offset = Swift.max(1.0 + targetValue / diff, 0.0)
         }
         let direction = p2 - p1
+                
+        assert(offset >= 0.0 && offset <= 1.0)
         
         return p1 + direction * offset
     }
