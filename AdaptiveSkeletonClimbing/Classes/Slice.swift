@@ -288,6 +288,24 @@ public class MarchingCubesSlice : XYSlice {
         ]
     }
     
+    private func interpolatePositions(p1: Vector, p2: Vector, v1: Int, v2: Int) -> Vector {
+        let targetValue = 0.5
+        
+        let value1 = v1 >> 2
+        let value2 = v2 >> 2
+        
+        let diff = Double(value2 - value1)
+        let offset : Double
+        if (diff >= 0.0) {
+            offset = targetValue / diff
+        } else {
+            offset = 1.0 + targetValue / diff
+        }
+        let direction = p2 - p1
+        
+        return p1 + direction * offset
+    }
+    
     override public func generatePolygons(_ polygons : inout [Euclid.Polygon], material: Euclid.Polygon.Material = UIColor.blue) {
                 
         for (x, y, z, _, _, index) in self {
@@ -295,14 +313,9 @@ public class MarchingCubesSlice : XYSlice {
             let neighbours = findNeighbouringData(x: x, y: y, z: z, index: index)
             
             var cubeIndex = 0
-            var wasMixed = false
             for (vertexIndex, value) in neighbours.enumerated() {
                 if (value >> 2 != 0) {
                     cubeIndex |= 1 << vertexIndex
-                    
-                    if (value & 0x3 == VoxelAxis.multiple.rawValue) {
-                        wasMixed = true
-                    }
                 }
             }
             //Where cubeindex |= 2^i means that ith bit of cubeindex is set to 1
@@ -322,7 +335,7 @@ public class MarchingCubesSlice : XYSlice {
                     MarchingCubes.edgeVertices[MarchingCubes.triTable[cubeIndex][n + 2]]
                 ]
                 
-                let positions = edges.map { (MarchingCubes.vertexOffsets[$0[0]] + MarchingCubes.vertexOffsets[$0[1]]) / 2.0 + centre }
+                let positions = edges.map { interpolatePositions(p1: MarchingCubes.vertexOffsets[$0[0]], p2: MarchingCubes.vertexOffsets[$0[1]], v1: neighbours[$0[0]], v2: neighbours[$0[1]]) + centre }
                 
                 let plane = Plane(points: positions)
                 
