@@ -292,7 +292,7 @@ public class MarchingCubesSlice : XYSlice {
         
         // I don't understand where this number 4.0 comes from,
         // but experimentally it seems to yield the nicest results...
-        let targetValue = 1.0 / 4.0        
+        let targetValue = 1.0 / 4.5
         
         let value1 = v1 >> 2
         let value2 = v2 >> 2
