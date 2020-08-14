@@ -147,6 +147,44 @@ public class XYSlice : Slice {
         let axis = Vector(0.0, 0.0, zOffset).normalized()
         
         super.init(grid: grid, previousSlice: previousSlice, rotation: Rotation.identity, axis: axis)
+        
+        findRanges()
+    }
+    
+    private func findRanges() {
+        var minY = grid.height
+        var maxY = 0
+        
+        var xRanges : [[Int]] = []
+        
+        for box in grid.boundingBoxes {
+            guard box.min.z <= z && box.max.z >= z else { continue }
+            
+            if (box.min.y < minY) {
+                minY = box.min.y
+            }
+            if (box.max.y > maxY) {
+                maxY = box.max.y
+            }
+            
+            // Find consecutive X ranges
+            var merged = false
+            for var existingRange in xRanges {
+                if (box.min.x <= existingRange[1] && box.max.x >= existingRange[0]) {
+                    // Merge this range
+                    existingRange[0] = Swift.min(existingRange[0], box.min.x)
+                    existingRange[1] = Swift.min(existingRange[1], box.max.x)
+                    merged = true
+                    break
+                }
+            }
+            if (!merged) {
+                // Add a new range
+                xRanges.append([box.min.x, box.max.x])
+            }
+        }
+        
+        xRanges.sort(by: { $0[0] <= $1[0] || ($0[0] == $1[0] && $0[1] <= $1[1]) })
     }
     
     override public var layerDepth : Int {
