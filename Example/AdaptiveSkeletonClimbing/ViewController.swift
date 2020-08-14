@@ -243,7 +243,20 @@ class ViewController: UIViewController {
     }
 
     @IBAction func nextSlice() {
-        visualiseNextSlice()
+        
+        guard let scene = self.sceneView.scene else { return }
+        
+        // Export to STL
+        let outputFile = "marching_cubes.usdz"
+        let documentsPath = UIApplication.cacheDirectory()
+        let fileURL: URL = documentsPath.appendingPathComponent(outputFile)
+                    
+        if (scene.write(to: fileURL, options: [:], delegate: nil, progressHandler: nil)) {
+            
+            let activityVC = UIActivityViewController(activityItems: ["Share USDZ", fileURL], applicationActivities: nil)            
+            self.present(activityVC, animated: true, completion: nil)
+            
+        }
     }
 }
 

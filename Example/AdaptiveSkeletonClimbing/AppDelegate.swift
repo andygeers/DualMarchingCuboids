@@ -44,3 +44,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 }
 
+extension UIApplication {
+    static func cacheDirectory() -> URL {
+      guard let cacheURL = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first else {
+        fatalError("unable to get system cache directory - serious problems")
+      }
+      
+      return cacheURL
+    }
+}
