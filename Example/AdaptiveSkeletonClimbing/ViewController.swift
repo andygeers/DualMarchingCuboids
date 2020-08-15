@@ -33,6 +33,10 @@ class ViewController: UIViewController {
     private var seedVoxels : [SCNNode] = []
     
     private var mesher : MarchingCubesSlice!
+    var polygonCount = 0
+    var isFinished = false
+    var hasOrientedCamera = false
+    var currentVoxelNode : SCNNode?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -64,66 +68,100 @@ class ViewController: UIViewController {
             let voxelNode = generateVoxel(x: x, y: y, z: z, particle: particle, colour: depthColour)
             scene.rootNode.addChildNode(voxelNode)
             
-            if (seedVoxels.isEmpty) {
-                sceneView.pointOfView?.look(at: voxelNode.position)
-            }
-            
             seedVoxels.append(voxelNode)
+        }
+        
+        if let voxelNode = currentVoxelNode {
+            voxelNode.removeFromParentNode()
+            currentVoxelNode = nil
         }
         
         if let (x, y, z) = mesher.currentCellPosition {
             let voxelNode = generateVoxel(x: x, y: y, z: z, particle: particle, colour: UIColor.red)
             scene.rootNode.addChildNode(voxelNode)
-            sceneView.pointOfView?.look(at: voxelNode.position)
+            currentVoxelNode = voxelNode
+            
+            if (!hasOrientedCamera) {
+                sceneView.pointOfView?.look(at: voxelNode.position)
+                hasOrientedCamera = true
+            }
         }
         
         NSLog("Found %d seed(s)", seedVoxels.count)
     }
     
-    private func visualiseNextSlice() {
+//    private func visualiseNextSlice() {
+//        guard let scene = self.sceneView.scene else { return }
+//
+//        var polygonCount = 0
+//
+//        for currentSlice in grid {
+//
+//            var newPolygons : [Euclid.Polygon] = []
+//            currentSlice.generatePolygons(&newPolygons, material: colourForSlice(currentSlice.layerDepth))
+//            polygons.append(contentsOf: newPolygons)
+//
+//            let mesh = Mesh(newPolygons)
+//            polygonCount += mesh.polygons.count
+//
+//            sceneView.pointOfView?.look(at: SCNVector3(mesh.bounds.center))
+//
+//            let geom = SCNGeometry(mesh, materialLookup: {
+//                let material = SCNMaterial()
+//                material.diffuse.contents = $0
+//                return material
+//            })
+//            let node = SCNNode(geometry: geom)
+//            scene.rootNode.addChildNode(node)
+//
+//            let voxels = SCNNode()
+//
+//            let particle = voxelGeometry()
+//
+//            for (x, y, z, _, _, k) in currentSlice {
+//                let cellData = grid.data[k] >> VoxelGrid.dataBits
+//                if cellData != 0 && grid.data[k] & 0x3 == 1 && (x < 25 || y < 25 || z < 25) && false {
+//                    let depthColour = colourForDepth(cellData)
+//                    let voxelNode = generateVoxel(x: x, y: y, z: z, particle: particle, colour: depthColour)
+//
+//                    voxels.addChildNode(voxelNode)
+//                }
+//            }
+//
+//            NSLog("Found %d voxel(s)", voxels.childNodes.count)
+//
+//            scene.rootNode.addChildNode(voxels)
+//        }
+//
+//        NSLog("Generated %d polygon(s)", polygonCount)
+//    }
+    
+    private func visualiseNextIteration() {
         guard let scene = self.sceneView.scene else { return }
         
-        var polygonCount = 0
+        var newPolygons : [Euclid.Polygon] = []
         
-        for currentSlice in grid {
-        
-            var newPolygons : [Euclid.Polygon] = []
-            currentSlice.generatePolygons(&newPolygons, material: colourForSlice(currentSlice.layerDepth))
-            polygons.append(contentsOf: newPolygons)
-            
-            let mesh = Mesh(newPolygons)
-            polygonCount += mesh.polygons.count
-            
-            sceneView.pointOfView?.look(at: SCNVector3(mesh.bounds.center))
-            
-            let geom = SCNGeometry(mesh, materialLookup: {
-                let material = SCNMaterial()
-                material.diffuse.contents = $0
-                return material
-            })
-            let node = SCNNode(geometry: geom)
-            scene.rootNode.addChildNode(node)
-            
-            let voxels = SCNNode()
-            
-            let particle = voxelGeometry()
-            
-            for (x, y, z, _, _, k) in currentSlice {
-                let cellData = grid.data[k] >> 2
-                if cellData != 0 && grid.data[k] & 0x3 == 1 && (x < 25 || y < 25 || z < 25) && false {
-                    let depthColour = colourForDepth(cellData)
-                    let voxelNode = generateVoxel(x: x, y: y, z: z, particle: particle, colour: depthColour)
-                    
-                    voxels.addChildNode(voxelNode)
-                }
-            }
-            
-            NSLog("Found %d voxel(s)", voxels.childNodes.count)
-            
-            scene.rootNode.addChildNode(voxels)
+        while (!isFinished) {
+            isFinished = !mesher.nextIteration(polygons: &newPolygons, material: colourForSlice(scene.rootNode.childNodes.count))
         }
+        polygons.append(contentsOf: newPolygons)
         
-        NSLog("Generated %d polygon(s)", polygonCount)
+        let mesh = Mesh(newPolygons)
+        polygonCount += mesh.polygons.count
+        
+        //sceneView.pointOfView?.look(at: SCNVector3(mesh.bounds.center))
+        
+        let geom = SCNGeometry(mesh, materialLookup: {
+            let material = SCNMaterial()
+            material.diffuse.contents = $0
+            return material
+        })
+        let node = SCNNode(geometry: geom)
+        scene.rootNode.addChildNode(node)
+        
+        visualiseSeeds()
+        
+        NSLog("%d total polygon(s)", polygonCount)
     }
     
     private func colourForSlice(_ z : Int) -> UIColor {
@@ -276,8 +314,7 @@ class ViewController: UIViewController {
         self.sceneView.showsStatistics = true
     }
 
-    @IBAction func nextSlice() {
-        
+    private func exportMesh(sender: UIView) {
         guard let scene = self.sceneView.scene else { return }
         
         // Export to STL
@@ -287,10 +324,21 @@ class ViewController: UIViewController {
                     
         if (scene.write(to: fileURL, options: [:], delegate: nil, progressHandler: nil)) {
             
-            let activityVC = UIActivityViewController(activityItems: ["Share USDZ", fileURL], applicationActivities: nil)            
+            let activityVC = UIActivityViewController(activityItems: ["Share USDZ", fileURL], applicationActivities: nil)
+            activityVC.popoverPresentationController?.sourceView = self.view
+            activityVC.popoverPresentationController?.sourceRect = sender.frame
             self.present(activityVC, animated: true, completion: nil)
             
         }
+    }
+    
+    @IBAction func nextSlice(sender: UIButton) {
+        if (isFinished) {
+            exportMesh(sender: sender)
+        } else {
+            visualiseNextIteration()
+        }
+        
     }
 }
 

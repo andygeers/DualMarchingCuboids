@@ -81,7 +81,7 @@ public class Slice : Sequence {
         for (x, y, z, _, _, index) in self {
             
             let cellData = grid.data[index]
-            let depth = cellData >> 2
+            let depth = cellData >> VoxelGrid.dataBits
             let axes = cellData & 0x3
                 
             // See if we're newly filled
@@ -121,7 +121,7 @@ public class Slice : Sequence {
         return data.map { (d : Int) in
             // Only return depths in the same axis
             if (d & 0x3 == mask) {
-                return d >> 2
+                return d >> VoxelGrid.dataBits
             } else {
                 return 0
             }
@@ -266,11 +266,21 @@ public class YZSlice : Slice {
 public class MarchingCubesSlice : Slice {
     
     private var currentCell : Int
+    let localFaceOffsets : [Int]
+    static let visitedFlag = 0x4
     
     public init?(grid: VoxelGrid) {
-        currentCell = grid.seedCells.last ?? -1
+        currentCell = grid.seedCells.first ?? -1
+        
+        localFaceOffsets = MarchingCubesSlice.calculateFaceOffsets(grid: grid)
         
         super.init(grid: grid, rotation: Rotation.identity, axis: Vector(0.0, 0.0, -1.0))
+    }
+    
+    private static func calculateFaceOffsets(grid: VoxelGrid) -> [Int] {
+        return MarchingCubes.faceOffsets.map { (x : Int, y : Int, z : Int) in
+            x + y * grid.width + z * grid.width * grid.height
+        }
     }
     
     override var axisMask : VoxelAxis {
@@ -300,8 +310,8 @@ public class MarchingCubesSlice : Slice {
         // but experimentally it seems to yield the nicest results...
         let targetValue = 1.0 / 4.5
         
-        let value1 = v1 >> 2
-        let value2 = v2 >> 2
+        let value1 = v1 >> VoxelGrid.dataBits
+        let value2 = v2 >> VoxelGrid.dataBits
         
         assert((value1 == 0 || value2 == 0) && (value1 != 0 || value2 != 0))
         
@@ -330,14 +340,14 @@ public class MarchingCubesSlice : Slice {
     public func nextIteration(polygons : inout [Euclid.Polygon], material: Euclid.Polygon.Material = UIColor.blue) -> Bool {
         
         if currentCell >= 0 {
-            grid.seedCells.removeLast()
+            grid.seedCells.removeFirst()
             
             let (x, y, z) = grid.positionFromIndex(currentCell)
             
             processCell(x: x, y: y, z: z, polygons: &polygons)
             
             // Move to the next seed
-            currentCell = grid.seedCells.last ?? -1
+            currentCell = grid.seedCells.first ?? -1
         }
         
         return currentCell >= 0
@@ -346,12 +356,16 @@ public class MarchingCubesSlice : Slice {
     private func processCell(x: Int, y: Int, z: Int, polygons : inout [Euclid.Polygon], material: Euclid.Polygon.Material = UIColor.blue) {
                 
         let index = grid.cellIndex(x: x, y : y, z: z)
+        
+        // Check we haven't already visited this cell
+        guard (grid.data[index] & MarchingCubesSlice.visitedFlag == 0) else { return }
+        grid.data[index] |= MarchingCubesSlice.visitedFlag
             
         let neighbours = findNeighbouringData(x: x, y: y, z: z, index: index)
         
         var cubeIndex = 0
         for (vertexIndex, value) in neighbours.enumerated() {
-            if (value >> 2 != 0) {
+            if (value >> VoxelGrid.dataBits != 0) {
                 cubeIndex |= 1 << vertexIndex
             }
         }
@@ -362,8 +376,10 @@ public class MarchingCubesSlice : Slice {
         //check if its completely inside or outside
         guard MarchingCubes.edgeTable[cubeIndex] != 0 else { return }
         //guard wasMixed else { continue }
-
+        
         //now build the triangles using triTable
+        // Keep track of which faces are included
+        var touchedFaces = 0
         for n in stride(from: 0, to: MarchingCubes.triTable[cubeIndex].count, by: 3) {
             
             let edges = [
@@ -371,6 +387,12 @@ public class MarchingCubesSlice : Slice {
                 MarchingCubes.edgeVertices[MarchingCubes.triTable[cubeIndex][n + 1]],
                 MarchingCubes.edgeVertices[MarchingCubes.triTable[cubeIndex][n + 2]]
             ]
+            
+            for edgePair in edges {
+                for edge in edgePair {
+                    touchedFaces |= MarchingCubes.edgeFaces[edge]
+                }
+            }
             
             let positions = edges.map { interpolatePositions(p1: MarchingCubes.vertexOffsets[$0[0]], p2: MarchingCubes.vertexOffsets[$0[1]], v1: neighbours[$0[0]], v2: neighbours[$0[1]]) + centre }
             
@@ -381,8 +403,16 @@ public class MarchingCubesSlice : Slice {
             }
         }
         
-        // Work out which other seeds to add now
-        
+        // Follow the contour into neighbouring cells
+        for (n, offset) in localFaceOffsets.enumerated() {
+            if (touchedFaces & (1 << n) > 0) {
+                let neighbour = index + offset
+                
+                if (grid.data[neighbour] & MarchingCubesSlice.visitedFlag == 0) {
+                    grid.addSeed(neighbour)
+                }
+            }
+        }
     }
         
 }

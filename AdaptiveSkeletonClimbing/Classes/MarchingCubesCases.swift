@@ -7,7 +7,7 @@
 
 //Tables used by Marching Cubes Algorithm
 //these tables came from Paul Baurke's web page at
-//                http://astronomy.swin.edu.au/~pbourke/modelling/polygonise/
+//                http://paulbourke.net/geometry/polygonise/
 
 import Euclid
 
@@ -21,6 +21,32 @@ public struct MarchingCubes {
         Vector(0, 1, -1),
         Vector(1, 1, -1),
         Vector(1, 1, 0)
+    ]
+    
+    // Map which faces each edge is on
+    static let edgeFaces : [Int] = [
+        Int((1 << 3) | (1 << 5)),    // [0.0.0, 0.0.-1]
+        Int((1 << 5) | (1 << 2)),    // [0.0.-1, 1.0.-1],
+        Int((1 << 1) | (1 << 5)),    // [1.0.-1, 1.0.0],
+        Int((1 << 5) | (1 << 0)),    // [1.0.0, 0.0.0],
+        Int((1 << 3) | (1 << 4)),    // [0.1.0, 0.1.-1],
+        Int((1 << 4) | (1 << 2)),    // [0.1.-1, 1.1.-1],
+        Int((1 << 1) | (1 << 4)),    // [1.1.-1, 1.1.0],
+        Int((1 << 4) | (1 << 0)),    // [1.1.0, 0.1.0],
+        Int((1 << 3) | (1 << 0)),    // [0.0.0, 0.1.0],
+        Int((1 << 3) | (1 << 2)),    // [0.0.-1, 0.1.-1],
+        Int((1 << 1) | (1 << 2)),    // [1.0.-1, 1.1.-1],
+        Int((1 << 1) | (1 << 0))     // [1.0.0, 1.1.0]
+    ]
+    
+    // Remember which directio neach face points
+    static let faceOffsets : [(Int, Int, Int)] = [
+        (0,  0,  1), // 0
+        (1,  0,  0), // 1
+        (0,  0, -1), // 2
+        (-1, 0,  0), // 3
+        (0,  1,  0), // 4
+        (0, -1,  0)  // 5
     ]
     
     static let edgeVertices : [[Int]] = [
@@ -38,7 +64,7 @@ public struct MarchingCubes {
         [3, 7]
     ]
     
-    static let edgeTable = [
+    static let edgeTable : [Int] = [
         0x0  , 0x109, 0x203, 0x30a, 0x406, 0x50f, 0x605, 0x70c,
         0x80c, 0x905, 0xa0f, 0xb06, 0xc0a, 0xd03, 0xe09, 0xf00,
         0x190, 0x99 , 0x393, 0x29a, 0x596, 0x49f, 0x795, 0x69c,

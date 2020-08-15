@@ -18,12 +18,14 @@ public class VoxelGrid : Sequence {
 
     static let G_Threshold = 50.0
     
+    public static let dataBits = 3    
+    
     public var data : [Int]
     public let width : Int
     public let height : Int
     public let depth : Int
     
-    internal var seedCells : [Int] = []
+    internal var seedCells : Set<Int> = Set([])
     
     internal var boundingBoxes : [VoxelBoundingBox] = []
     
@@ -43,8 +45,8 @@ public class VoxelGrid : Sequence {
     }
     
     public func addSeed(_ index : Int) {
-        guard seedCells.isEmpty else { return } // Not really, just for visualisation purposes
-        seedCells.append(index)
+        guard index < data.count else { return }
+        seedCells.insert(index)
     }
     
     public func positionFromIndex(_ index: Int) -> (Int, Int, Int) {

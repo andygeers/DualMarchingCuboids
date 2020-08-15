@@ -24,9 +24,9 @@
                             </sceneKitView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4WQ-CZ-FZT">
                                 <rect key="frame" x="0.0" y="637" width="375" height="30"/>
-                                <state key="normal" title="Export USDZ"/>
+                                <state key="normal" title="Next &gt;&gt;"/>
                                 <connections>
-                                    <action selector="nextSlice" destination="vXZ-lx-hvc" eventType="touchUpInside" id="RlM-4R-Zpa"/>
+                                    <action selector="nextSliceWithSender:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="BYO-pm-g4k"/>
                                 </connections>
                             </button>
                         </subviews>

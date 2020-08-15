@@ -38,6 +38,8 @@ public class Generator {
         
         let maxDepth = self.baseHeight + self.modelHeight
         
+        var hasSeeded = false
+        
         for (x, y, z, j, i, index) in iterator {
             
             if (!self.isTransparent(x: j, y: i, alphaMap: texture.alphaMap)) {
@@ -49,13 +51,15 @@ public class Generator {
                 let distanceFromSurface = Int((depth - Double(intDepth)) * 255)
                 var value = 1
                 
+                if !hasSeeded && (slice.axisMask == .xy) {
+                    let topIndex = index + intDepth * slice.grid.width * slice.grid.height
+                    slice.grid.addSeed(topIndex)
+                    hasSeeded = true
+                }
+                
                 for k in slice.perpendicularIndices(range: (0 ..< intDepth)).reversed() {
                     
                     guard index + k < slice.grid.data.count else { continue }
-                    
-                    if (value == 1) {
-                        slice.grid.addSeed(index + k)
-                    }
                     
                     // See if this cell is vacant or not
                     let fillValue : Int
@@ -69,11 +73,11 @@ public class Generator {
                     }
                     
                     // Voxel data should be 1 at the surface and count up towards the back
-                    slice.grid.data[index + k] = slice.grid.data[index + k] | (fillValue << 2) | slice.axisMask.rawValue
+                    slice.grid.data[index + k] = slice.grid.data[index + k] | (fillValue << VoxelGrid.dataBits) | slice.axisMask.rawValue
                     value += 255
                 }
                 
-                slice.grid.addSeed(index)
+                //slice.grid.addSeed(index)
             }
         }
         
