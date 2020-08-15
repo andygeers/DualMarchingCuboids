@@ -42,14 +42,12 @@ public class Slice : Sequence {
     
     fileprivate let axis : Vector
     public let grid : VoxelGrid
-    fileprivate let previousSlice : Slice?
-    fileprivate let rotation : Rotation
+    fileprivate let rotation : Rotation        
     
     var bounds : VoxelBoundingBox? = nil
     
-    public init?(grid: VoxelGrid, previousSlice: Slice?, rotation: Rotation, axis: Vector) {
+    public init?(grid: VoxelGrid, rotation: Rotation, axis: Vector) {
         self.grid = grid
-        self.previousSlice = previousSlice
         self.rotation = rotation
         self.axis = axis
     }
@@ -146,45 +144,7 @@ public class XYSlice : Slice {
         
         let axis = Vector(0.0, 0.0, zOffset).normalized()
         
-        super.init(grid: grid, previousSlice: previousSlice, rotation: Rotation.identity, axis: axis)
-        
-        findRanges()
-    }
-    
-    private func findRanges() {
-        var minY = grid.height
-        var maxY = 0
-        
-        var xRanges : [[Int]] = []
-        
-        for box in grid.boundingBoxes {
-            guard box.min.z <= z && box.max.z >= z else { continue }
-            
-            if (box.min.y < minY) {
-                minY = box.min.y
-            }
-            if (box.max.y > maxY) {
-                maxY = box.max.y
-            }
-            
-            // Find consecutive X ranges
-            var merged = false
-            for var existingRange in xRanges {
-                if (box.min.x <= existingRange[1] && box.max.x >= existingRange[0]) {
-                    // Merge this range
-                    existingRange[0] = Swift.min(existingRange[0], box.min.x)
-                    existingRange[1] = Swift.min(existingRange[1], box.max.x)
-                    merged = true
-                    break
-                }
-            }
-            if (!merged) {
-                // Add a new range
-                xRanges.append([box.min.x, box.max.x])
-            }
-        }
-        
-        xRanges.sort(by: { $0[0] <= $1[0] || ($0[0] == $1[0] && $0[1] <= $1[1]) })
+        super.init(grid: grid, rotation: Rotation.identity, axis: axis)
     }
     
     override public var layerDepth : Int {
@@ -249,7 +209,7 @@ public class YZSlice : Slice {
         
         let rotation = Rotation(axis: Vector(0.0, 1.0, 0.0), radians: Double.pi / 2.0)!
         
-        super.init(grid: grid, previousSlice: previousSlice, rotation: rotation, axis: axis)
+        super.init(grid: grid, rotation: rotation, axis: axis)
     }
     
     override public var layerDepth : Int {
@@ -303,7 +263,15 @@ public class YZSlice : Slice {
     }
 }
 
-public class MarchingCubesSlice : XYSlice {
+public class MarchingCubesSlice : Slice {
+    
+    private var currentCell : Int
+    
+    public init?(grid: VoxelGrid) {
+        currentCell = grid.seedCells.last ?? -1
+        
+        super.init(grid: grid, rotation: Rotation.identity, axis: Vector(0.0, 0.0, -1.0))
+    }
     
     override var axisMask : VoxelAxis {
         return .multiple
@@ -351,44 +319,70 @@ public class MarchingCubesSlice : XYSlice {
         return p1 + direction * offset
     }
     
-    override public func generatePolygons(_ polygons : inout [Euclid.Polygon], material: Euclid.Polygon.Material = UIColor.blue) {
-                
-        for (x, y, z, _, _, index) in self {
+    public var currentCellPosition : (Int, Int, Int)? {
+        if currentCell >= 0 {
+            return grid.positionFromIndex(currentCell)
+        } else {
+            return nil
+        }
+    }
+    
+    public func nextIteration(polygons : inout [Euclid.Polygon], material: Euclid.Polygon.Material = UIColor.blue) -> Bool {
+        
+        if currentCell >= 0 {
+            grid.seedCells.removeLast()
             
-            let neighbours = findNeighbouringData(x: x, y: y, z: z, index: index)
+            let (x, y, z) = grid.positionFromIndex(currentCell)
             
-            var cubeIndex = 0
-            for (vertexIndex, value) in neighbours.enumerated() {
-                if (value >> 2 != 0) {
-                    cubeIndex |= 1 << vertexIndex
-                }
-            }
-            //Where cubeindex |= 2^i means that ith bit of cubeindex is set to 1
+            processCell(x: x, y: y, z: z, polygons: &polygons)
             
-            let centre = Vector(Double(x), Double(y), Double(z))                        
+            // Move to the next seed
+            currentCell = grid.seedCells.last ?? -1
+        }
+        
+        return currentCell >= 0
+    }
+    
+    private func processCell(x: Int, y: Int, z: Int, polygons : inout [Euclid.Polygon], material: Euclid.Polygon.Material = UIColor.blue) {
+                
+        let index = grid.cellIndex(x: x, y : y, z: z)
             
-            //check if its completely inside or outside
-            guard MarchingCubes.edgeTable[cubeIndex] != 0 else { continue }
-            //guard wasMixed else { continue }
-
-            //now build the triangles using triTable
-            for n in stride(from: 0, to: MarchingCubes.triTable[cubeIndex].count, by: 3) {
-                
-                let edges = [
-                    MarchingCubes.edgeVertices[MarchingCubes.triTable[cubeIndex][n]],
-                    MarchingCubes.edgeVertices[MarchingCubes.triTable[cubeIndex][n + 1]],
-                    MarchingCubes.edgeVertices[MarchingCubes.triTable[cubeIndex][n + 2]]
-                ]
-                
-                let positions = edges.map { interpolatePositions(p1: MarchingCubes.vertexOffsets[$0[0]], p2: MarchingCubes.vertexOffsets[$0[1]], v1: neighbours[$0[0]], v2: neighbours[$0[1]]) + centre }
-                
-                let plane = Plane(points: positions)
-                
-                if let poly = Polygon(positions.map { Vertex($0, plane?.normal ?? Vector.zero) }, material: UIColor.blue) {
-                    polygons.append(poly)
-                }
+        let neighbours = findNeighbouringData(x: x, y: y, z: z, index: index)
+        
+        var cubeIndex = 0
+        for (vertexIndex, value) in neighbours.enumerated() {
+            if (value >> 2 != 0) {
+                cubeIndex |= 1 << vertexIndex
             }
         }
+        //Where cubeindex |= 2^i means that ith bit of cubeindex is set to 1
+        
+        let centre = Vector(Double(x), Double(y), Double(z))
+        
+        //check if its completely inside or outside
+        guard MarchingCubes.edgeTable[cubeIndex] != 0 else { return }
+        //guard wasMixed else { continue }
+
+        //now build the triangles using triTable
+        for n in stride(from: 0, to: MarchingCubes.triTable[cubeIndex].count, by: 3) {
+            
+            let edges = [
+                MarchingCubes.edgeVertices[MarchingCubes.triTable[cubeIndex][n]],
+                MarchingCubes.edgeVertices[MarchingCubes.triTable[cubeIndex][n + 1]],
+                MarchingCubes.edgeVertices[MarchingCubes.triTable[cubeIndex][n + 2]]
+            ]
+            
+            let positions = edges.map { interpolatePositions(p1: MarchingCubes.vertexOffsets[$0[0]], p2: MarchingCubes.vertexOffsets[$0[1]], v1: neighbours[$0[0]], v2: neighbours[$0[1]]) + centre }
+            
+            let plane = Plane(points: positions)
+            
+            if let poly = Polygon(positions.map { Vertex($0, plane?.normal ?? Vector.zero) }, material: UIColor.blue) {
+                polygons.append(poly)
+            }
+        }
+        
+        // Work out which other seeds to add now
+        
     }
         
 }

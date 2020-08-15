@@ -48,9 +48,14 @@ public class Generator {
                 
                 let distanceFromSurface = Int((depth - Double(intDepth)) * 255)
                 var value = 1
+                
                 for k in slice.perpendicularIndices(range: (0 ..< intDepth)).reversed() {
                     
                     guard index + k < slice.grid.data.count else { continue }
+                    
+                    if (value == 1) {
+                        slice.grid.addSeed(index + k)
+                    }
                     
                     // See if this cell is vacant or not
                     let fillValue : Int
@@ -67,6 +72,8 @@ public class Generator {
                     slice.grid.data[index + k] = slice.grid.data[index + k] | (fillValue << 2) | slice.axisMask.rawValue
                     value += 255
                 }
+                
+                slice.grid.addSeed(index)
             }
         }
         

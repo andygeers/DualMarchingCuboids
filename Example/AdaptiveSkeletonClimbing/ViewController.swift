@@ -30,6 +30,9 @@ class ViewController: UIViewController {
     @IBOutlet var sceneView : SCNView!
     
     private var grid : VoxelGrid!
+    private var seedVoxels : [SCNNode] = []
+    
+    private var mesher : MarchingCubesSlice!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -39,12 +42,42 @@ class ViewController: UIViewController {
         initialiseScene()
         
         //generateMesh()
-        visualiseNextSlice()
+        visualiseSeeds()
     }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
+    }
+    
+    private func visualiseSeeds() {
+        guard let scene = self.sceneView.scene else { return }
+        
+        for node in seedVoxels {
+            node.removeFromParentNode()
+        }
+        seedVoxels = []
+        let particle = voxelGeometry()
+        
+        for (x, y, z) in grid.seeds {
+            let depthColour = colourForDepth(z)
+            let voxelNode = generateVoxel(x: x, y: y, z: z, particle: particle, colour: depthColour)
+            scene.rootNode.addChildNode(voxelNode)
+            
+            if (seedVoxels.isEmpty) {
+                sceneView.pointOfView?.look(at: voxelNode.position)
+            }
+            
+            seedVoxels.append(voxelNode)
+        }
+        
+        if let (x, y, z) = mesher.currentCellPosition {
+            let voxelNode = generateVoxel(x: x, y: y, z: z, particle: particle, colour: UIColor.red)
+            scene.rootNode.addChildNode(voxelNode)
+            sceneView.pointOfView?.look(at: voxelNode.position)
+        }
+        
+        NSLog("Found %d seed(s)", seedVoxels.count)
     }
     
     private func visualiseNextSlice() {
@@ -139,6 +172,7 @@ class ViewController: UIViewController {
             grid = VoxelGrid(width: width, height: height, depth: depth)
         }
         
+        mesher = MarchingCubesSlice(grid: grid)
     }
     
     private func generateMesh() {

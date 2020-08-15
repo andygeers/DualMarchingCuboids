@@ -195,7 +195,7 @@ public struct SlicesIterator : IteratorProtocol {
                 currentSlice = YZSlice(grid: grid, x: currentSliceIndex, previousSlice: previousSlice)
                 
             case .multiple:
-                currentSlice = MarchingCubesSlice(grid: grid, z: currentSliceIndex, previousSlice: previousSlice)
+                currentSlice = MarchingCubesSlice(grid: grid)
                     
             default:
                 return nil
