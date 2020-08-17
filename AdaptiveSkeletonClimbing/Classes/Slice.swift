@@ -274,6 +274,8 @@ public class MarchingCubesSlice : Slice {
         
         localFaceOffsets = MarchingCubesSlice.calculateFaceOffsets(grid: grid)
         
+        MarchingCubes.identifySimpleCases()
+        
         super.init(grid: grid, rotation: Rotation.identity, axis: Vector(0.0, 0.0, -1.0))
     }
     

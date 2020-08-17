@@ -12,6 +12,53 @@
 import Euclid
 
 public struct MarchingCubes {
+    public static func identifySimpleCases() {
+        var simpleCases : [Bool] = []
+        for (edgeCase, triangles) in triTable.enumerated() {
+            var vertices : [Vector] = []
+            for (vertexIndex, vertexOffset) in vertexOffsets.enumerated() {
+                // See if this case includes this vertex
+                if (edgeCase & (1 << vertexIndex) > 0) {
+                    vertices.append(vertexOffset)
+                }
+            }
+            
+            var isSimple = true
+            var triCount = 0
+            
+            for n in stride(from: 0, to: triangles.count, by: 3) {
+            
+                let edges = [
+                    edgeVertices[triangles[n]],
+                    edgeVertices[triangles[n + 1]],
+                    edgeVertices[triangles[n + 2]]
+                ]
+                                
+                let positions = edges.map { (MarchingCubes.vertexOffsets[$0[0]] + MarchingCubes.vertexOffsets[$0[1]]) / 2.0 }
+                
+                triCount += 1
+                
+                if let plane = Plane(points: positions) {
+                    // See if any of the 'on' corners are 'above' this plane
+                    if (vertices.contains(where: { $0.isAbove(plane: plane) })) {
+                        isSimple = false
+                        break
+                    }
+                } else {
+                    NSLog("This is odd")
+                }
+            }
+            
+            NSLog("Case %d has %d vertices and %d triangle(s)", edgeCase, vertices.count, triCount)
+            
+            if (isSimple) {
+                NSLog("Case %d is simple", edgeCase)
+            }
+            
+            simpleCases.append(isSimple)
+        }
+    }
+    
     public static let vertexOffsets = [
         Vector.zero,
         Vector(0, 0, -1),
