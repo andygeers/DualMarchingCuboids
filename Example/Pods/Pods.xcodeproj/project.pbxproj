@@ -50,6 +50,8 @@
 		522054CE24DF02BC0022185D /* VoxelBounds.swift in Sources */ = {isa = PBXBuildFile; fileRef = 522054CD24DF02BC0022185D /* VoxelBounds.swift */; };
 		522054D024E277D90022185D /* MarchingCubesCases.swift in Sources */ = {isa = PBXBuildFile; fileRef = 522054CF24E277D90022185D /* MarchingCubesCases.swift */; };
 		5221433E6847800B0533CAADF9BABA04 /* BeCloseTo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05114CE35ECBF36CBF5EC4296C0F1063 /* BeCloseTo.swift */; settings = {COMPILER_FLAGS = "-DPRODUCT_NAME=Nimble/Nimble"; }; };
+		52A07F5824E97D67004D69A1 /* Octree.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52A07F5724E97D67004D69A1 /* Octree.swift */; };
+		52A07F5B24EA5890004D69A1 /* Queue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52A07F5A24EA5890004D69A1 /* Queue.swift */; };
 		52C36BA124D93ADC0001E9B6 /* Iterators.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52C36BA024D93ADC0001E9B6 /* Iterators.swift */; };
 		52C36BA324D93B2E0001E9B6 /* Slice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52C36BA224D93B2E0001E9B6 /* Slice.swift */; };
 		52D2408424C0855200E8762C /* DoublyLinkedList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52D2408324C0855200E8762C /* DoublyLinkedList.swift */; };
@@ -265,9 +267,11 @@
 		522054CF24E277D90022185D /* MarchingCubesCases.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MarchingCubesCases.swift; path = AdaptiveSkeletonClimbing/Classes/MarchingCubesCases.swift; sourceTree = "<group>"; };
 		5235E2EDB4A4501B7C53BAB15FD65D2D /* NSBundle+CurrentTestBundle.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "NSBundle+CurrentTestBundle.swift"; path = "Sources/Quick/NSBundle+CurrentTestBundle.swift"; sourceTree = "<group>"; };
 		525BBAD79F145A4055C76E975F2789B9 /* Rotation.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Rotation.swift; path = Sources/Rotation.swift; sourceTree = "<group>"; };
+		52A07F5724E97D67004D69A1 /* Octree.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Octree.swift; path = AdaptiveSkeletonClimbing/Classes/Octree.swift; sourceTree = "<group>"; };
+		52A07F5A24EA5890004D69A1 /* Queue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Queue.swift; sourceTree = "<group>"; };
 		52C36BA024D93ADC0001E9B6 /* Iterators.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Iterators.swift; path = AdaptiveSkeletonClimbing/Classes/Iterators.swift; sourceTree = "<group>"; };
 		52C36BA224D93B2E0001E9B6 /* Slice.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Slice.swift; path = AdaptiveSkeletonClimbing/Classes/Slice.swift; sourceTree = "<group>"; };
-		52D2408324C0855200E8762C /* DoublyLinkedList.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = DoublyLinkedList.swift; path = ../../SwiftAlgirithmClub/DoublyLinkedList.swift; sourceTree = "<group>"; };
+		52D2408324C0855200E8762C /* DoublyLinkedList.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DoublyLinkedList.swift; sourceTree = "<group>"; };
 		54F728390E9ADE5C2AE8FD9FBE47CEC4 /* AdaptiveSkeletonClimbing-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "AdaptiveSkeletonClimbing-umbrella.h"; sourceTree = "<group>"; };
 		55BAA2C18078300D28AA54D2ACB41FFB /* Functional.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Functional.swift; path = Sources/Nimble/Utils/Functional.swift; sourceTree = "<group>"; };
 		5891E35D297FD33B20A63F013A75A0E4 /* QuickConfiguration.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = QuickConfiguration.h; path = Sources/QuickObjectiveC/Configuration/QuickConfiguration.h; sourceTree = "<group>"; };
@@ -594,6 +598,15 @@
 			path = "Target Support Files/Pods-AdaptiveSkeletonClimbing_Example";
 			sourceTree = "<group>";
 		};
+		52A07F5924EA5879004D69A1 /* SwiftAlgorithmClub */ = {
+			isa = PBXGroup;
+			children = (
+				52D2408324C0855200E8762C /* DoublyLinkedList.swift */,
+				52A07F5A24EA5890004D69A1 /* Queue.swift */,
+			);
+			path = SwiftAlgorithmClub;
+			sourceTree = "<group>";
+		};
 		54581A699DD5F0FACD415C9EB96D0F07 /* Quick */ = {
 			isa = PBXGroup;
 			children = (
@@ -646,8 +659,10 @@
 		63765115B86BB0200A3C2D0F6BBB17D5 /* AdaptiveSkeletonClimbing */ = {
 			isa = PBXGroup;
 			children = (
+				52A07F5924EA5879004D69A1 /* SwiftAlgorithmClub */,
 				52C36BA224D93B2E0001E9B6 /* Slice.swift */,
 				878C5C131B61CF82F08227DDD934F57C /* VoxelGrid.swift */,
+				52A07F5724E97D67004D69A1 /* Octree.swift */,
 				522054CF24E277D90022185D /* MarchingCubesCases.swift */,
 				52C36BA024D93ADC0001E9B6 /* Iterators.swift */,
 				522054C924DA930E0022185D /* Generator.swift */,
@@ -766,7 +781,6 @@
 		D1B7AA06A453530D7EA53C5A1D59811F /* Development Pods */ = {
 			isa = PBXGroup;
 			children = (
-				52D2408324C0855200E8762C /* DoublyLinkedList.swift */,
 				63765115B86BB0200A3C2D0F6BBB17D5 /* AdaptiveSkeletonClimbing */,
 			);
 			name = "Development Pods";
@@ -1051,10 +1065,12 @@
 				52C36BA324D93B2E0001E9B6 /* Slice.swift in Sources */,
 				E6DFB15D08A99C03F4020735857741A0 /* AdaptiveSkeletonClimbing-dummy.m in Sources */,
 				52D2408424C0855200E8762C /* DoublyLinkedList.swift in Sources */,
+				52A07F5B24EA5890004D69A1 /* Queue.swift in Sources */,
 				522054D024E277D90022185D /* MarchingCubesCases.swift in Sources */,
 				522054CA24DA930E0022185D /* Generator.swift in Sources */,
 				52C36BA124D93ADC0001E9B6 /* Iterators.swift in Sources */,
 				522054CE24DF02BC0022185D /* VoxelBounds.swift in Sources */,
+				52A07F5824E97D67004D69A1 /* Octree.swift in Sources */,
 				522054CC24DA933F0022185D /* VoxelTexture.swift in Sources */,
 				BA4BB93FA1FB20D473F9792773DF8DD1 /* VoxelGrid.swift in Sources */,
 			);

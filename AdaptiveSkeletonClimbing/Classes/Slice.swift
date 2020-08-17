@@ -265,12 +265,13 @@ public class YZSlice : Slice {
 
 public class MarchingCubesSlice : Slice {
     
-    private var currentCell : Int
     let localFaceOffsets : [Int]
     static let visitedFlag = 0x4
     
+    private var octree : Octree
+    
     public init?(grid: VoxelGrid) {
-        currentCell = grid.seedCells.first ?? -1
+        octree = Octree(grid: grid)
         
         localFaceOffsets = MarchingCubesSlice.calculateFaceOffsets(grid: grid)
         
@@ -327,33 +328,44 @@ public class MarchingCubesSlice : Slice {
         assert(offset >= 0.0 && offset <= 1.0)
         
         return p1 + direction * offset
-    }
+    }        
     
-    public var currentCellPosition : (Int, Int, Int)? {
-        if currentCell >= 0 {
-            return grid.positionFromIndex(currentCell)
-        } else {
-            return nil
-        }
-    }
-    
-    public func nextIteration(polygons : inout [Euclid.Polygon], material: Euclid.Polygon.Material = UIColor.blue) -> Bool {
+    override public func generatePolygons(_ polygons : inout [Euclid.Polygon], material: Euclid.Polygon.Material = UIColor.blue) {
         
-        if currentCell >= 0 {
+        let before = DispatchTime.now()
+        
+        var currentCell = grid.seedCells.first ?? -1
+        while currentCell >= 0 {
             grid.seedCells.removeFirst()
             
             let (x, y, z) = grid.positionFromIndex(currentCell)
             
-            processCell(x: x, y: y, z: z, polygons: &polygons)
+            processCell(x: x, y: y, z: z)
             
             // Move to the next seed
             currentCell = grid.seedCells.first ?? -1
         }
         
-        return currentCell >= 0
+        let after = DispatchTime.now()
+        
+        NSLog("Populated octree in %f seconds", polygons.count, Float(after.uptimeNanoseconds - before.uptimeNanoseconds) / Float(1_000_000_000))
+        
+        mergeOctreeNodes()
+        
+        let afterMerge = DispatchTime.now()
+        
+        NSLog("Merged octree in %f seconds", polygons.count, Float(afterMerge.uptimeNanoseconds - after.uptimeNanoseconds) / Float(1_000_000_000))
     }
     
-    private func processCell(x: Int, y: Int, z: Int, polygons : inout [Euclid.Polygon], material: Euclid.Polygon.Material = UIColor.blue) {
+    private func mergeOctreeNodes() {
+        for node in octree {
+            if (canMerge(node: node)) {
+                // Merge this node
+            }
+        }
+    }
+    
+    private func processCell(x: Int, y: Int, z: Int) {
                 
         let index = grid.cellIndex(x: x, y : y, z: z)
         
@@ -380,6 +392,7 @@ public class MarchingCubesSlice : Slice {
         //now build the triangles using triTable
         // Keep track of which faces are included
         var touchedFaces = 0
+        var intersectionPoints : [[Vector]] = []
         for n in stride(from: 0, to: MarchingCubes.triTable[cubeIndex].count, by: 3) {
             
             let edges = [
@@ -396,12 +409,10 @@ public class MarchingCubesSlice : Slice {
             
             let positions = edges.map { interpolatePositions(p1: MarchingCubes.vertexOffsets[$0[0]], p2: MarchingCubes.vertexOffsets[$0[1]], v1: neighbours[$0[0]], v2: neighbours[$0[1]]) + centre }
             
-            let plane = Plane(points: positions)
-            
-            if let poly = Polygon(positions.map { Vertex($0, plane?.normal ?? Vector.zero) }, material: UIColor.blue) {
-                polygons.append(poly)
-            }
+            intersectionPoints.append(positions)
         }
+        
+        octree.insert(x: x, y: y, z: z, marchingCubesCase: Int16(cubeIndex), intersectionPoints: intersectionPoints)
         
         // Follow the contour into neighbouring cells
         for (n, offset) in localFaceOffsets.enumerated() {
@@ -414,5 +425,12 @@ public class MarchingCubesSlice : Slice {
             }
         }
     }
+      
+    func stuff(polygons: inout [Euclid.Polygon], positions: [Vector], material: Euclid.Polygon.Material) {
+        let plane = Plane(points: positions)
         
+        if let poly = Polygon(positions.map { Vertex($0, plane?.normal ?? Vector.zero) }, material: UIColor.blue) {
+            polygons.append(poly)
+        }
+    }
 }
