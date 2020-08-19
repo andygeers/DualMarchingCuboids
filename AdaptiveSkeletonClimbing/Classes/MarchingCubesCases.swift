@@ -15,6 +15,9 @@ import SwiftGraph
 public struct MarchingCubes {
     public static func identifySimpleCases() {
         var simpleCases : [Bool] = []
+        
+        print("static let simpleCases : [Bool] = [")
+        
         for (edgeCase, triangles) in triTable.enumerated() {
             var vertices : [Vector] = []
             for (vertexIndex, vertexOffset) in vertexOffsets.enumerated() {
@@ -58,7 +61,15 @@ public struct MarchingCubes {
             }
             
             simpleCases.append(isSimple)
+            
+            if (isSimple) {
+                print("true,")
+            } else {
+                print("false,")
+            }
         }
+        
+        print("]")
         
         // Test a few cases we know
         assert(simpleCases[1])
