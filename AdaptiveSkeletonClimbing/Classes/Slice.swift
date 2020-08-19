@@ -365,6 +365,11 @@ public class MarchingCubesSlice : Slice {
         }
     }
     
+    private func canMerge(node: OctreeNode) -> Bool {
+        guard node.marchingCubesCase >= 0 && node.marchingCubesCase <= 255 else { return false }
+        return MarchingCubes.simpleCases[Int(node.marchingCubesCase)]
+    }
+    
     private func processCell(x: Int, y: Int, z: Int) {
                 
         let index = grid.cellIndex(x: x, y : y, z: z)
