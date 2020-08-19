@@ -39,4 +39,5 @@ DESC
   # s.public_header_files = 'Pod/Classes/**/*.h'
   # s.frameworks = 'UIKit', 'MapKit'
   s.dependency 'Euclid', "~> 0.3.0"
+  s.dependency 'SwiftGraph', "~> 3.0.0"
 end

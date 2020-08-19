@@ -10,6 +10,7 @@
 //                http://paulbourke.net/geometry/polygonise/
 
 import Euclid
+import SwiftGraph
 
 public struct MarchingCubes {
     public static func identifySimpleCases() {
@@ -26,37 +27,52 @@ public struct MarchingCubes {
             var isSimple = true
             var triCount = 0
             
+            // We're looking for a single 'surface'
+            // Build a graph of how all of the triangles are connected
+            // and check that they are all connected to each other
+            var tris : [Set<Int>] = []
             for n in stride(from: 0, to: triangles.count, by: 3) {
-            
-                let edges = [
-                    edgeVertices[triangles[n]],
-                    edgeVertices[triangles[n + 1]],
-                    edgeVertices[triangles[n + 2]]
-                ]
-                                
-                let positions = edges.map { (MarchingCubes.vertexOffsets[$0[0]] + MarchingCubes.vertexOffsets[$0[1]]) / 2.0 }
-                
-                triCount += 1
-                
-                if let plane = Plane(points: positions) {
-                    // See if any of the 'on' corners are 'above' this plane
-                    if (vertices.contains(where: { $0.isAbove(plane: plane) })) {
-                        isSimple = false
-                        break
-                    }
-                } else {
-                    NSLog("This is odd")
+                tris.append(Set([triangles[n], triangles[n + 1], triangles[n + 2]]))
+            }
+            let graph = UnweightedGraph<Int>()
+            for n in (0 ..< tris.count) {
+                _ = graph.addVertex(n)
+            }
+            for (n, tri) in tris.enumerated() {
+                // Find all other triangles that it shares two edges with
+                let otherTris = tris.enumerated().filter { $0.offset != n && $0.element.intersection(tri).count >= 2 }.map { $0.offset }
+                for otherTri in otherTris {
+                    graph.addEdge(from: n, to: otherTri)
                 }
             }
             
-            NSLog("Case %d has %d vertices and %d triangle(s)", edgeCase, vertices.count, triCount)
-            
-            if (isSimple) {
-                NSLog("Case %d is simple", edgeCase)
+            // See how many chains there are
+            isSimple = true
+            if (tris.count > 1) {
+                for n in 1 ..< tris.count {
+                    if (graph.dfs(from: 0, to: n).isEmpty) {
+                        isSimple = false
+                        break
+                    }
+                }
             }
             
             simpleCases.append(isSimple)
         }
+        
+        // Test a few cases we know
+        assert(simpleCases[1])
+        assert(simpleCases[6])
+        assert(!simpleCases[10])
+        assert(!simpleCases[40])
+        assert(simpleCases[152])
+        assert(!simpleCases[22])
+        assert(!simpleCases[161])
+        assert(simpleCases[15])
+        assert(simpleCases[27])
+        assert(!simpleCases[85])
+        assert(simpleCases[43])
+        
     }
     
     public static let vertexOffsets = [

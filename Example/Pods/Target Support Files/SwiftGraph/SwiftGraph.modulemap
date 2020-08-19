@@ -1,0 +1,6 @@
+framework module SwiftGraph {
+  umbrella header "SwiftGraph-umbrella.h"
+
+  export *
+  module * { export * }
+}

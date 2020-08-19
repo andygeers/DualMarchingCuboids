@@ -21,6 +21,9 @@
   "dependencies": {
     "Euclid": [
       "~> 0.3.0"
+    ],
+    "SwiftGraph": [
+      "~> 3.0.0"
     ]
   }
 }

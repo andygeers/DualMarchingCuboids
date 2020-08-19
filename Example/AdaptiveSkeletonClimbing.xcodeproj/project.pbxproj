@@ -293,11 +293,13 @@
 				"${PODS_ROOT}/Target Support Files/Pods-AdaptiveSkeletonClimbing_Example/Pods-AdaptiveSkeletonClimbing_Example-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/AdaptiveSkeletonClimbing/AdaptiveSkeletonClimbing.framework",
 				"${BUILT_PRODUCTS_DIR}/Euclid/Euclid.framework",
+				"${BUILT_PRODUCTS_DIR}/SwiftGraph/SwiftGraph.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AdaptiveSkeletonClimbing.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Euclid.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftGraph.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;

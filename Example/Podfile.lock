@@ -1,9 +1,11 @@
 PODS:
   - AdaptiveSkeletonClimbing (0.1.0):
     - Euclid (~> 0.3.0)
+    - SwiftGraph (~> 3.0.0)
   - Euclid (0.3.4)
   - Nimble (7.3.4)
   - Quick (1.2.0)
+  - SwiftGraph (3.0.0)
 
 DEPENDENCIES:
   - AdaptiveSkeletonClimbing (from `../`)
@@ -15,16 +17,18 @@ SPEC REPOS:
     - Euclid
     - Nimble
     - Quick
+    - SwiftGraph
 
 EXTERNAL SOURCES:
   AdaptiveSkeletonClimbing:
     :path: "../"
 
 SPEC CHECKSUMS:
-  AdaptiveSkeletonClimbing: b2ec15879f16b7de36650c0d01bdd783856641f1
+  AdaptiveSkeletonClimbing: 4673369d3ff28a9bc7efd664186242b128c7d4d2
   Euclid: 94a24caf55d4b251f4d5070c884b3258e6c0fb0a
   Nimble: 051e3d8912d40138fa5591c78594f95fb172af37
   Quick: 58d203b1c5e27fff7229c4c1ae445ad7069a7a08
+  SwiftGraph: 35298b3dab72887bc834b2e8d45295b870a87f42
 
 PODFILE CHECKSUM: d63cffda32d1084c3bdd7d4c48fc6164da13582f
 
