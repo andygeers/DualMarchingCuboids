@@ -55,6 +55,111 @@ class Octree : Sequence {
     private let depth : Int
     fileprivate var nodes : [OctreeNode]
     
+    static let allEdges = [
+        [0, 0, 0, 1, 4, 0],
+        [0, 1, 0, 2, 1, 2],
+        [0, 2, 0, 3, 4, 3],
+        [0, 3, 0, 0, 1, 3],
+        [0, 4, 0, 5, 4, 4],
+        [0, 5, 0, 6, 1, 6],
+        [0, 6, 0, 7, 4, 7],
+        [0, 7, 0, 4, 1, 7],
+        [0, 0, 0, 4, 2, 4],
+        [0, 1, 0, 5, 2, 5],
+        [0, 2, 0, 6, 2, 6],
+        [0, 3, 0, 7, 2, 7],
+        [1, 2, 1, 3, 5, 3],
+        [1, 6, 1, 7, 5, 7],
+        [1, 2, 1, 6, 3, 6],
+        [1, 3, 1, 7, 3, 7],
+        [2, 4, 2, 5, 6, 4],
+        [2, 5, 2, 6, 3, 6],
+        [2, 6, 2, 7, 6, 7],
+        [2, 7, 2, 4, 3, 7],
+        [3, 6, 3, 7, 7, 7],
+        [4, 3, 4, 0, 5, 3],
+        [4, 7, 4, 4, 5, 7],
+        [4, 0, 4, 4, 6, 4],
+        [4, 3, 4, 7, 6, 7],
+        [5, 3, 5, 7, 7, 7],
+        [6, 7, 6, 4, 7, 7],
+    ]
+    
+    public static func findAllEdges() {
+        Swift.print("let octreeEdges = [")
+        for cell in 0 ... 7 {
+            let zz = cell / 4
+            let yy = (cell - zz * 4) / 2
+            let xx = cell % 2
+            assert(cell == zz * 4 + yy * 2 + xx)
+            
+            for (vertex1, vertex2) in MarchingCubes.edgeVertices {
+                // See which direction this edge runs, and therefore what the second cell to compare with should be
+                let direction = (MarchingCubes.vertexOffsets[vertex2] - MarchingCubes.vertexOffsets[vertex1])
+                let offset : Int
+                let vertex3 : Int
+                if (direction.x != 0) {
+                    if (yy == 1 && MarchingCubes.vertexOffsets[vertex1].y == 0) ||
+                        (zz == 1 && MarchingCubes.vertexOffsets[vertex1].z == -1) {
+                        // Skip the internal edge
+                        continue
+                    }
+                    
+                    if (xx == 1) {
+                        continue
+                    }
+                    
+                    offset = 1
+                    if (direction.x > 0) {
+                        vertex3 = vertex2
+                    } else {
+                        vertex3 = vertex1
+                    }
+                } else if (direction.y != 0) {
+                    if (xx == 1 && MarchingCubes.vertexOffsets[vertex1].x == 0) ||
+                        (zz == 1 && MarchingCubes.vertexOffsets[vertex1].z == -1) {
+                        // Skip the internal edge
+                        continue
+                    }
+                    
+                    if (yy == 1) {
+                        continue
+                    }
+                    
+                    offset = 2
+                    if (direction.y > 0) {
+                        vertex3 = vertex2
+                    } else {
+                        vertex3 = vertex1
+                    }
+                } else {
+                    assert(direction.z != 0)
+                    
+                    if (yy == 1 && MarchingCubes.vertexOffsets[vertex1].y == 0) ||
+                        (xx == 1 && MarchingCubes.vertexOffsets[vertex1].x == 0) {
+                        // Skip the internal edge
+                        continue
+                    }
+                    
+                    if (zz == 1) {
+                        continue
+                    }
+                                        
+                    offset = 4
+                    if (direction.z > 0) {
+                        vertex3 = vertex2
+                    } else {
+                        vertex3 = vertex1
+                    }
+                }
+            
+                assert(cell + offset <= 7)
+                Swift.print(String(format: "    [%d, %d, %d, %d, %d, %d],", cell, vertex1, cell, vertex2, cell + offset, vertex3))
+            }
+        }
+        Swift.print("]")
+    }
+    
     private struct OctreeCoordinate {
         let x : Int
         let y : Int
