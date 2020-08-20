@@ -275,6 +275,79 @@ public class MarchingCubesSlice : Slice {
         
         localFaceOffsets = MarchingCubesSlice.calculateFaceOffsets(grid: grid)
         
+        Swift.print("let octreeEdges = [")
+        for cell in 0 ... 7 {
+            let zz = cell / 4
+            let yy = (cell - zz * 4) / 2
+            let xx = cell % 2
+            assert(cell == zz * 4 + yy * 2 + xx)
+            
+            for (vertex1, vertex2) in MarchingCubes.edgeVertices {
+                // See which direction this edge runs, and therefore what the second cell to compare with should be
+                let direction = (MarchingCubes.vertexOffsets[vertex2] - MarchingCubes.vertexOffsets[vertex1])
+                let offset : Int
+                let vertex3 : Int
+                if (direction.x != 0) {
+                    if (yy == 1 && MarchingCubes.vertexOffsets[vertex1].y == 0) ||
+                        (zz == 1 && MarchingCubes.vertexOffsets[vertex1].z == -1) {
+                        // Skip the internal edge
+                        continue
+                    }
+                    
+                    if (xx == 1) {
+                        continue
+                    }
+                    
+                    offset = 1
+                    if (direction.x > 0) {
+                        vertex3 = vertex2
+                    } else {
+                        vertex3 = vertex1
+                    }
+                } else if (direction.y != 0) {
+                    if (xx == 1 && MarchingCubes.vertexOffsets[vertex1].x == 0) ||
+                        (zz == 1 && MarchingCubes.vertexOffsets[vertex1].z == -1) {
+                        // Skip the internal edge
+                        continue
+                    }
+                    
+                    if (yy == 1) {
+                        continue
+                    }
+                    
+                    offset = 2
+                    if (direction.y > 0) {
+                        vertex3 = vertex2
+                    } else {
+                        vertex3 = vertex1
+                    }
+                } else {
+                    assert(direction.z != 0)
+                    
+                    if (yy == 1 && MarchingCubes.vertexOffsets[vertex1].y == 0) ||
+                        (xx == 1 && MarchingCubes.vertexOffsets[vertex1].x == 0) {
+                        // Skip the internal edge
+                        continue
+                    }
+                    
+                    if (zz == 1) {
+                        continue
+                    }
+                                        
+                    offset = 4
+                    if (direction.z > 0) {
+                        vertex3 = vertex2
+                    } else {
+                        vertex3 = vertex1
+                    }
+                }
+            
+                assert(cell + offset <= 7)
+                Swift.print(String(format: "    [%d, %d, %d, %d, %d, %d],", cell, vertex1, cell, vertex2, cell + offset, vertex3))
+            }
+        }
+        Swift.print("]")
+        
         super.init(grid: grid, rotation: Rotation.identity, axis: Vector(0.0, 0.0, -1.0))
     }
     
@@ -350,11 +423,17 @@ public class MarchingCubesSlice : Slice {
         
         NSLog("Populated octree in %f seconds", polygons.count, Float(after.uptimeNanoseconds - before.uptimeNanoseconds) / Float(1_000_000_000))
         
-        octree.mergeNodes()
+        octree.mergeCells()
         
         let afterMerge = DispatchTime.now()
         
         NSLog("Merged octree in %f seconds", polygons.count, Float(afterMerge.uptimeNanoseconds - after.uptimeNanoseconds) / Float(1_000_000_000))
+        
+        
+        
+        let afterPolygonise = DispatchTime.now()
+        
+        NSLog("Generated polygons in %f seconds", polygons.count, Float(afterPolygonise.uptimeNanoseconds - afterMerge.uptimeNanoseconds) / Float(1_000_000_000))
     }
     
     private func processCell(x: Int, y: Int, z: Int) {
@@ -394,12 +473,11 @@ public class MarchingCubesSlice : Slice {
             ]
             
             for edgePair in edges {
-                for edge in edgePair {
-                    touchedFaces |= MarchingCubes.edgeFaces[edge]
-                }
+                touchedFaces |= MarchingCubes.edgeFaces[edgePair.0]
+                touchedFaces |= MarchingCubes.edgeFaces[edgePair.1]
             }
             
-            let positions = edges.map { interpolatePositions(p1: MarchingCubes.vertexOffsets[$0[0]], p2: MarchingCubes.vertexOffsets[$0[1]], v1: neighbours[$0[0]], v2: neighbours[$0[1]]) + centre }
+            let positions = edges.map { interpolatePositions(p1: MarchingCubes.vertexOffsets[$0.0], p2: MarchingCubes.vertexOffsets[$0.1], v1: neighbours[$0.0], v2: neighbours[$0.1]) + centre }
             
             intersectionPoints.append(positions)
         }

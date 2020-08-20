@@ -39,7 +39,7 @@ public struct MarchingCubes {
         Int((1 << 1) | (1 << 0))     // [1.0.0, 1.1.0]
     ]
     
-    // Remember which directio neach face points
+    // Remember which direction each face points
     static let faceOffsets : [(Int, Int, Int)] = [
         (0,  0,  1), // 0
         (1,  0,  0), // 1
@@ -49,19 +49,19 @@ public struct MarchingCubes {
         (0, -1,  0)  // 5
     ]
     
-    static let edgeVertices : [[Int]] = [
-        [0, 1],
-        [1, 2],
-        [2, 3],
-        [3, 0],
-        [4, 5],
-        [5, 6],
-        [6, 7],
-        [7, 4],
-        [0, 4],
-        [1, 5],
-        [2, 6],
-        [3, 7]
+    static let edgeVertices : [(Int, Int)] = [
+        (0, 1),
+        (1, 2),
+        (2, 3),
+        (3, 0),
+        (4, 5),
+        (5, 6),
+        (6, 7),
+        (7, 4),
+        (0, 4),
+        (1, 5),
+        (2, 6),
+        (3, 7)
     ]
     
     static let edgeTable : [Int] = [
