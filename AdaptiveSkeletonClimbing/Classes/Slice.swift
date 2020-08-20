@@ -350,24 +350,11 @@ public class MarchingCubesSlice : Slice {
         
         NSLog("Populated octree in %f seconds", polygons.count, Float(after.uptimeNanoseconds - before.uptimeNanoseconds) / Float(1_000_000_000))
         
-        mergeOctreeNodes()
+        octree.mergeNodes()
         
         let afterMerge = DispatchTime.now()
         
         NSLog("Merged octree in %f seconds", polygons.count, Float(afterMerge.uptimeNanoseconds - after.uptimeNanoseconds) / Float(1_000_000_000))
-    }
-    
-    private func mergeOctreeNodes() {
-        for node in octree {
-            if (canMerge(node: node)) {
-                // Merge this node
-            }
-        }
-    }
-    
-    private func canMerge(node: OctreeNode) -> Bool {
-        guard node.marchingCubesCase >= 0 && node.marchingCubesCase <= 255 else { return false }
-        return MarchingCubes.simpleCases[Int(node.marchingCubesCase)]
     }
     
     private func processCell(x: Int, y: Int, z: Int) {
