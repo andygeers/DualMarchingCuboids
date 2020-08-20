@@ -23,6 +23,8 @@ struct OctreeNode {
     }
     
     func canMerge(tree: Octree) -> Bool {
+        guard childNodes.count > 0 else { return true }
+        
         for child in childNodes {
             let childNode = tree.nodes[child]
             if childNode.marchingCubesCase == INVALID_NODE ||
@@ -30,6 +32,26 @@ struct OctreeNode {
                 return false
             }
         }
+        
+        // Check all of the edges for multiple intersections
+        for edge in Octree.allEdges {
+            var hasChanged = false
+            var value = false
+            for (n, (childIndex, vertexIndex)) in edge.enumerated() {
+                let currentValue = (tree.nodes[childNodes[childIndex]].marchingCubesCase & (1 << vertexIndex) > 0)
+                if (n == 0) {
+                    value = currentValue
+                } else {
+                    if (currentValue != value) {
+                        guard !hasChanged else {
+                            return false
+                        }
+                        hasChanged = true
+                    }
+                }
+            }
+        }
+        
         return true
     }
     
@@ -56,51 +78,53 @@ class Octree : Sequence {
     fileprivate var nodes : [OctreeNode]
     
     static let allEdges = [
-        [0, 0, 0, 1, 4, 0],
-        [0, 1, 0, 2, 1, 2],
-        [0, 2, 0, 3, 4, 3],
-        [0, 3, 0, 0, 1, 3],
-        [0, 4, 0, 5, 4, 4],
-        [0, 5, 0, 6, 1, 6],
-        [0, 6, 0, 7, 4, 7],
-        [0, 7, 0, 4, 1, 7],
-        [0, 0, 0, 4, 2, 4],
-        [0, 1, 0, 5, 2, 5],
-        [0, 2, 0, 6, 2, 6],
-        [0, 3, 0, 7, 2, 7],
-        [1, 2, 1, 3, 5, 3],
-        [1, 6, 1, 7, 5, 7],
-        [1, 2, 1, 6, 3, 6],
-        [1, 3, 1, 7, 3, 7],
-        [2, 4, 2, 5, 6, 4],
-        [2, 5, 2, 6, 3, 6],
-        [2, 6, 2, 7, 6, 7],
-        [2, 7, 2, 4, 3, 7],
-        [3, 6, 3, 7, 7, 7],
-        [4, 3, 4, 0, 5, 3],
-        [4, 7, 4, 4, 5, 7],
-        [4, 0, 4, 4, 6, 4],
-        [4, 3, 4, 7, 6, 7],
-        [5, 3, 5, 7, 7, 7],
-        [6, 7, 6, 4, 7, 7],
+        [(0, 1), (0, 0), (4, 0)],
+        [(0, 1), (0, 2), (1, 2)],
+        [(0, 2), (0, 3), (4, 3)],
+        [(0, 0), (0, 3), (1, 3)],
+        [(0, 5), (0, 4), (4, 4)],
+        [(0, 5), (0, 6), (1, 6)],
+        [(0, 6), (0, 7), (4, 7)],
+        [(0, 4), (0, 7), (1, 7)],
+        [(0, 0), (0, 4), (2, 4)],
+        [(0, 1), (0, 5), (2, 5)],
+        [(0, 2), (0, 6), (2, 6)],
+        [(0, 3), (0, 7), (2, 7)],
+        [(1, 2), (1, 3), (5, 3)],
+        [(1, 6), (1, 7), (5, 7)],
+        [(1, 2), (1, 6), (3, 6)],
+        [(1, 3), (1, 7), (3, 7)],
+        [(2, 5), (2, 4), (6, 4)],
+        [(2, 5), (2, 6), (3, 6)],
+        [(2, 6), (2, 7), (6, 7)],
+        [(2, 4), (2, 7), (3, 7)],
+        [(3, 6), (3, 7), (7, 7)],
+        [(4, 0), (4, 3), (5, 3)],
+        [(4, 4), (4, 7), (5, 7)],
+        [(4, 0), (4, 4), (6, 4)],
+        [(4, 3), (4, 7), (6, 7)],
+        [(5, 3), (5, 7), (7, 7)],
+        [(6, 4), (6, 7), (7, 7)],
     ]
     
     public static func findAllEdges() {
-        Swift.print("let octreeEdges = [")
+        Swift.print("let allEdges = [")
         for cell in 0 ... 7 {
             let zz = cell / 4
             let yy = (cell - zz * 4) / 2
             let xx = cell % 2
             assert(cell == zz * 4 + yy * 2 + xx)
             
-            for (vertex1, vertex2) in MarchingCubes.edgeVertices {
+            for (vertexA, vertexB) in MarchingCubes.edgeVertices {
                 // See which direction this edge runs, and therefore what the second cell to compare with should be
-                let direction = (MarchingCubes.vertexOffsets[vertex2] - MarchingCubes.vertexOffsets[vertex1])
+                let direction = (MarchingCubes.vertexOffsets[vertexB] - MarchingCubes.vertexOffsets[vertexA])
                 let offset : Int
+                let vertex1 : Int
+                let vertex2 : Int
                 let vertex3 : Int
                 if (direction.x != 0) {
-                    if (yy == 1 && MarchingCubes.vertexOffsets[vertex1].y == 0) ||
-                        (zz == 1 && MarchingCubes.vertexOffsets[vertex1].z == -1) {
+                    if (yy == 1 && MarchingCubes.vertexOffsets[vertexA].y == 0) ||
+                        (zz == 1 && MarchingCubes.vertexOffsets[vertexA].z == -1) {
                         // Skip the internal edge
                         continue
                     }
@@ -111,13 +135,17 @@ class Octree : Sequence {
                     
                     offset = 1
                     if (direction.x > 0) {
-                        vertex3 = vertex2
+                        vertex1 = vertexA
+                        vertex2 = vertexB
+                        vertex3 = vertexB
                     } else {
-                        vertex3 = vertex1
+                        vertex1 = vertexB
+                        vertex2 = vertexA
+                        vertex3 = vertexA
                     }
                 } else if (direction.y != 0) {
-                    if (xx == 1 && MarchingCubes.vertexOffsets[vertex1].x == 0) ||
-                        (zz == 1 && MarchingCubes.vertexOffsets[vertex1].z == -1) {
+                    if (xx == 1 && MarchingCubes.vertexOffsets[vertexA].x == 0) ||
+                        (zz == 1 && MarchingCubes.vertexOffsets[vertexA].z == -1) {
                         // Skip the internal edge
                         continue
                     }
@@ -128,15 +156,19 @@ class Octree : Sequence {
                     
                     offset = 2
                     if (direction.y > 0) {
-                        vertex3 = vertex2
+                        vertex1 = vertexA
+                        vertex2 = vertexB
+                        vertex3 = vertexB
                     } else {
-                        vertex3 = vertex1
+                        vertex1 = vertexB
+                        vertex2 = vertexA
+                        vertex3 = vertexA
                     }
                 } else {
                     assert(direction.z != 0)
                     
-                    if (yy == 1 && MarchingCubes.vertexOffsets[vertex1].y == 0) ||
-                        (xx == 1 && MarchingCubes.vertexOffsets[vertex1].x == 0) {
+                    if (yy == 1 && MarchingCubes.vertexOffsets[vertexA].y == 0) ||
+                        (xx == 1 && MarchingCubes.vertexOffsets[vertexA].x == 0) {
                         // Skip the internal edge
                         continue
                     }
@@ -147,14 +179,18 @@ class Octree : Sequence {
                                         
                     offset = 4
                     if (direction.z > 0) {
-                        vertex3 = vertex2
+                        vertex1 = vertexA
+                        vertex2 = vertexB
+                        vertex3 = vertexB
                     } else {
-                        vertex3 = vertex1
+                        vertex1 = vertexB
+                        vertex2 = vertexA
+                        vertex3 = vertexA
                     }
                 }
             
                 assert(cell + offset <= 7)
-                Swift.print(String(format: "    [%d, %d, %d, %d, %d, %d],", cell, vertex1, cell, vertex2, cell + offset, vertex3))
+                Swift.print(String(format: "    [(%d, %d), (%d, %d), (%d, %d)],", cell, vertex1, cell, vertex2, cell + offset, vertex3))
             }
         }
         Swift.print("]")
