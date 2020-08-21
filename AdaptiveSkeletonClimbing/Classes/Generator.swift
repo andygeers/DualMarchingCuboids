@@ -52,7 +52,7 @@ public class Generator {
                 var value = 1
                 
                 if !hasSeeded && (slice.axisMask == .xy) {
-                    let topIndex = index + intDepth * slice.grid.width * slice.grid.height
+                    let topIndex = index + (intDepth - 1) * slice.grid.width * slice.grid.height
                     slice.grid.addSeed(topIndex)
                     hasSeeded = true
                 }

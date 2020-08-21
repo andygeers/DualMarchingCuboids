@@ -18,11 +18,75 @@ struct OctreeNode {
     var childNodes : [Int] = []
     
     mutating func merge(tree: Octree) {
+        guard !childNodes.isEmpty else {
+            self.marchingCubesCase = 0
+            return
+        }
+        
         self.marchingCubesCase = 0
         for (vertexIndex, vertexChild) in [0, 4, 5, 1, 2, 6, 7, 3].enumerated() {
             let childCase = tree.nodes[childNodes[vertexChild]].marchingCubesCase
             guard childCase != -1 else { continue }
             self.marchingCubesCase |= childCase & (1 << vertexIndex)
+        }
+        
+        assert(self.intersectionPoints.isEmpty)
+        
+        let edges = MarchingCubes.edgeTable[Int(self.marchingCubesCase)]
+        for edgeIndex in 0 ..< 8 {
+            let edgeMask = (1 << edgeIndex)
+            if (edges & edgeMask > 0) {
+                // The intersection on this edge will come from the corresponding edge from one of two children
+                let childNode1 = childNodes[Octree.subEdges[edgeIndex].0]
+                let childNode2 = childNodes[Octree.subEdges[edgeIndex].1]
+                let childCase1 = Int(tree.nodes[childNode1].marchingCubesCase)
+                let childCase2 = Int(tree.nodes[childNode2].marchingCubesCase)
+                let childEdges1 = childCase1 > -1 ? MarchingCubes.edgeTable[childCase1] : 0
+                let childEdges2 = childCase2 > -1 ? MarchingCubes.edgeTable[childCase2] : 0
+                if (childEdges1 & edgeMask > 0) {
+                    // Take intersection point from this child
+                    var intersectionIndex = 0
+                    var hasFoundIntersection = false
+                    for childEdgeIndex in 0 ..< 8 {
+                        if (childEdges1 & (1 << childEdgeIndex) > 0) {
+                            if (childEdgeIndex == edgeIndex) {
+                                intersectionPoints.append(tree.nodes[childNode1].intersectionPoints[intersectionIndex])
+                                hasFoundIntersection = true
+                                break
+                            } else {
+                                intersectionIndex += 1
+                            }
+                        }
+                    }
+                    assert(hasFoundIntersection)
+                } else if (childEdges2 & edgeMask > 0) {
+                    // Take intersection point from other child
+                    var intersectionIndex = 0
+                    var hasFoundIntersection = false
+                    for childEdgeIndex in 0 ..< 8 {
+                        if (childEdges2 & (1 << childEdgeIndex) > 0) {
+                            if (childEdgeIndex == edgeIndex) {
+                                intersectionPoints.append(tree.nodes[childNode2].intersectionPoints[intersectionIndex])
+                                hasFoundIntersection = true
+                                break
+                            } else {
+                                intersectionIndex += 1
+                            }
+                        }
+                    }
+                    assert(hasFoundIntersection)
+                } else {
+                    for m in 0 ..< 8 {
+                        let childCase = Int(tree.nodes[childNodes[m]].marchingCubesCase)
+                        let childEdges = childCase > -1 ? MarchingCubes.edgeTable[childCase] : 0
+                        if (childEdges & edgeMask > 0) {
+                            NSLog("Surprisingly, child %d has a matching edge", m)
+                        }
+                    }
+                    
+                    assert(false)
+                }
+            }
         }
         //self.intersectionPoints = childNodes.flatMap { tree.nodes[$0].intersectionPoints }
     }
@@ -114,18 +178,18 @@ class Octree : Sequence {
     
     // For each edge in a parent node, it could come from the corresponding edge of two of its children
     static let subEdges = [
-        (0, 4),
-        (0, 1),
-        (1, 5),
-        (4, 5),
-        (2, 6),
-        (2, 3),
-        (3, 7),
-        (6, 7),
-        (4, 6),
-        (0, 2),
-        (1, 3),
-        (5, 7)
+        (0, 4), // 0
+        (4, 5), // 1
+        (1, 5), // 2
+        (0, 1), // 3
+        (2, 6), // 4
+        (6, 7), // 5
+        (3, 7), // 6
+        (2, 3), // 7
+        (0, 2), // 8
+        (4, 6), // 9
+        (5, 7), // 10
+        (1, 3)  // 11
     ]
     
     public static func findAllEdges() {
@@ -279,6 +343,9 @@ class Octree : Sequence {
     
     public func decimateMesh(material : Euclid.Polygon.Material) -> Mesh {
         var polygons : [Euclid.Polygon] = []
+        
+        // Start by merging cells
+        mergeCells()
         
         // Use a queue of node index & depth
         var queue = Queue<OctreeCoordinate>()
