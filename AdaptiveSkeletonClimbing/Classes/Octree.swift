@@ -19,7 +19,12 @@ struct OctreeNode {
     
     mutating func merge(tree: Octree) {
         self.marchingCubesCase = 0
-        self.intersectionPoints = childNodes.flatMap { tree.nodes[$0].intersectionPoints }
+        for (vertexIndex, vertexChild) in [0, 4, 5, 1, 2, 6, 7, 3].enumerated() {
+            let childCase = tree.nodes[childNodes[vertexChild]].marchingCubesCase
+            guard childCase != -1 else { continue }
+            self.marchingCubesCase |= childCase & (1 << vertexIndex)
+        }
+        //self.intersectionPoints = childNodes.flatMap { tree.nodes[$0].intersectionPoints }
     }
     
     func canMerge(tree: Octree) -> Bool {
@@ -78,33 +83,49 @@ class Octree : Sequence {
     fileprivate var nodes : [OctreeNode]
     
     static let allEdges = [
-        [(0, 1), (0, 0), (4, 0)],
+        [(0, 0), (0, 1), (4, 1)],
         [(0, 1), (0, 2), (1, 2)],
-        [(0, 2), (0, 3), (4, 3)],
+        [(0, 3), (0, 2), (4, 2)],
         [(0, 0), (0, 3), (1, 3)],
-        [(0, 5), (0, 4), (4, 4)],
+        [(0, 4), (0, 5), (4, 5)],
         [(0, 5), (0, 6), (1, 6)],
-        [(0, 6), (0, 7), (4, 7)],
+        [(0, 7), (0, 6), (4, 6)],
         [(0, 4), (0, 7), (1, 7)],
         [(0, 0), (0, 4), (2, 4)],
         [(0, 1), (0, 5), (2, 5)],
         [(0, 2), (0, 6), (2, 6)],
         [(0, 3), (0, 7), (2, 7)],
-        [(1, 2), (1, 3), (5, 3)],
-        [(1, 6), (1, 7), (5, 7)],
+        [(1, 3), (1, 2), (5, 2)],
+        [(1, 7), (1, 6), (5, 6)],
         [(1, 2), (1, 6), (3, 6)],
         [(1, 3), (1, 7), (3, 7)],
-        [(2, 5), (2, 4), (6, 4)],
+        [(2, 4), (2, 5), (6, 5)],
         [(2, 5), (2, 6), (3, 6)],
-        [(2, 6), (2, 7), (6, 7)],
+        [(2, 7), (2, 6), (6, 6)],
         [(2, 4), (2, 7), (3, 7)],
-        [(3, 6), (3, 7), (7, 7)],
-        [(4, 0), (4, 3), (5, 3)],
-        [(4, 4), (4, 7), (5, 7)],
-        [(4, 0), (4, 4), (6, 4)],
-        [(4, 3), (4, 7), (6, 7)],
-        [(5, 3), (5, 7), (7, 7)],
-        [(6, 4), (6, 7), (7, 7)],
+        [(3, 7), (3, 6), (7, 6)],
+        [(4, 1), (4, 2), (5, 2)],
+        [(4, 5), (4, 6), (5, 6)],
+        [(4, 1), (4, 5), (6, 5)],
+        [(4, 2), (4, 6), (6, 6)],
+        [(5, 2), (5, 6), (7, 6)],
+        [(6, 5), (6, 6), (7, 6)],
+    ]
+    
+    // For each edge in a parent node, it could come from the corresponding edge of two of its children
+    static let subEdges = [
+        (0, 4),
+        (0, 1),
+        (1, 5),
+        (4, 5),
+        (2, 6),
+        (2, 3),
+        (3, 7),
+        (6, 7),
+        (4, 6),
+        (0, 2),
+        (1, 3),
+        (5, 7)
     ]
     
     public static func findAllEdges() {
@@ -124,7 +145,7 @@ class Octree : Sequence {
                 let vertex3 : Int
                 if (direction.x != 0) {
                     if (yy == 1 && MarchingCubes.vertexOffsets[vertexA].y == 0) ||
-                        (zz == 1 && MarchingCubes.vertexOffsets[vertexA].z == -1) {
+                        (zz == 1 && MarchingCubes.vertexOffsets[vertexA].z == 0) {
                         // Skip the internal edge
                         continue
                     }
@@ -145,7 +166,7 @@ class Octree : Sequence {
                     }
                 } else if (direction.y != 0) {
                     if (xx == 1 && MarchingCubes.vertexOffsets[vertexA].x == 0) ||
-                        (zz == 1 && MarchingCubes.vertexOffsets[vertexA].z == -1) {
+                        (zz == 1 && MarchingCubes.vertexOffsets[vertexA].z == 0) {
                         // Skip the internal edge
                         continue
                     }
@@ -360,24 +381,7 @@ class Octree : Sequence {
         
         while !stack.isEmpty {
             let coord = stack.popLast()!
-            
-//            0.0, 0.3, 1.3       [0, 0, 3]   // Horizontal lines are all +1 for the final vertex
-//            4.0, 4.3, 5.3       [4, 0, 3]
-//
-//            0.1, 0.2, 1.2       [0, 1, 2]
-//
-//            0.5, 0.6, 1.6       [0, 5, 6]
-//            2.5, 2.6, 3.6       [2, 5, 6]
-//
-//            0.4, 0.7, 1.7       [0, 4, 7]
-//            4.4, 4.7, 5.7       [4, 4, 7]
-//            2.4, 2.7, 3.7       [2, 4, 7]
-//            6.4, 6.7, 7.7       [6, 4, 7]
-            
-            
-                        
-            
-            
+
             var node = nodes[coord.nodeIndex]
             if (node.canMerge(tree: self)) {
                 // Merge this node

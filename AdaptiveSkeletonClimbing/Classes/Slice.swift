@@ -139,7 +139,7 @@ public class XYSlice : Slice {
         let previousXYSlice = previousSlice as? XYSlice
         
         self.z = z
-        let previousZ = previousXYSlice?.z ?? grid.depth
+        let previousZ = previousXYSlice?.z ?? 0
         self.zOffset = Double(z - previousZ)
         
         let axis = Vector(0.0, 0.0, zOffset).normalized()
@@ -273,7 +273,7 @@ public class MarchingCubesSlice : Slice {
     public init?(grid: VoxelGrid) {
         octree = Octree(grid: grid)
         
-        localFaceOffsets = MarchingCubesSlice.calculateFaceOffsets(grid: grid)                
+        localFaceOffsets = MarchingCubesSlice.calculateFaceOffsets(grid: grid)
         
         super.init(grid: grid, rotation: Rotation.identity, axis: Vector(0.0, 0.0, -1.0))
     }
@@ -295,12 +295,12 @@ public class MarchingCubesSlice : Slice {
         
         return [
             grid.data[index],
-            z > 0 ? grid.data[index - nextZ] : 0,
-            x + 1 < grid.width && z > 0 ? grid.data[index - nextZ + 1] : 0,
+            z < grid.depth ? grid.data[index + nextZ] : 0,
+            x + 1 < grid.width && z < grid.depth ? grid.data[index + nextZ + 1] : 0,
             x + 1 < grid.width ? grid.data[index + 1] : 0,
             y + 1 < grid.height ? grid.data[index + nextY] : 0,
-            y + 1 < grid.height && z > 0 ? grid.data[index - nextZ + nextY] : 0,
-            x + 1 < grid.width && y + 1 < grid.height && z > 0 ? grid.data[index - nextZ + 1 + nextY] : 0,
+            y + 1 < grid.height && z < grid.depth ? grid.data[index + nextZ + nextY] : 0,
+            x + 1 < grid.width && y + 1 < grid.height && z < grid.depth ? grid.data[index + nextZ + 1 + nextY] : 0,
             x + 1 < grid.width && y + 1 < grid.height ? grid.data[index + 1 + nextY] : 0
         ]
     }
