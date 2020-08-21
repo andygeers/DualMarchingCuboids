@@ -10,10 +10,10 @@ import Euclid
 
 struct OctreeNode {
     
-    fileprivate let INVALID_NODE : Int16 = -2
+    fileprivate static let INVALID_NODE : Int16 = -2
     
     var marchingCubesCase : Int16 = -1   // -1 == invalid
-    var intersectionPoints : [[Vector]] = [] // Is this the right way to do it? Or lists of 0..<1 ranges along specific edges?
+    var intersectionPoints : [Vector] = [] // Is this the right way to do it? Or lists of 0..<1 ranges along specific edges?
     
     var childNodes : [Int] = []
     
@@ -27,7 +27,7 @@ struct OctreeNode {
         
         for child in childNodes {
             let childNode = tree.nodes[child]
-            if childNode.marchingCubesCase == INVALID_NODE ||
+            if childNode.marchingCubesCase == OctreeNode.INVALID_NODE ||
                 (childNode.marchingCubesCase != -1 && !MarchingCubes.simpleCases[Int(childNode.marchingCubesCase)]) {
                 return false
             }
@@ -56,7 +56,7 @@ struct OctreeNode {
     }
     
     mutating func invalidate() {
-        self.marchingCubesCase = INVALID_NODE
+        self.marchingCubesCase = OctreeNode.INVALID_NODE
         self.childNodes = []
     }
 }
@@ -213,11 +213,11 @@ class Octree : Sequence {
         nodes = [OctreeNode()]
     }
     
-    public func insert(x: Int, y: Int, z: Int, marchingCubesCase: Int16, intersectionPoints: [[Vector]]) {
+    public func insert(x: Int, y: Int, z: Int, marchingCubesCase: Int16, intersectionPoints: [Vector]) {
         insert(parentNodeIndex: 0, x: x, y: y, z: z, marchingCubesCase: marchingCubesCase, intersectionPoints: intersectionPoints, depth: depth)
     }
     
-    private func insert(parentNodeIndex: Int, x: Int, y: Int, z: Int, marchingCubesCase: Int16, intersectionPoints: [[Vector]], depth: Int) {
+    private func insert(parentNodeIndex: Int, x: Int, y: Int, z: Int, marchingCubesCase: Int16, intersectionPoints: [Vector], depth: Int) {
         
         let maxSize = 1 << depth
         assert(x < maxSize && y < maxSize && z < maxSize)
@@ -256,7 +256,7 @@ class Octree : Sequence {
         return index
     }
     
-    public func decimateMesh() -> Mesh {
+    public func decimateMesh(material : Euclid.Polygon.Material) -> Mesh {
         var polygons : [Euclid.Polygon] = []
         
         // Use a queue of node index & depth
@@ -269,29 +269,36 @@ class Octree : Sequence {
         while !queue.isEmpty {
             let coord = queue.dequeue()!
             
-            var cubeIndex = nodes[coord.nodeIndex].marchingCubesCase
-            if (nodes[coord.nodeIndex].marchingCubesCase != OctreeNode.INVALID_NODE) {
+            let cubeIndex = Int(nodes[coord.nodeIndex].marchingCubesCase)
+            if (cubeIndex != OctreeNode.INVALID_NODE) {
                 guard cubeIndex != -1 else { continue }
                 
-                let intersectionPoints = nodes[coord.nodeIndex].intersectionPoints
+                let edges = MarchingCubes.edgeTable[cubeIndex]
+                var intersectionPoints : [Vector] = []
+                var n = 0
+                for edgeIndex in (0 ..< 12) {
+                    if (edges & (1 << edgeIndex) > 0) {
+                        intersectionPoints.append(nodes[coord.nodeIndex].intersectionPoints[n])
+                        n += 1
+                    } else {
+                        intersectionPoints.append(Vector.zero)
+                    }
+                }
                 
                 // Output triangles
                 for n in stride(from: 0, to: MarchingCubes.triTable[cubeIndex].count, by: 3) {
                     
-                    let points = [
+                    let positions = [
                         intersectionPoints[MarchingCubes.triTable[cubeIndex][n]],
                         intersectionPoints[MarchingCubes.triTable[cubeIndex][n + 1]],
                         intersectionPoints[MarchingCubes.triTable[cubeIndex][n + 2]]
                     ]
                     
-                    for edgePair in edges {
-                        touchedFaces |= MarchingCubes.edgeFaces[edgePair.0]
-                        touchedFaces |= MarchingCubes.edgeFaces[edgePair.1]
+                    let plane = Plane(points: positions)
+                    
+                    if let poly = Polygon(positions.map { Vertex($0, plane?.normal ?? Vector.zero) }, material: material) {
+                        polygons.append(poly)
                     }
-                    
-                    let positions = edges.map { interpolatePositions(p1: MarchingCubes.vertexOffsets[$0.0], p2: MarchingCubes.vertexOffsets[$0.1], v1: neighbours[$0.0], v2: neighbours[$0.1]) + centre }
-                    
-                    intersectionPoints.append(positions)
                 }
                 
             } else {
@@ -308,6 +315,8 @@ class Octree : Sequence {
                 }
             }
         }
+        
+        return Mesh(polygons)
     }
     
     private func mergeCells() {

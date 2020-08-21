@@ -350,17 +350,13 @@ public class MarchingCubesSlice : Slice {
         
         NSLog("Populated octree in %f seconds", polygons.count, Float(after.uptimeNanoseconds - before.uptimeNanoseconds) / Float(1_000_000_000))
         
-        octree.mergeCells()
+        let mesh = octree.decimateMesh(material: material)
+        polygons = mesh.polygons
         
         let afterMerge = DispatchTime.now()
         
         NSLog("Merged octree in %f seconds", polygons.count, Float(afterMerge.uptimeNanoseconds - after.uptimeNanoseconds) / Float(1_000_000_000))
-        
-        
-        
-        let afterPolygonise = DispatchTime.now()
-        
-        NSLog("Generated polygons in %f seconds", polygons.count, Float(afterPolygonise.uptimeNanoseconds - afterMerge.uptimeNanoseconds) / Float(1_000_000_000))
+    
     }
     
     private func processCell(x: Int, y: Int, z: Int) {
@@ -390,23 +386,16 @@ public class MarchingCubesSlice : Slice {
         //now build the triangles using triTable
         // Keep track of which faces are included
         var touchedFaces = 0
-        var intersectionPoints : [[Vector]] = []
-        for n in stride(from: 0, to: MarchingCubes.triTable[cubeIndex].count, by: 3) {
+        let edges = MarchingCubes.edgeTable[cubeIndex]
+        let edgeIndices = (0 ..< 12).filter { edges & (1 << $0) > 0 }
+        let intersectionPoints = edgeIndices.map { (edgeIndex : Int) -> Vector in
+            touchedFaces |= MarchingCubes.edgeFaces[edgeIndex]
             
-            let edges = [
-                MarchingCubes.edgeVertices[MarchingCubes.triTable[cubeIndex][n]],
-                MarchingCubes.edgeVertices[MarchingCubes.triTable[cubeIndex][n + 1]],
-                MarchingCubes.edgeVertices[MarchingCubes.triTable[cubeIndex][n + 2]]
-            ]
+            let edge = MarchingCubes.edgeVertices[edgeIndex]
             
-            for edgePair in edges {
-                touchedFaces |= MarchingCubes.edgeFaces[edgePair.0]
-                touchedFaces |= MarchingCubes.edgeFaces[edgePair.1]
-            }
+            let intersectionPoint = interpolatePositions(p1: MarchingCubes.vertexOffsets[edge.0], p2: MarchingCubes.vertexOffsets[edge.1], v1: neighbours[edge.0], v2: neighbours[edge.1]) + centre
             
-            let positions = edges.map { interpolatePositions(p1: MarchingCubes.vertexOffsets[$0.0], p2: MarchingCubes.vertexOffsets[$0.1], v1: neighbours[$0.0], v2: neighbours[$0.1]) + centre }
-            
-            intersectionPoints.append(positions)
+            return intersectionPoint
         }
         
         octree.insert(x: x, y: y, z: z, marchingCubesCase: Int16(cubeIndex), intersectionPoints: intersectionPoints)
