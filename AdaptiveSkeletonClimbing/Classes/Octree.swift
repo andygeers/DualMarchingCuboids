@@ -10,7 +10,7 @@ import Euclid
 
 struct OctreeNode {
     
-    private let INVALID_NODE : Int16 = -2
+    fileprivate let INVALID_NODE : Int16 = -2
     
     var marchingCubesCase : Int16 = -1   // -1 == invalid
     var intersectionPoints : [[Vector]] = [] // Is this the right way to do it? Or lists of 0..<1 ranges along specific edges?
@@ -256,7 +256,61 @@ class Octree : Sequence {
         return index
     }
     
-    public func mergeCells() {
+    public func decimateMesh() -> Mesh {
+        var polygons : [Euclid.Polygon] = []
+        
+        // Use a queue of node index & depth
+        var queue = Queue<OctreeCoordinate>()
+    
+        // Start with root node
+        queue.enqueue(OctreeCoordinate(x: 0, y: 0, z: 0, depth: 0, nodeIndex: 0))
+
+        // We're going to do a BFS top to bottom
+        while !queue.isEmpty {
+            let coord = queue.dequeue()!
+            
+            var cubeIndex = nodes[coord.nodeIndex].marchingCubesCase
+            if (nodes[coord.nodeIndex].marchingCubesCase != OctreeNode.INVALID_NODE) {
+                guard cubeIndex != -1 else { continue }
+                
+                let intersectionPoints = nodes[coord.nodeIndex].intersectionPoints
+                
+                // Output triangles
+                for n in stride(from: 0, to: MarchingCubes.triTable[cubeIndex].count, by: 3) {
+                    
+                    let points = [
+                        intersectionPoints[MarchingCubes.triTable[cubeIndex][n]],
+                        intersectionPoints[MarchingCubes.triTable[cubeIndex][n + 1]],
+                        intersectionPoints[MarchingCubes.triTable[cubeIndex][n + 2]]
+                    ]
+                    
+                    for edgePair in edges {
+                        touchedFaces |= MarchingCubes.edgeFaces[edgePair.0]
+                        touchedFaces |= MarchingCubes.edgeFaces[edgePair.1]
+                    }
+                    
+                    let positions = edges.map { interpolatePositions(p1: MarchingCubes.vertexOffsets[$0.0], p2: MarchingCubes.vertexOffsets[$0.1], v1: neighbours[$0.0], v2: neighbours[$0.1]) + centre }
+                    
+                    intersectionPoints.append(positions)
+                }
+                
+            } else {
+                // Navigate to children
+                let childSize = 1 << (self.depth - coord.depth - 2)
+                
+                for (childIndex, child) in nodes[coord.nodeIndex].childNodes.enumerated() {
+                    let zz = childIndex / 4
+                    let yy = (childIndex - zz * 4) / 2
+                    let xx = childIndex % 2
+                    assert(childIndex == zz * 4 + yy * 2 + xx)
+                    
+                    queue.enqueue(OctreeCoordinate(x: coord.x + xx * childSize, y: coord.y + yy * childSize, z: coord.z + zz * childSize, depth: coord.depth + 1, nodeIndex: child))
+                }
+            }
+        }
+    }
+    
+    private func mergeCells() {
         var stack : [OctreeCoordinate] = []
         
         // Use a queue of node index & depth
@@ -282,7 +336,6 @@ class Octree : Sequence {
                 let childSize = 1 << (self.depth - coord.depth - 2)
                 
                 for (childIndex, child) in nodes[coord.nodeIndex].childNodes.enumerated() {
-                    //let childIndex = zz * 4 + yy * 2 + xx
                     let zz = childIndex / 4
                     let yy = (childIndex - zz * 4) / 2
                     let xx = childIndex % 2
