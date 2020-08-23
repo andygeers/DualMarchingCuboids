@@ -96,8 +96,8 @@ struct OctreeNode {
         
         for child in childNodes {
             let childNode = tree.nodes[child]
-            if childNode.marchingCubesCase == -1 ||
-                !MarchingCubes.simpleCases[Int(childNode.marchingCubesCase)] {
+            if childNode.marchingCubesCase == OctreeNode.INVALID_NODE ||
+                (childNode.marchingCubesCase != -1 && !MarchingCubes.simpleCases[Int(childNode.marchingCubesCase)]) {
                 return false
             }
         }
@@ -125,7 +125,7 @@ struct OctreeNode {
     }
     
     mutating func invalidate() {
-        self.marchingCubesCase = -1
+        self.marchingCubesCase = OctreeNode.INVALID_NODE
         
         // Delete all children below those with a valid case number
         //self.childNodes = []
@@ -360,8 +360,11 @@ class Octree : Sequence {
             let coord = queue.dequeue()!
             
             let cubeIndex = Int(nodes[coord.nodeIndex].marchingCubesCase)
-            if (cubeIndex != -1) {
-                let edges = cubeIndex != -1 ? MarchingCubes.edgeTable[cubeIndex] : 0
+            if (cubeIndex != OctreeNode.INVALID_NODE) {
+                
+                guard cubeIndex != -1 else { continue }
+                    
+                let edges = MarchingCubes.edgeTable[cubeIndex]
                 var intersectionPoints : [Vector] = []
                 var n = 0
                 for edgeIndex in (0 ..< 12) {
@@ -455,7 +458,8 @@ class Octree : Sequence {
                 node.merge(tree: self)
             } else {
                 // Mark this node as invalid and delete its children
-                node.invalidate()
+                nodes[coord.nodeIndex].marchingCubesCase = OctreeNode.INVALID_NODE
+                //node.invalidate()
             }
         }
     }
