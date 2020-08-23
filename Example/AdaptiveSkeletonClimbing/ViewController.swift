@@ -66,11 +66,7 @@ class ViewController: UIViewController {
         
         //sceneView.pointOfView?.look(at: SCNVector3(mesh.bounds.center))
         
-        let geom = SCNGeometry(mesh, materialLookup: {
-            let material = SCNMaterial()
-            material.diffuse.contents = $0
-            return material
-        })
+        let geom = SCNGeometry(wireframe: mesh)
         let node = SCNNode(geometry: geom)
         scene.rootNode.addChildNode(node)
                 
