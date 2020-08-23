@@ -380,7 +380,12 @@ public class MarchingCubesSlice : Slice {
         let centre = Vector(Double(x), Double(y), Double(z))
         
         //check if its completely inside or outside
-        guard MarchingCubes.edgeTable[cubeIndex] != 0 else { return }
+        guard MarchingCubes.edgeTable[cubeIndex] != 0 else {
+            if (cubeIndex > 0) {
+                octree.insert(x: x, y: y, z: z, marchingCubesCase: Int16(cubeIndex), intersectionPoints: [])
+            }
+            return
+        }
         //guard wasMixed else { continue }
         
         //now build the triangles using triTable
