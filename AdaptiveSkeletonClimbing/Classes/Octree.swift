@@ -96,8 +96,8 @@ struct OctreeNode {
         
         for child in childNodes {
             let childNode = tree.nodes[child]
-            if childNode.marchingCubesCase == OctreeNode.INVALID_NODE ||
-                (childNode.marchingCubesCase != -1 && !MarchingCubes.simpleCases[Int(childNode.marchingCubesCase)]) {
+            if childNode.marchingCubesCase == -1 ||
+                !MarchingCubes.simpleCases[Int(childNode.marchingCubesCase)] {
                 return false
             }
         }
@@ -125,8 +125,10 @@ struct OctreeNode {
     }
     
     mutating func invalidate() {
-        self.marchingCubesCase = OctreeNode.INVALID_NODE
-        self.childNodes = []
+        self.marchingCubesCase = -1
+        
+        // Delete all children below those with a valid case number
+        //self.childNodes = []
     }
 }
 
@@ -358,10 +360,8 @@ class Octree : Sequence {
             let coord = queue.dequeue()!
             
             let cubeIndex = Int(nodes[coord.nodeIndex].marchingCubesCase)
-            if (cubeIndex != OctreeNode.INVALID_NODE) {
-                guard cubeIndex != -1 else { continue }
-                
-                let edges = MarchingCubes.edgeTable[cubeIndex]
+            if (cubeIndex != -1) {
+                let edges = cubeIndex != -1 ? MarchingCubes.edgeTable[cubeIndex] : 0
                 var intersectionPoints : [Vector] = []
                 var n = 0
                 for edgeIndex in (0 ..< 12) {
@@ -377,9 +377,9 @@ class Octree : Sequence {
                 for n in stride(from: 0, to: MarchingCubes.triTable[cubeIndex].count, by: 3) {
                     
                     let positions = [
-                        intersectionPoints[MarchingCubes.triTable[cubeIndex][n]],
+                        intersectionPoints[MarchingCubes.triTable[cubeIndex][n + 2]],
                         intersectionPoints[MarchingCubes.triTable[cubeIndex][n + 1]],
-                        intersectionPoints[MarchingCubes.triTable[cubeIndex][n + 2]]
+                        intersectionPoints[MarchingCubes.triTable[cubeIndex][n]]
                     ]
                     
                     let plane = Plane(points: positions)
@@ -429,8 +429,8 @@ class Octree : Sequence {
                         
                 guard !nodes[coord.nodeIndex].childNodes.isEmpty else { continue }
                 
-                assert((self.depth - coord.depth - 2) >= 0)
-                let childSize = 1 << (self.depth - coord.depth - 2)
+                assert((self.depth - coord.depth - 1) >= 1)
+                let childSize = 1 << (self.depth - coord.depth - 1)
                 
                 for (childIndex, child) in nodes[coord.nodeIndex].childNodes.enumerated() {
                     let zz = childIndex / 4
