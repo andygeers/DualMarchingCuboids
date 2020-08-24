@@ -288,20 +288,20 @@ public class MarchingCubesSlice : Slice {
         return .multiple
     }
     
-    override fileprivate func findNeighbouringData(x: Int, y: Int, z: Int, index: Int) -> [Int] {
+    static func findCellCorners(grid: VoxelGrid, x: Int, y: Int, z: Int, index: Int, cellSize: Int = 1) -> [Int] {
         
-        let nextZ = grid.width * grid.height
-        let nextY = grid.width
+        let nextZ = grid.width * grid.height * cellSize
+        let nextY = grid.width * cellSize
         
         return [
             grid.data[index],
-            z + 1 < grid.depth ? grid.data[index + nextZ] : 0,
-            x + 1 < grid.width && z + 1 < grid.depth ? grid.data[index + nextZ + 1] : 0,
-            x + 1 < grid.width ? grid.data[index + 1] : 0,
-            y + 1 < grid.height ? grid.data[index + nextY] : 0,
-            y + 1 < grid.height && z + 1 < grid.depth ? grid.data[index + nextZ + nextY] : 0,
-            x + 1 < grid.width && y + 1 < grid.height && z + 1 < grid.depth ? grid.data[index + nextZ + 1 + nextY] : 0,
-            x + 1 < grid.width && y + 1 < grid.height ? grid.data[index + 1 + nextY] : 0
+            z + cellSize < grid.depth ? grid.data[index + nextZ] : 0,
+            x + cellSize < grid.width && z + cellSize < grid.depth ? grid.data[index + nextZ + cellSize] : 0,
+            x + cellSize < grid.width ? grid.data[index + cellSize] : 0,
+            y + cellSize < grid.height ? grid.data[index + nextY] : 0,
+            y + cellSize < grid.height && z + cellSize < grid.depth ? grid.data[index + nextZ + nextY] : 0,
+            x + cellSize < grid.width && y + cellSize < grid.height && z + cellSize < grid.depth ? grid.data[index + nextZ + cellSize + nextY] : 0,
+            x + cellSize < grid.width && y + cellSize < grid.height ? grid.data[index + cellSize + nextY] : 0
         ]
     }
     
@@ -367,7 +367,7 @@ public class MarchingCubesSlice : Slice {
         guard (grid.data[index] & MarchingCubesSlice.visitedFlag == 0) else { return }
         grid.data[index] |= MarchingCubesSlice.visitedFlag
             
-        let neighbours = findNeighbouringData(x: x, y: y, z: z, index: index)
+        let neighbours = MarchingCubesSlice.findCellCorners(grid: grid, x: x, y: y, z: z, index: index)
         
         var cubeIndex = 0
         for (vertexIndex, value) in neighbours.enumerated() {

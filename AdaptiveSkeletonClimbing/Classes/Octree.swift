@@ -17,17 +17,21 @@ struct OctreeNode {
     
     var childNodes : [Int] = []
     
-    mutating func merge(tree: Octree) {
+    mutating func merge(tree: Octree, x: Int, y: Int, z: Int, size: Int) {
         guard !childNodes.isEmpty else {
             self.marchingCubesCase = 0
             return
         }
         
+        let index = tree.grid.width * tree.grid.height * z + tree.grid.width * y + x
+                
+        let neighbours = MarchingCubesSlice.findCellCorners(grid: tree.grid, x: x, y: y, z: z, index: index, cellSize: size)
+        
         self.marchingCubesCase = 0
-        for (vertexIndex, vertexChild) in [0, 4, 5, 1, 2, 6, 7, 3].enumerated() {
-            let childCase = tree.nodes[childNodes[vertexChild]].marchingCubesCase
-            guard childCase != -1 else { continue }
-            self.marchingCubesCase |= childCase & (1 << vertexIndex)
+        for (vertexIndex, value) in neighbours.enumerated() {
+            if (value >> VoxelGrid.dataBits != 0) {
+                self.marchingCubesCase |= 1 << vertexIndex
+            }
         }
         
         assert(self.intersectionPoints.isEmpty)
@@ -103,6 +107,7 @@ struct OctreeNode {
         }
         
         // Check all of the edges for multiple intersections
+        let childEdges = childNodes.map { tree.nodes[$0].marchingCubesCase != -1 ? MarchingCubes.edgeTable[Int(tree.nodes[$0].marchingCubesCase)] : 0 }
         for edge in Octree.allEdges {
             var hasChanged = false
             var value = false
@@ -147,8 +152,20 @@ class Octree : Sequence {
     
     private let depth : Int
     fileprivate var nodes : [OctreeNode]
+    let grid : VoxelGrid
     
     static let allEdges = [
+        [(0, 4)],                          // 0
+        [(0, 1), (4, 5)],                  // 1
+        [(0, 4), (1, 5)],                  // 2
+        [(0, 1)],                          // 3
+        [(0, 4), (2, 6)],                  // 4
+        [(0, 1), (4, 5), (2, 3), (6, 7)],  // 5
+        [(0, 4), (1, 5), (2, 6), (3, 7)],  // 6
+        [(0, 1), (2, 3)]                   // 7
+    ]
+    
+    static let allEdges2 = [
         [(0, 0), (0, 1), (4, 1)],
         [(0, 1), (0, 2), (1, 2)],
         [(0, 3), (0, 2), (4, 2)],
@@ -292,6 +309,8 @@ class Octree : Sequence {
     }
     
     init(grid: VoxelGrid) {
+        self.grid = grid
+        
         // The depth of the octree is the largest integer greater than or equal to the logarithm of the maximum of X, Y and Z.
         depth = Int(ceil(log2(Double(Swift.max(grid.width, grid.height, grid.depth)))))
         
@@ -455,7 +474,7 @@ class Octree : Sequence {
             var node = nodes[coord.nodeIndex]
             if (node.canMerge(tree: self)) {
                 // Merge this node
-                node.merge(tree: self)
+                node.merge(tree: self, x: coord.x, y: coord.y, z: coord.z, size: 1 << (self.depth - coord.depth - 1))
             } else {
                 // Mark this node as invalid and delete its children
                 nodes[coord.nodeIndex].marchingCubesCase = OctreeNode.INVALID_NODE
