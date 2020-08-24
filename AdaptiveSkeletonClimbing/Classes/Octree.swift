@@ -44,7 +44,7 @@ fileprivate struct OctreeNode {
         var intersectionPoints : [Vector] = []
         
         let edges = MarchingCubes.edgeTable[Int(marchingCubesCase)]
-        for edgeIndex in 0 ..< 8 {
+        for edgeIndex in 0 ..< 12 {
             let edgeMask = (1 << edgeIndex)
             if (edges & edgeMask > 0) {
                 // The intersection on this edge will come from the corresponding edge from one of two children
@@ -58,7 +58,7 @@ fileprivate struct OctreeNode {
                     // Take intersection point from this child
                     var intersectionIndex = 0
                     var hasFoundIntersection = false
-                    for childEdgeIndex in 0 ..< 8 {
+                    for childEdgeIndex in 0 ..< 12 {
                         if (childEdges1 & (1 << childEdgeIndex) > 0) {
                             if (childEdgeIndex == edgeIndex) {
                                 intersectionPoints.append(tree.nodes[childNode1].intersectionPoints[intersectionIndex])
@@ -74,7 +74,7 @@ fileprivate struct OctreeNode {
                     // Take intersection point from other child
                     var intersectionIndex = 0
                     var hasFoundIntersection = false
-                    for childEdgeIndex in 0 ..< 8 {
+                    for childEdgeIndex in 0 ..< 12 {
                         if (childEdges2 & (1 << childEdgeIndex) > 0) {
                             if (childEdgeIndex == edgeIndex) {
                                 intersectionPoints.append(tree.nodes[childNode2].intersectionPoints[intersectionIndex])
