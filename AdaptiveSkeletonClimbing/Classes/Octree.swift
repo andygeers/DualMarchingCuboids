@@ -8,7 +8,15 @@
 import Foundation
 import Euclid
 
-struct OctreeNode {
+fileprivate struct OctreeCoordinate {
+    let x : Int
+    let y : Int
+    let z : Int
+    let nodeSize : Int
+    let nodeIndex : Int
+}
+
+fileprivate struct OctreeNode {
     
     fileprivate static let INVALID_NODE : Int16 = -2
     
@@ -17,26 +25,25 @@ struct OctreeNode {
     
     var childNodes : [Int] = []
     
-    mutating func merge(tree: Octree, x: Int, y: Int, z: Int, size: Int) {
+    func merge(tree: Octree, coord: OctreeCoordinate) -> OctreeNode {
         guard !childNodes.isEmpty else {
-            self.marchingCubesCase = 0
-            return
+            return OctreeNode(marchingCubesCase: 0)
         }
         
-        let index = tree.grid.width * tree.grid.height * z + tree.grid.width * y + x
+        let index = tree.grid.width * tree.grid.height * coord.z + tree.grid.width * coord.y + coord.x
                 
-        let neighbours = MarchingCubesSlice.findCellCorners(grid: tree.grid, x: x, y: y, z: z, index: index, cellSize: size)
+        let neighbours = MarchingCubesSlice.findCellCorners(grid: tree.grid, x: coord.x, y: coord.y, z: coord.z, index: index, cellSize: coord.nodeSize)
         
-        self.marchingCubesCase = 0
+        var marchingCubesCase : Int16 = 0
         for (vertexIndex, value) in neighbours.enumerated() {
             if (value >> VoxelGrid.dataBits != 0) {
-                self.marchingCubesCase |= 1 << vertexIndex
+                marchingCubesCase |= 1 << vertexIndex
             }
         }
         
-        assert(self.intersectionPoints.isEmpty)
+        var intersectionPoints : [Vector] = []
         
-        let edges = MarchingCubes.edgeTable[Int(self.marchingCubesCase)]
+        let edges = MarchingCubes.edgeTable[Int(marchingCubesCase)]
         for edgeIndex in 0 ..< 8 {
             let edgeMask = (1 << edgeIndex)
             if (edges & edgeMask > 0) {
@@ -92,10 +99,11 @@ struct OctreeNode {
                 }
             }
         }
-        //self.intersectionPoints = childNodes.flatMap { tree.nodes[$0].intersectionPoints }
+        
+        return OctreeNode(marchingCubesCase: marchingCubesCase, intersectionPoints: intersectionPoints, childNodes: self.childNodes)
     }
     
-    func canMerge(tree: Octree) -> Bool {
+    func canMerge(tree: Octree, coord: OctreeCoordinate) -> Bool {
         guard childNodes.count > 0 else { return true }
         
         for child in childNodes {
@@ -108,47 +116,20 @@ struct OctreeNode {
         
         // Check all of the edges for multiple intersections
         let childEdges = childNodes.map { tree.nodes[$0].marchingCubesCase != -1 ? MarchingCubes.edgeTable[Int(tree.nodes[$0].marchingCubesCase)] : 0 }
-        for edge in Octree.allEdges {
-            var hasChanged = false
-            var value = false
-            for (n, (childIndex, vertexIndex)) in edge.enumerated() {
-                let currentValue = (tree.nodes[childNodes[childIndex]].marchingCubesCase & (1 << vertexIndex) > 0)
-                if (n == 0) {
-                    value = currentValue
-                } else {
-                    if (currentValue != value) {
-                        guard !hasChanged else {
-                            return false
-                        }
-                        hasChanged = true
-                    }
+        for (edgeIndex, childCubeIndices) in Octree.allEdges.enumerated() {
+            for (firstChild, secondChild) in childCubeIndices {
+                if (childEdges[firstChild] & (1 << edgeIndex) > 0) && (childEdges[secondChild] & (1 << edgeIndex) > 0) {
+                    // Double intersection
+                    return false
                 }
             }
         }
         
         return true
     }
-    
-    mutating func invalidate() {
-        self.marchingCubesCase = OctreeNode.INVALID_NODE
-        
-        // Delete all children below those with a valid case number
-        //self.childNodes = []
-    }
 }
 
-struct OctreeNodeIterator : IteratorProtocol {
-    let tree : Octree
-    let depth : Int
-    
-    
-    
-    mutating func next() -> OctreeNode? {
-        return nil
-    }
-}
-
-class Octree : Sequence {
+class Octree {
     
     private let depth : Int
     fileprivate var nodes : [OctreeNode]
@@ -300,14 +281,6 @@ class Octree : Sequence {
         Swift.print("]")
     }
     
-    private struct OctreeCoordinate {
-        let x : Int
-        let y : Int
-        let z : Int
-        let depth : Int
-        let nodeIndex : Int
-    }
-    
     init(grid: VoxelGrid) {
         self.grid = grid
         
@@ -352,10 +325,6 @@ class Octree : Sequence {
         }
     }
     
-    public func makeIterator() -> OctreeNodeIterator {
-        return OctreeNodeIterator(tree: self, depth: depth - 1)
-    }
-    
     fileprivate func addNode() -> Int {
         let index = nodes.count
         nodes.append(OctreeNode())
@@ -372,7 +341,7 @@ class Octree : Sequence {
         var queue = Queue<OctreeCoordinate>()
     
         // Start with root node
-        queue.enqueue(OctreeCoordinate(x: 0, y: 0, z: 0, depth: 0, nodeIndex: 0))
+        queue.enqueue(OctreeCoordinate(x: 0, y: 0, z: 0, nodeSize: 1 << depth, nodeIndex: 0))
 
         // We're going to do a BFS top to bottom
         while !queue.isEmpty {
@@ -413,7 +382,7 @@ class Octree : Sequence {
                 
             } else {
                 // Navigate to children
-                let childSize = 1 << (self.depth - coord.depth - 2)
+                let childSize = coord.nodeSize >> 1
                 
                 for (childIndex, child) in nodes[coord.nodeIndex].childNodes.enumerated() {
                     let zz = childIndex / 4
@@ -421,7 +390,7 @@ class Octree : Sequence {
                     let xx = childIndex % 2
                     assert(childIndex == zz * 4 + yy * 2 + xx)
                     
-                    queue.enqueue(OctreeCoordinate(x: coord.x + xx * childSize, y: coord.y + yy * childSize, z: coord.z + zz * childSize, depth: coord.depth + 1, nodeIndex: child))
+                    queue.enqueue(OctreeCoordinate(x: coord.x + xx * childSize, y: coord.y + yy * childSize, z: coord.z + zz * childSize, nodeSize: childSize, nodeIndex: child))
                 }
             }
         }
@@ -436,7 +405,7 @@ class Octree : Sequence {
         var queue = Queue<OctreeCoordinate>()
     
         // Start with root node
-        queue.enqueue(OctreeCoordinate(x: 0, y: 0, z: 0, depth: 0, nodeIndex: 0))
+        queue.enqueue(OctreeCoordinate(x: 0, y: 0, z: 0, nodeSize: 1 << depth, nodeIndex: 0))
 
         // We're going to do a BFS top to bottom, to populate a stack
         // which then allows us to visit them bottom to top
@@ -444,15 +413,15 @@ class Octree : Sequence {
             let coord = queue.dequeue()!
             
             // When we reach the level above the bottom, stop iterating and start merging
-            if (coord.depth == self.depth - 1) {
+            if (coord.nodeSize == 2) {
                 assert(nodes[coord.nodeIndex].childNodes.allSatisfy { nodes[$0].childNodes.isEmpty })
                 
             } else {
                         
                 guard !nodes[coord.nodeIndex].childNodes.isEmpty else { continue }
                 
-                assert((self.depth - coord.depth - 1) >= 1)
-                let childSize = 1 << (self.depth - coord.depth - 1)
+                assert(coord.nodeSize >= 4)
+                let childSize = coord.nodeSize >> 1
                 
                 for (childIndex, child) in nodes[coord.nodeIndex].childNodes.enumerated() {
                     let zz = childIndex / 4
@@ -460,7 +429,7 @@ class Octree : Sequence {
                     let xx = childIndex % 2
                     assert(childIndex == zz * 4 + yy * 2 + xx)
                     
-                    queue.enqueue(OctreeCoordinate(x: coord.x + xx * childSize, y: coord.y + yy * childSize, z: coord.z + zz * childSize, depth: coord.depth + 1, nodeIndex: child))
+                    queue.enqueue(OctreeCoordinate(x: coord.x + xx * childSize, y: coord.y + yy * childSize, z: coord.z + zz * childSize, nodeSize: childSize, nodeIndex: child))
                 }
                 
             }
@@ -471,14 +440,34 @@ class Octree : Sequence {
         while !stack.isEmpty {
             let coord = stack.popLast()!
 
-            var node = nodes[coord.nodeIndex]
-            if (node.canMerge(tree: self)) {
+            let node = nodes[coord.nodeIndex]
+            if (node.canMerge(tree: self, coord: coord)) {
                 // Merge this node
-                node.merge(tree: self, x: coord.x, y: coord.y, z: coord.z, size: 1 << (self.depth - coord.depth - 1))
+                nodes[coord.nodeIndex] = node.merge(tree: self, coord: coord)
             } else {
-                // Mark this node as invalid and delete its children
-                nodes[coord.nodeIndex].marchingCubesCase = OctreeNode.INVALID_NODE
-                //node.invalidate()
+                // Mark this node as invalid and delete its grandchildren
+                invalidateNode(index: coord.nodeIndex)
+            }
+        }
+    }
+    
+    private func invalidateNode(index: Int) {
+        nodes[index].marchingCubesCase = OctreeNode.INVALID_NODE
+        return
+        // Delete all children below those with a valid case number
+        var queue = Queue<Int>()
+        for childNode in nodes[index].childNodes {
+            if (nodes[childNode].marchingCubesCase >= 0) {
+                queue.enqueue(childNode)
+            }
+        }
+        while !queue.isEmpty {
+            let childIndex = queue.dequeue()!
+            for childNode in nodes[childIndex].childNodes {
+                if (nodes[childNode].marchingCubesCase >= 0) {
+                    nodes[childNode] = OctreeNode(marchingCubesCase: OctreeNode.INVALID_NODE, intersectionPoints: [], childNodes: [])
+                    queue.enqueue(childNode)
+                }
             }
         }
     }
