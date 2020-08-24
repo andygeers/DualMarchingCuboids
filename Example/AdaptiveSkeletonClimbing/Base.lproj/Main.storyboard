@@ -20,29 +20,41 @@
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
                             <sceneKitView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="fog-s8-U5a">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="637"/>
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="596"/>
                             </sceneKitView>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4WQ-CZ-FZT">
-                                <rect key="frame" x="0.0" y="637" width="375" height="30"/>
-                                <state key="normal" title="Next &gt;&gt;"/>
-                                <connections>
-                                    <action selector="nextSliceWithSender:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="BYO-pm-g4k"/>
-                                </connections>
-                            </button>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="equalSpacing" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="gp6-08-tbe">
+                                <rect key="frame" x="0.0" y="596" width="375" height="71"/>
+                                <subviews>
+                                    <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="oBH-WS-HuI">
+                                        <rect key="frame" x="0.0" y="0.0" width="377" height="31"/>
+                                        <connections>
+                                            <action selector="toggleWireframeWithSender:" destination="vXZ-lx-hvc" eventType="valueChanged" id="CTs-NP-kGs"/>
+                                        </connections>
+                                    </switch>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4WQ-CZ-FZT">
+                                        <rect key="frame" x="0.0" y="41" width="375" height="30"/>
+                                        <state key="normal" title="Next &gt;&gt;"/>
+                                        <connections>
+                                            <action selector="nextSliceWithSender:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="BYO-pm-g4k"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                            </stackView>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstItem="fog-s8-U5a" firstAttribute="trailing" secondItem="kh9-bI-dsS" secondAttribute="trailing" id="4wZ-Yn-LXK"/>
                             <constraint firstItem="fog-s8-U5a" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leading" id="82l-LL-5DJ"/>
-                            <constraint firstItem="4WQ-CZ-FZT" firstAttribute="trailing" secondItem="kh9-bI-dsS" secondAttribute="trailing" id="Heh-5K-xPt"/>
                             <constraint firstItem="fog-s8-U5a" firstAttribute="top" secondItem="kh9-bI-dsS" secondAttribute="top" id="Iun-Oq-svb"/>
-                            <constraint firstItem="4WQ-CZ-FZT" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leading" id="eD1-gK-7gy"/>
-                            <constraint firstItem="4WQ-CZ-FZT" firstAttribute="bottom" secondItem="2fi-mo-0CV" secondAttribute="top" id="fDE-EU-VPB"/>
-                            <constraint firstItem="fog-s8-U5a" firstAttribute="bottom" secondItem="4WQ-CZ-FZT" secondAttribute="top" id="hhu-pD-Piz"/>
+                            <constraint firstItem="fog-s8-U5a" firstAttribute="bottom" secondItem="gp6-08-tbe" secondAttribute="top" id="LUa-tb-m93"/>
+                            <constraint firstItem="gp6-08-tbe" firstAttribute="bottom" secondItem="2fi-mo-0CV" secondAttribute="top" id="Vvu-78-J0L"/>
+                            <constraint firstItem="gp6-08-tbe" firstAttribute="trailing" secondItem="kh9-bI-dsS" secondAttribute="trailing" id="WGm-ln-loW"/>
+                            <constraint firstItem="gp6-08-tbe" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leading" id="cDh-2I-X2f"/>
                         </constraints>
                     </view>
                     <connections>
                         <outlet property="sceneView" destination="fog-s8-U5a" id="nS6-r7-VCs"/>
+                        <outlet property="wireframeSwitch" destination="oBH-WS-HuI" id="kvT-rL-2j8"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="x5A-6p-PRh" sceneMemberID="firstResponder"/>

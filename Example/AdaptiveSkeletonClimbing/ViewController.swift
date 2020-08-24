@@ -28,6 +28,7 @@ class ViewController: UIViewController {
     let threshold : CUnsignedChar = 50
     
     @IBOutlet var sceneView : SCNView!
+    @IBOutlet var wireframeSwitch : UISwitch!
     
     private var grid : VoxelGrid!
     private var seedVoxels : [SCNNode] = []
@@ -36,6 +37,10 @@ class ViewController: UIViewController {
     var polygonCount = 0
     var hasOrientedCamera = false
     var currentVoxelNode : SCNNode?
+    
+    var mesh : Mesh? = nil
+    var wireframe : Bool = false
+    var meshNode : SCNNode? = nil
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -53,8 +58,6 @@ class ViewController: UIViewController {
     }
     
     private func visualiseNextIteration() {
-        guard let scene = self.sceneView.scene else { return }
-        
         var newPolygons : [Euclid.Polygon] = []
         
         mesher.generatePolygons(&newPolygons, material: UIColor.blue)
@@ -62,15 +65,35 @@ class ViewController: UIViewController {
         //polygons.append(contentsOf: newPolygons)
         
         let mesh = Mesh(newPolygons)
-        polygonCount += mesh.polygons.count
+        self.mesh = mesh
         
-        //sceneView.pointOfView?.look(at: SCNVector3(mesh.bounds.center))
-        
-        let geom = SCNGeometry(wireframe: mesh)
-        let node = SCNNode(geometry: geom)
-        scene.rootNode.addChildNode(node)
+        renderMesh()
                 
         NSLog("Generated mesh with %d polygon(s)", mesh.polygons.count)
+    }
+    
+    private func renderMesh() {
+        guard let scene = self.sceneView.scene else { return }
+        guard let mesh = self.mesh else { return }
+        
+        //sceneView.pointOfView?.look(at: SCNVector3(mesh.bounds.center))
+        let geom : SCNGeometry
+        if (self.wireframe) {
+            geom = SCNGeometry(wireframe: mesh)
+        } else {
+            geom = SCNGeometry(mesh, materialLookup: {
+                let material = SCNMaterial()
+                material.diffuse.contents = $0
+                return material
+            })
+        }
+        let node = meshNode ?? SCNNode()
+        node.geometry = geom
+        
+        if (meshNode == nil) {
+            scene.rootNode.addChildNode(node)
+            self.meshNode = node
+        }
     }
     
     private func colourForSlice(_ z : Int) -> UIColor {
@@ -236,6 +259,11 @@ class ViewController: UIViewController {
     
     @IBAction func nextSlice(sender: UIButton) {
         exportMesh(sender: sender)        
+    }
+    
+    @IBAction func toggleWireframe(sender: UISwitch) {
+        self.wireframe = sender.isOn
+        renderMesh()
     }
 }
 
