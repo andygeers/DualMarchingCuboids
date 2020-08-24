@@ -20,17 +20,37 @@
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
                             <sceneKitView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="fog-s8-U5a">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="596"/>
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="586"/>
                             </sceneKitView>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="equalSpacing" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="gp6-08-tbe">
                                 <rect key="frame" x="0.0" y="596" width="375" height="71"/>
                                 <subviews>
-                                    <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="oBH-WS-HuI">
-                                        <rect key="frame" x="0.0" y="0.0" width="377" height="31"/>
-                                        <connections>
-                                            <action selector="toggleWireframeWithSender:" destination="vXZ-lx-hvc" eventType="valueChanged" id="CTs-NP-kGs"/>
-                                        </connections>
-                                    </switch>
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="63c-Gv-pj4">
+                                        <rect key="frame" x="0.0" y="0.0" width="375" height="31"/>
+                                        <subviews>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Render in wireframe?" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="wq9-er-WOC">
+                                                <rect key="frame" x="10" y="5.5" width="286" height="20.5"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                <nil key="textColor"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                            <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="oBH-WS-HuI">
+                                                <rect key="frame" x="306" y="0.0" width="51" height="31"/>
+                                                <connections>
+                                                    <action selector="toggleWireframeWithSender:" destination="vXZ-lx-hvc" eventType="valueChanged" id="CTs-NP-kGs"/>
+                                                </connections>
+                                            </switch>
+                                        </subviews>
+                                        <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                                        <constraints>
+                                            <constraint firstItem="wq9-er-WOC" firstAttribute="centerY" secondItem="63c-Gv-pj4" secondAttribute="centerY" id="2xI-GR-Iwm"/>
+                                            <constraint firstItem="oBH-WS-HuI" firstAttribute="trailing" secondItem="63c-Gv-pj4" secondAttribute="trailing" constant="-20" id="UqH-yt-lzG"/>
+                                            <constraint firstAttribute="height" secondItem="oBH-WS-HuI" secondAttribute="height" id="W43-Y8-off"/>
+                                            <constraint firstItem="wq9-er-WOC" firstAttribute="trailing" secondItem="oBH-WS-HuI" secondAttribute="leading" constant="-10" id="Wsb-CC-2cn"/>
+                                            <constraint firstItem="wq9-er-WOC" firstAttribute="leading" secondItem="63c-Gv-pj4" secondAttribute="leading" constant="10" id="d9G-6u-Dwf"/>
+                                            <constraint firstItem="oBH-WS-HuI" firstAttribute="centerY" secondItem="63c-Gv-pj4" secondAttribute="centerY" id="yEG-Yn-pOQ"/>
+                                        </constraints>
+                                    </view>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4WQ-CZ-FZT">
                                         <rect key="frame" x="0.0" y="41" width="375" height="30"/>
                                         <state key="normal" title="Next &gt;&gt;"/>
@@ -46,7 +66,7 @@
                             <constraint firstItem="fog-s8-U5a" firstAttribute="trailing" secondItem="kh9-bI-dsS" secondAttribute="trailing" id="4wZ-Yn-LXK"/>
                             <constraint firstItem="fog-s8-U5a" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leading" id="82l-LL-5DJ"/>
                             <constraint firstItem="fog-s8-U5a" firstAttribute="top" secondItem="kh9-bI-dsS" secondAttribute="top" id="Iun-Oq-svb"/>
-                            <constraint firstItem="fog-s8-U5a" firstAttribute="bottom" secondItem="gp6-08-tbe" secondAttribute="top" id="LUa-tb-m93"/>
+                            <constraint firstItem="fog-s8-U5a" firstAttribute="bottom" secondItem="gp6-08-tbe" secondAttribute="top" constant="-10" id="LUa-tb-m93"/>
                             <constraint firstItem="gp6-08-tbe" firstAttribute="bottom" secondItem="2fi-mo-0CV" secondAttribute="top" id="Vvu-78-J0L"/>
                             <constraint firstItem="gp6-08-tbe" firstAttribute="trailing" secondItem="kh9-bI-dsS" secondAttribute="trailing" id="WGm-ln-loW"/>
                             <constraint firstItem="gp6-08-tbe" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leading" id="cDh-2I-X2f"/>
