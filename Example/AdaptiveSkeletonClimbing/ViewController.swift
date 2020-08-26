@@ -41,6 +41,7 @@ class ViewController: UIViewController {
     var mesh : Mesh? = nil
     var wireframe : Bool = false
     var meshNode : SCNNode? = nil
+    var cuboidsNode : SCNNode? = nil
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -93,6 +94,20 @@ class ViewController: UIViewController {
         if (meshNode == nil) {
             scene.rootNode.addChildNode(node)
             self.meshNode = node
+        }
+        
+        if (!wireframe) {
+            let cuboids = SCNGeometry(MarchingCubesSlice.cuboids, materialLookup: {
+                let material = SCNMaterial()
+                material.diffuse.contents = $0
+                return material
+            })
+            let node2 = cuboidsNode ?? SCNNode()
+            node2.geometry = cuboids
+            if (cuboidsNode == nil) {
+                scene.rootNode.addChildNode(node2)
+                self.cuboidsNode = node2
+            }
         }
     }
     

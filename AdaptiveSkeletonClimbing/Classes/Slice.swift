@@ -371,27 +371,44 @@ public class MarchingCubesSlice : Slice {
         }
         return cubeIndex
     }
-    
-    @discardableResult
-    private func processCell(x: Int, y: Int, z: Int, polygons : inout [Euclid.Polygon], width: Int = 1, height: Int = 1, depth: Int = 1, matchCase: Int = -1) -> Bool {
+        
+    private func processCell(x: Int, y: Int, z: Int, polygons : inout [Euclid.Polygon]) {
                 
         let index = grid.cellIndex(x: x, y : y, z: z)
         
         // Check we haven't already visited this cell
-        guard (grid.data[index] & MarchingCubesSlice.visitedFlag == 0) else { return false }
+        let cellData = grid.data[index]
+        guard (cellData & MarchingCubesSlice.visitedFlag == 0) else { return }
         grid.data[index] |= MarchingCubesSlice.visitedFlag
+        
+        var width = 1
+        var height = 1
+        var depth = 1
+        var matchCase = -1
+        
+        let axes : [Int]
+        if (cellData & 0x3 == VoxelAxis.xy.rawValue) {
+            axes = [3, 0, 1] // z (up to max depth), x, y
+        } else if (cellData & 0x3 == VoxelAxis.yz.rawValue) {
+            axes = [-1, 1, 2] // -x, y, z
+        } else {
+            axes = [0, 1, 2] // x, y, z
+        }
+        
+        for axis in axes {
             
-        let neighbours = MarchingCubesSlice.findCellCorners(grid: grid, x: x, y: y, z: z, index: index, width: width, height: height, depth: depth)
-        
-        let cubeIndex = caseFromNeighbours(neighbours)
-        //Where cubeindex |= 2^i means that ith bit of cubeindex is set to 1
-        
-        guard matchCase == -1 || matchCase == cubeIndex else { return false }
-        
-        if (neighbours[0] & VoxelAxis.xy.rawValue > 0) {
-            // Grow the cell as far back in the Z axis as we can
-            if (processCell(x: x, y: y, z: z - 1, polygons: &polygons, width: width, height: height, depth: depth + 1, matchCase: cubeIndex)) {
-                return true
+            let neighbours = MarchingCubesSlice.findCellCorners(grid: grid, x: x, y: y, z: z, index: index, width: width, height: height, depth: depth)
+            
+            let cubeIndex = caseFromNeighbours(neighbours)
+            //Where cubeindex |= 2^i means that ith bit of cubeindex is set to 1
+            
+            guard matchCase == -1 || matchCase == cubeIndex else { return }
+            
+            if (neighbours[0] & VoxelAxis.xy.rawValue > 0) {
+                // Grow the cell as far back in the Z axis as we can
+                if (processCell(x: x, y: y, z: z - 1, polygons: &polygons, width: width, height: height, depth: depth + 1, matchCase: cubeIndex)) {
+                    return
+                }
             }
         }
         
@@ -404,7 +421,7 @@ public class MarchingCubesSlice : Slice {
         MarchingCubesSlice.cuboids = MarchingCubesSlice.cuboids.merge(cuboid)
         
         //check if its completely inside or outside
-        guard MarchingCubes.edgeTable[cubeIndex] != 0 else { return true }
+        guard MarchingCubes.edgeTable[cubeIndex] != 0 else { return }
                 
         //now build the triangles using triTable
         // Keep track of which faces are included
@@ -437,7 +454,5 @@ public class MarchingCubesSlice : Slice {
                 }
             }
         }
-        
-        return true
     }
 }
