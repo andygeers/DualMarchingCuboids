@@ -8,6 +8,14 @@
 import Foundation
 import Euclid
 
+fileprivate func multiplyVectors(_ v1 : Vector, _ v2 : Vector) -> Vector {
+    return Vector(v1.x * v2.x, v1.y * v2.y, v1.z * v2.z)
+}
+
+fileprivate func randomColor() -> UIColor {
+    return UIColor(red: CGFloat.random(in: 0 ... 1.0), green: CGFloat.random(in: 0 ... 1.0), blue: CGFloat.random(in: 0 ... 1.0), alpha: 0.5)
+}
+
 public class Slice : Sequence {
     /*
        5/////2////3
@@ -268,6 +276,8 @@ public class MarchingCubesSlice : Slice {
     let localFaceOffsets : [Int]
     static let visitedFlag = 0x4
     
+    public static var cuboids : Mesh = Mesh([])
+    
     private var octree : Octree
     
     public init?(grid: VoxelGrid) {
@@ -288,20 +298,20 @@ public class MarchingCubesSlice : Slice {
         return .multiple
     }
     
-    static func findCellCorners(grid: VoxelGrid, x: Int, y: Int, z: Int, index: Int, cellSize: Int = 1) -> [Int] {
+    static func findCellCorners(grid: VoxelGrid, x: Int, y: Int, z: Int, index: Int, width: Int = 1, height: Int = 1, depth: Int = 1) -> [Int] {
         
-        let nextZ = grid.width * grid.height * cellSize
-        let nextY = grid.width * cellSize
+        let nextZ = grid.width * grid.height * depth
+        let nextY = grid.width * height
         
         return [
             grid.data[index],
-            z + cellSize < grid.depth ? grid.data[index + nextZ] : 0,
-            x + cellSize < grid.width && z + cellSize < grid.depth ? grid.data[index + nextZ + cellSize] : 0,
-            x + cellSize < grid.width ? grid.data[index + cellSize] : 0,
-            y + cellSize < grid.height ? grid.data[index + nextY] : 0,
-            y + cellSize < grid.height && z + cellSize < grid.depth ? grid.data[index + nextZ + nextY] : 0,
-            x + cellSize < grid.width && y + cellSize < grid.height && z + cellSize < grid.depth ? grid.data[index + nextZ + cellSize + nextY] : 0,
-            x + cellSize < grid.width && y + cellSize < grid.height ? grid.data[index + cellSize + nextY] : 0
+            z + depth < grid.depth ? grid.data[index + nextZ] : 0,
+            x + width < grid.width && z + depth < grid.depth ? grid.data[index + nextZ + width] : 0,
+            x + width < grid.width ? grid.data[index + width] : 0,
+            y + height < grid.height ? grid.data[index + nextY] : 0,
+            y + height < grid.height && z + depth < grid.depth ? grid.data[index + nextZ + nextY] : 0,
+            x + width < grid.width && y + height < grid.height && z + depth < grid.depth ? grid.data[index + nextZ + width + nextY] : 0,
+            x + width < grid.width && y + height < grid.height ? grid.data[index + width + nextY] : 0
         ]
     }
     
@@ -340,7 +350,7 @@ public class MarchingCubesSlice : Slice {
             
             let (x, y, z) = grid.positionFromIndex(currentCell)
             
-            processCell(x: x, y: y, z: z)
+            processCell(x: x, y: y, z: z, polygons: &polygons)
             
             // Move to the next seed
             currentCell = grid.seedCells.first ?? -1
@@ -348,62 +358,74 @@ public class MarchingCubesSlice : Slice {
         
         let after = DispatchTime.now()
         
-        NSLog("Populated octree in %f seconds", polygons.count, Float(after.uptimeNanoseconds - before.uptimeNanoseconds) / Float(1_000_000_000))
-        
-        let mesh = octree.decimateMesh(material: material)
-        polygons = mesh.polygons
-        
-        let afterMerge = DispatchTime.now()
-        
-        NSLog("Merged octree in %f seconds", polygons.count, Float(afterMerge.uptimeNanoseconds - after.uptimeNanoseconds) / Float(1_000_000_000))
+        NSLog("Processed grid in %f seconds", polygons.count, Float(after.uptimeNanoseconds - before.uptimeNanoseconds) / Float(1_000_000_000))
     
     }
     
-    private func processCell(x: Int, y: Int, z: Int) {
-                
-        let index = grid.cellIndex(x: x, y : y, z: z)
-        
-        // Check we haven't already visited this cell
-        guard (grid.data[index] & MarchingCubesSlice.visitedFlag == 0) else { return }
-        grid.data[index] |= MarchingCubesSlice.visitedFlag
-            
-        let neighbours = MarchingCubesSlice.findCellCorners(grid: grid, x: x, y: y, z: z, index: index)
-        
+    private func caseFromNeighbours(_ neighbours: [Int]) -> Int {
         var cubeIndex = 0
         for (vertexIndex, value) in neighbours.enumerated() {
             if (value >> VoxelGrid.dataBits != 0) {
                 cubeIndex |= 1 << vertexIndex
             }
         }
+        return cubeIndex
+    }
+    
+    @discardableResult
+    private func processCell(x: Int, y: Int, z: Int, polygons : inout [Euclid.Polygon], width: Int = 1, height: Int = 1, depth: Int = 1, matchCase: Int = -1) -> Bool {
+                
+        let index = grid.cellIndex(x: x, y : y, z: z)
+        
+        // Check we haven't already visited this cell
+        guard (grid.data[index] & MarchingCubesSlice.visitedFlag == 0) else { return false }
+        grid.data[index] |= MarchingCubesSlice.visitedFlag
+            
+        let neighbours = MarchingCubesSlice.findCellCorners(grid: grid, x: x, y: y, z: z, index: index, width: width, height: height, depth: depth)
+        
+        let cubeIndex = caseFromNeighbours(neighbours)
         //Where cubeindex |= 2^i means that ith bit of cubeindex is set to 1
         
-        let centre = Vector(Double(x), Double(y), Double(z))
+        guard matchCase == -1 || matchCase == cubeIndex else { return false }
+        
+        if (neighbours[0] & VoxelAxis.xy.rawValue > 0) {
+            // Grow the cell as far back in the Z axis as we can
+            if (processCell(x: x, y: y, z: z - 1, polygons: &polygons, width: width, height: height, depth: depth + 1, matchCase: cubeIndex)) {
+                return true
+            }
+        }
+        
+        
+        let corner = Vector(Double(x), Double(y), Double(z))
+        let cellSize = Vector(Double(width), Double(height), Double(depth))
+        
+        let centre = corner + cellSize * 0.5
+        let cuboid = Mesh.cube(center: Vector.zero, size: 1.0, faces: .front, material: randomColor()).scaled(by: cellSize).translated(by: centre)
+        MarchingCubesSlice.cuboids = MarchingCubesSlice.cuboids.merge(cuboid)
         
         //check if its completely inside or outside
-        guard MarchingCubes.edgeTable[cubeIndex] != 0 else {
-            if (cubeIndex > 0) {
-                octree.insert(x: x, y: y, z: z, marchingCubesCase: Int16(cubeIndex), intersectionPoints: [])
-            }
-            return
-        }
-        //guard wasMixed else { continue }
-        
+        guard MarchingCubes.edgeTable[cubeIndex] != 0 else { return true }
+                
         //now build the triangles using triTable
         // Keep track of which faces are included
         var touchedFaces = 0
         let edges = MarchingCubes.edgeTable[cubeIndex]
         let edgeIndices = (0 ..< 12).filter { edges & (1 << $0) > 0 }
-        let intersectionPoints = edgeIndices.map { (edgeIndex : Int) -> Vector in
+        let positions = edgeIndices.map { (edgeIndex : Int) -> Vector in
             touchedFaces |= MarchingCubes.edgeFaces[edgeIndex]
             
             let edge = MarchingCubes.edgeVertices[edgeIndex]
             
-            let intersectionPoint = interpolatePositions(p1: MarchingCubes.vertexOffsets[edge.0], p2: MarchingCubes.vertexOffsets[edge.1], v1: neighbours[edge.0], v2: neighbours[edge.1]) + centre
+            let intersectionPoint = interpolatePositions(p1: multiplyVectors(MarchingCubes.vertexOffsets[edge.0], cellSize), p2: multiplyVectors(MarchingCubes.vertexOffsets[edge.1], cellSize), v1: neighbours[edge.0], v2: neighbours[edge.1]) + corner
             
             return intersectionPoint
         }
         
-        octree.insert(x: x, y: y, z: z, marchingCubesCase: Int16(cubeIndex), intersectionPoints: intersectionPoints)
+        let plane = Plane(points: positions)
+        
+        if let poly = Polygon(positions.map { Vertex($0, plane?.normal ?? Vector.zero) }, material: UIColor.blue) {
+            polygons.append(poly)
+        }
         
         // Follow the contour into neighbouring cells
         for (n, offset) in localFaceOffsets.enumerated() {
@@ -415,13 +437,7 @@ public class MarchingCubesSlice : Slice {
                 }
             }
         }
-    }
-      
-    func stuff(polygons: inout [Euclid.Polygon], positions: [Vector], material: Euclid.Polygon.Material) {
-        let plane = Plane(points: positions)
         
-        if let poly = Polygon(positions.map { Vertex($0, plane?.normal ?? Vector.zero) }, material: UIColor.blue) {
-            polygons.append(poly)
-        }
+        return true
     }
 }
