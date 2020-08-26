@@ -32,7 +32,7 @@ fileprivate struct OctreeNode {
         
         let index = tree.grid.width * tree.grid.height * coord.z + tree.grid.width * coord.y + coord.x
                 
-        let neighbours = MarchingCubesSlice.findCellCorners(grid: tree.grid, x: coord.x, y: coord.y, z: coord.z, index: index, width: size, height: size, depth: size)
+        let neighbours = MarchingCubesSlice.findCellCorners(grid: tree.grid, x: coord.x, y: coord.y, z: coord.z, index: index, width: coord.nodeSize, height: coord.nodeSize, depth: coord.nodeSize)
         
         var marchingCubesCase : Int16 = 0
         for (vertexIndex, value) in neighbours.enumerated() {
