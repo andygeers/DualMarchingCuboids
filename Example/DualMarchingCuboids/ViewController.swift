@@ -8,7 +8,7 @@
 
 import UIKit
 import SceneKit
-import AdaptiveSkeletonClimbing
+import DualMarchingCuboids
 import Euclid
 
 let SCALE_FACTOR : CGFloat = 0.1
@@ -97,7 +97,11 @@ class ViewController: UIViewController {
         }
         
         if (!wireframe) {
-            let cuboids = SCNGeometry(grid.cuboids.map { $0.mesh(grid: grid) }, materialLookup: {
+            var mesh = Mesh([])
+            for cuboid in grid.cuboids.values.map({ $0.mesh(grid: grid) }) {
+                mesh = mesh.merge(cuboid)
+            }
+            let cuboids = SCNGeometry(mesh, materialLookup: {
                 let material = SCNMaterial()
                 material.diffuse.contents = $0
                 return material

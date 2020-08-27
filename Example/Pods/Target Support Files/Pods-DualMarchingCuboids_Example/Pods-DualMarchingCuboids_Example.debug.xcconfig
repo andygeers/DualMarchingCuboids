@@ -1,9 +1,9 @@
 ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES
-FRAMEWORK_SEARCH_PATHS = $(inherited) "${PODS_CONFIGURATION_BUILD_DIR}/AdaptiveSkeletonClimbing" "${PODS_CONFIGURATION_BUILD_DIR}/Euclid"
+FRAMEWORK_SEARCH_PATHS = $(inherited) "${PODS_CONFIGURATION_BUILD_DIR}/DualMarchingCuboids" "${PODS_CONFIGURATION_BUILD_DIR}/Euclid"
 GCC_PREPROCESSOR_DEFINITIONS = $(inherited) COCOAPODS=1
-HEADER_SEARCH_PATHS = $(inherited) "${PODS_CONFIGURATION_BUILD_DIR}/AdaptiveSkeletonClimbing/AdaptiveSkeletonClimbing.framework/Headers" "${PODS_CONFIGURATION_BUILD_DIR}/Euclid/Euclid.framework/Headers"
+HEADER_SEARCH_PATHS = $(inherited) "${PODS_CONFIGURATION_BUILD_DIR}/DualMarchingCuboids/DualMarchingCuboids.framework/Headers" "${PODS_CONFIGURATION_BUILD_DIR}/Euclid/Euclid.framework/Headers"
 LD_RUNPATH_SEARCH_PATHS = $(inherited) '@executable_path/Frameworks' '@loader_path/Frameworks'
-OTHER_LDFLAGS = $(inherited) -framework "AdaptiveSkeletonClimbing" -framework "Euclid"
+OTHER_LDFLAGS = $(inherited) -framework "DualMarchingCuboids" -framework "Euclid"
 OTHER_SWIFT_FLAGS = $(inherited) -D COCOAPODS
 PODS_BUILD_DIR = ${BUILD_DIR}
 PODS_CONFIGURATION_BUILD_DIR = ${PODS_BUILD_DIR}/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)

@@ -1,6 +1,0 @@
-framework module AdaptiveSkeletonClimbing {
-  umbrella header "AdaptiveSkeletonClimbing-umbrella.h"
-
-  export *
-  module * { export * }
-}

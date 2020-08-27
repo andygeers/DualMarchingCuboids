@@ -30,10 +30,10 @@ DESC
 
   s.ios.deployment_target = '10.0'
 
-  s.source_files = 'DualMarchingCubes/Classes/**/*'
+  s.source_files = 'DualMarchingCuboids/Classes/**/*'
   
   # s.resource_bundles = {
-  #   'AdaptiveSkeletonClimbing' => ['AdaptiveSkeletonClimbing/Assets/*.png']
+  #   'DualMarchingCuboids' => ['DualMarchingCuboids/Assets/*.png']
   # }
 
   # s.public_header_files = 'Pod/Classes/**/*.h'

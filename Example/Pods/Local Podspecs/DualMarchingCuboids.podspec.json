@@ -1,0 +1,26 @@
+{
+  "name": "DualMarchingCuboids",
+  "version": "0.1.0",
+  "summary": "Swift implementation of a dual approach to Marching Cubes using cuboids",
+  "description": "llows for generating isosurfaces from voxel data.",
+  "homepage": "https://github.com/andygeers/AdaptiveSkeletonClimbing",
+  "license": {
+    "type": "MIT",
+    "file": "LICENSE"
+  },
+  "authors": "Andy Geers",
+  "source": {
+    "git": "https://github.com/andygeers/AdaptiveSkeletonClimbing.git",
+    "tag": "0.1.0"
+  },
+  "social_media_url": "https://twitter.com/andygeers",
+  "platforms": {
+    "ios": "10.0"
+  },
+  "source_files": "DualMarchingCuboids/Classes/**/*",
+  "dependencies": {
+    "Euclid": [
+      "~> 0.3.0"
+    ]
+  }
+}

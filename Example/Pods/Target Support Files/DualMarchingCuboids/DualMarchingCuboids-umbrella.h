@@ -11,6 +11,6 @@
 #endif
 
 
-FOUNDATION_EXPORT double AdaptiveSkeletonClimbingVersionNumber;
-FOUNDATION_EXPORT const unsigned char AdaptiveSkeletonClimbingVersionString[];
+FOUNDATION_EXPORT double DualMarchingCuboidsVersionNumber;
+FOUNDATION_EXPORT const unsigned char DualMarchingCuboidsVersionString[];
 

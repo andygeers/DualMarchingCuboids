@@ -11,6 +11,6 @@
 #endif
 
 
-FOUNDATION_EXPORT double Pods_AdaptiveSkeletonClimbing_ExampleVersionNumber;
-FOUNDATION_EXPORT const unsigned char Pods_AdaptiveSkeletonClimbing_ExampleVersionString[];
+FOUNDATION_EXPORT double Pods_DualMarchingCuboids_ExampleVersionNumber;
+FOUNDATION_EXPORT const unsigned char Pods_DualMarchingCuboids_ExampleVersionString[];
 

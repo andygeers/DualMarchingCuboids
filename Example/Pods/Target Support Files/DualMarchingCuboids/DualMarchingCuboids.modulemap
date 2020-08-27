@@ -1,0 +1,6 @@
+framework module DualMarchingCuboids {
+  umbrella header "DualMarchingCuboids-umbrella.h"
+
+  export *
+  module * { export * }
+}

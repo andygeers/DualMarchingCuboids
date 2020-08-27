@@ -7,8 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		055BC3E189333A8051C1F631 /* Pods_AdaptiveSkeletonClimbing_Example.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F1A78E8D046464641BE13353 /* Pods_AdaptiveSkeletonClimbing_Example.framework */; };
-		3C2DEC8FB3E907E51F64394B /* Pods_AdaptiveSkeletonClimbing_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04A3A9289A6793BEB89FBB07 /* Pods_AdaptiveSkeletonClimbing_Tests.framework */; };
+		030FE99FA5DA5199F9569C38 /* Pods_DualMarchingCuboids_Example.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1F58A8AEC2D6D5D34B928648 /* Pods_DualMarchingCuboids_Example.framework */; };
 		522054D524E515610022185D /* corrugated_iron.png in Resources */ = {isa = PBXBuildFile; fileRef = 522054D124E5155F0022185D /* corrugated_iron.png */; };
 		522054D624E515610022185D /* 03_tiles.png in Resources */ = {isa = PBXBuildFile; fileRef = 522054D224E515600022185D /* 03_tiles.png */; };
 		522054D724E515610022185D /* 02_wood.png in Resources */ = {isa = PBXBuildFile; fileRef = 522054D324E515600022185D /* 02_wood.png */; };
@@ -20,6 +19,7 @@
 		607FACDD1AFB9204008FA782 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDC1AFB9204008FA782 /* Images.xcassets */; };
 		607FACE01AFB9204008FA782 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDE1AFB9204008FA782 /* LaunchScreen.xib */; };
 		607FACEC1AFB9204008FA782 /* Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACEB1AFB9204008FA782 /* Tests.swift */; };
+		9C6F8722BAD3C8B9B8335577 /* Pods_DualMarchingCuboids_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F6C3480EDF8F9BA44F935F26 /* Pods_DualMarchingCuboids_Tests.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -28,20 +28,20 @@
 			containerPortal = 607FACC81AFB9204008FA782 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 607FACCF1AFB9204008FA782;
-			remoteInfo = AdaptiveSkeletonClimbing;
+			remoteInfo = DualMarchingCuboids;
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		04A3A9289A6793BEB89FBB07 /* Pods_AdaptiveSkeletonClimbing_Tests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_AdaptiveSkeletonClimbing_Tests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		1F58A8AEC2D6D5D34B928648 /* Pods_DualMarchingCuboids_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_DualMarchingCuboids_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		31921094211BFFE5DDE5D033 /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		522054D124E5155F0022185D /* corrugated_iron.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = corrugated_iron.png; sourceTree = "<group>"; };
 		522054D224E515600022185D /* 03_tiles.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 03_tiles.png; sourceTree = "<group>"; };
 		522054D324E515600022185D /* 02_wood.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 02_wood.png; sourceTree = "<group>"; };
 		522054D424E515600022185D /* french_tiles.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = french_tiles.png; sourceTree = "<group>"; };
 		52D2409324C9D92D00E8762C /* 01_bricks.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 01_bricks.png; sourceTree = "<group>"; };
-		5964F16A125134555814FD75 /* Pods-AdaptiveSkeletonClimbing_Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AdaptiveSkeletonClimbing_Example.debug.xcconfig"; path = "Target Support Files/Pods-AdaptiveSkeletonClimbing_Example/Pods-AdaptiveSkeletonClimbing_Example.debug.xcconfig"; sourceTree = "<group>"; };
-		5E4E517534F59BDE1D03E8D7 /* Pods-AdaptiveSkeletonClimbing_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AdaptiveSkeletonClimbing_Example.release.xcconfig"; path = "Target Support Files/Pods-AdaptiveSkeletonClimbing_Example/Pods-AdaptiveSkeletonClimbing_Example.release.xcconfig"; sourceTree = "<group>"; };
+		5964F16A125134555814FD75 /* Pods-DualMarchingCuboids_Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DualMarchingCuboids_Example.debug.xcconfig"; path = "Target Support Files/Pods-DualMarchingCuboids_Example/Pods-DualMarchingCuboids_Example.debug.xcconfig"; sourceTree = "<group>"; };
+		5E4E517534F59BDE1D03E8D7 /* Pods-DualMarchingCuboids_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DualMarchingCuboids_Example.release.xcconfig"; path = "Target Support Files/Pods-DualMarchingCuboids_Example/Pods-DualMarchingCuboids_Example.release.xcconfig"; sourceTree = "<group>"; };
 		607FACD01AFB9204008FA782 /* DualMarchingCuboids_Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DualMarchingCuboids_Example.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		607FACD41AFB9204008FA782 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		607FACD51AFB9204008FA782 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -52,11 +52,15 @@
 		607FACE51AFB9204008FA782 /* DualMarchingCuboids_Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DualMarchingCuboids_Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		607FACEA1AFB9204008FA782 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		607FACEB1AFB9204008FA782 /* Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tests.swift; sourceTree = "<group>"; };
-		7DCEB3BEF8C8B315C0D819C3 /* AdaptiveSkeletonClimbing.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = AdaptiveSkeletonClimbing.podspec; path = ../AdaptiveSkeletonClimbing.podspec; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
+		7DCEB3BEF8C8B315C0D819C3 /* DualMarchingCuboids.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = DualMarchingCuboids.podspec; path = ../DualMarchingCuboids.podspec; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
+		821B710F8944CBC1AF7B9331 /* Pods-DualMarchingCuboids_Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DualMarchingCuboids_Tests.debug.xcconfig"; path = "Target Support Files/Pods-DualMarchingCuboids_Tests/Pods-DualMarchingCuboids_Tests.debug.xcconfig"; sourceTree = "<group>"; };
 		9008476330B141011DE56066 /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
-		A0500C99353008A1E0C7D35A /* Pods-AdaptiveSkeletonClimbing_Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AdaptiveSkeletonClimbing_Tests.release.xcconfig"; path = "Target Support Files/Pods-AdaptiveSkeletonClimbing_Tests/Pods-AdaptiveSkeletonClimbing_Tests.release.xcconfig"; sourceTree = "<group>"; };
-		A5AB5E73A29F45EC52A24DA8 /* Pods-AdaptiveSkeletonClimbing_Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AdaptiveSkeletonClimbing_Tests.debug.xcconfig"; path = "Target Support Files/Pods-AdaptiveSkeletonClimbing_Tests/Pods-AdaptiveSkeletonClimbing_Tests.debug.xcconfig"; sourceTree = "<group>"; };
-		F1A78E8D046464641BE13353 /* Pods_AdaptiveSkeletonClimbing_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_AdaptiveSkeletonClimbing_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		A0500C99353008A1E0C7D35A /* Pods-DualMarchingCuboids_Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DualMarchingCuboids_Tests.release.xcconfig"; path = "Target Support Files/Pods-DualMarchingCuboids_Tests/Pods-DualMarchingCuboids_Tests.release.xcconfig"; sourceTree = "<group>"; };
+		A5AB5E73A29F45EC52A24DA8 /* Pods-DualMarchingCuboids_Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DualMarchingCuboids_Tests.debug.xcconfig"; path = "Target Support Files/Pods-DualMarchingCuboids_Tests/Pods-DualMarchingCuboids_Tests.debug.xcconfig"; sourceTree = "<group>"; };
+		C9EF140798E3D087982BADA2 /* Pods-DualMarchingCuboids_Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DualMarchingCuboids_Example.debug.xcconfig"; path = "Target Support Files/Pods-DualMarchingCuboids_Example/Pods-DualMarchingCuboids_Example.debug.xcconfig"; sourceTree = "<group>"; };
+		F1725A542D377BE803E95C2E /* Pods-DualMarchingCuboids_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DualMarchingCuboids_Example.release.xcconfig"; path = "Target Support Files/Pods-DualMarchingCuboids_Example/Pods-DualMarchingCuboids_Example.release.xcconfig"; sourceTree = "<group>"; };
+		F6A55B55D14B1D05F5E56697 /* Pods-DualMarchingCuboids_Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DualMarchingCuboids_Tests.release.xcconfig"; path = "Target Support Files/Pods-DualMarchingCuboids_Tests/Pods-DualMarchingCuboids_Tests.release.xcconfig"; sourceTree = "<group>"; };
+		F6C3480EDF8F9BA44F935F26 /* Pods_DualMarchingCuboids_Tests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_DualMarchingCuboids_Tests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -64,7 +68,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				055BC3E189333A8051C1F631 /* Pods_AdaptiveSkeletonClimbing_Example.framework in Frameworks */,
+				030FE99FA5DA5199F9569C38 /* Pods_DualMarchingCuboids_Example.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -72,7 +76,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3C2DEC8FB3E907E51F64394B /* Pods_AdaptiveSkeletonClimbing_Tests.framework in Frameworks */,
+				9C6F8722BAD3C8B9B8335577 /* Pods_DualMarchingCuboids_Tests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -82,10 +86,14 @@
 		5C160219FF47964D2F72D2AB /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				5964F16A125134555814FD75 /* Pods-AdaptiveSkeletonClimbing_Example.debug.xcconfig */,
-				5E4E517534F59BDE1D03E8D7 /* Pods-AdaptiveSkeletonClimbing_Example.release.xcconfig */,
-				A5AB5E73A29F45EC52A24DA8 /* Pods-AdaptiveSkeletonClimbing_Tests.debug.xcconfig */,
-				A0500C99353008A1E0C7D35A /* Pods-AdaptiveSkeletonClimbing_Tests.release.xcconfig */,
+				5964F16A125134555814FD75 /* Pods-DualMarchingCuboids_Example.debug.xcconfig */,
+				5E4E517534F59BDE1D03E8D7 /* Pods-DualMarchingCuboids_Example.release.xcconfig */,
+				A5AB5E73A29F45EC52A24DA8 /* Pods-DualMarchingCuboids_Tests.debug.xcconfig */,
+				A0500C99353008A1E0C7D35A /* Pods-DualMarchingCuboids_Tests.release.xcconfig */,
+				C9EF140798E3D087982BADA2 /* Pods-DualMarchingCuboids_Example.debug.xcconfig */,
+				F1725A542D377BE803E95C2E /* Pods-DualMarchingCuboids_Example.release.xcconfig */,
+				821B710F8944CBC1AF7B9331 /* Pods-DualMarchingCuboids_Tests.debug.xcconfig */,
+				F6A55B55D14B1D05F5E56697 /* Pods-DualMarchingCuboids_Tests.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -122,7 +130,7 @@
 				607FACD31AFB9204008FA782 /* Supporting Files */,
 			);
 			name = "Example for DualMarchingCuboids";
-			path = AdaptiveSkeletonClimbing;
+			path = DualMarchingCuboids;
 			sourceTree = "<group>";
 		};
 		607FACD31AFB9204008FA782 /* Supporting Files */ = {
@@ -158,7 +166,7 @@
 		607FACF51AFB993E008FA782 /* Podspec Metadata */ = {
 			isa = PBXGroup;
 			children = (
-				7DCEB3BEF8C8B315C0D819C3 /* AdaptiveSkeletonClimbing.podspec */,
+				7DCEB3BEF8C8B315C0D819C3 /* DualMarchingCuboids.podspec */,
 				31921094211BFFE5DDE5D033 /* README.md */,
 				9008476330B141011DE56066 /* LICENSE */,
 			);
@@ -168,8 +176,8 @@
 		681737173BD0A8CEB376CE40 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				F1A78E8D046464641BE13353 /* Pods_AdaptiveSkeletonClimbing_Example.framework */,
-				04A3A9289A6793BEB89FBB07 /* Pods_AdaptiveSkeletonClimbing_Tests.framework */,
+				1F58A8AEC2D6D5D34B928648 /* Pods_DualMarchingCuboids_Example.framework */,
+				F6C3480EDF8F9BA44F935F26 /* Pods_DualMarchingCuboids_Tests.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -192,7 +200,7 @@
 			dependencies = (
 			);
 			name = DualMarchingCuboids_Example;
-			productName = AdaptiveSkeletonClimbing;
+			productName = DualMarchingCuboids;
 			productReference = 607FACD01AFB9204008FA782 /* DualMarchingCuboids_Example.app */;
 			productType = "com.apple.product-type.application";
 		};
@@ -290,18 +298,18 @@
 			files = (
 			);
 			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-AdaptiveSkeletonClimbing_Example/Pods-AdaptiveSkeletonClimbing_Example-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/AdaptiveSkeletonClimbing/AdaptiveSkeletonClimbing.framework",
+				"${PODS_ROOT}/Target Support Files/Pods-DualMarchingCuboids_Example/Pods-DualMarchingCuboids_Example-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/DualMarchingCuboids/DualMarchingCuboids.framework",
 				"${BUILT_PRODUCTS_DIR}/Euclid/Euclid.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AdaptiveSkeletonClimbing.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/DualMarchingCuboids.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Euclid.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-AdaptiveSkeletonClimbing_Example/Pods-AdaptiveSkeletonClimbing_Example-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-DualMarchingCuboids_Example/Pods-DualMarchingCuboids_Example-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		13C53BF868FBDD55CF25FBC5 /* [CP] Check Pods Manifest.lock */ = {
@@ -319,7 +327,7 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-AdaptiveSkeletonClimbing_Example-checkManifestLockResult.txt",
+				"$(DERIVED_FILE_DIR)/Pods-DualMarchingCuboids_Example-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -341,7 +349,7 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-AdaptiveSkeletonClimbing_Tests-checkManifestLockResult.txt",
+				"$(DERIVED_FILE_DIR)/Pods-DualMarchingCuboids_Tests-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -354,7 +362,7 @@
 			files = (
 			);
 			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-AdaptiveSkeletonClimbing_Tests/Pods-AdaptiveSkeletonClimbing_Tests-frameworks.sh",
+				"${PODS_ROOT}/Target Support Files/Pods-DualMarchingCuboids_Tests/Pods-DualMarchingCuboids_Tests-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/Nimble/Nimble.framework",
 				"${BUILT_PRODUCTS_DIR}/Quick/Quick.framework",
 			);
@@ -365,7 +373,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-AdaptiveSkeletonClimbing_Tests/Pods-AdaptiveSkeletonClimbing_Tests-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-DualMarchingCuboids_Tests/Pods-DualMarchingCuboids_Tests-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -519,13 +527,13 @@
 		};
 		607FACF01AFB9204008FA782 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 5964F16A125134555814FD75 /* Pods-AdaptiveSkeletonClimbing_Example.debug.xcconfig */;
+			baseConfigurationReference = C9EF140798E3D087982BADA2 /* Pods-DualMarchingCuboids_Example.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
-				INFOPLIST_FILE = AdaptiveSkeletonClimbing/Info.plist;
+				INFOPLIST_FILE = DualMarchingCuboids/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MODULE_NAME = ExampleApp;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.$(PRODUCT_NAME:rfc1034identifier)";
@@ -540,13 +548,13 @@
 		};
 		607FACF11AFB9204008FA782 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 5E4E517534F59BDE1D03E8D7 /* Pods-AdaptiveSkeletonClimbing_Example.release.xcconfig */;
+			baseConfigurationReference = F1725A542D377BE803E95C2E /* Pods-DualMarchingCuboids_Example.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
-				INFOPLIST_FILE = AdaptiveSkeletonClimbing/Info.plist;
+				INFOPLIST_FILE = DualMarchingCuboids/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MODULE_NAME = ExampleApp;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.$(PRODUCT_NAME:rfc1034identifier)";
@@ -561,7 +569,7 @@
 		};
 		607FACF31AFB9204008FA782 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = A5AB5E73A29F45EC52A24DA8 /* Pods-AdaptiveSkeletonClimbing_Tests.debug.xcconfig */;
+			baseConfigurationReference = 821B710F8944CBC1AF7B9331 /* Pods-DualMarchingCuboids_Tests.debug.xcconfig */;
 			buildSettings = {
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
@@ -583,7 +591,7 @@
 		};
 		607FACF41AFB9204008FA782 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = A0500C99353008A1E0C7D35A /* Pods-AdaptiveSkeletonClimbing_Tests.release.xcconfig */;
+			baseConfigurationReference = F6A55B55D14B1D05F5E56697 /* Pods-DualMarchingCuboids_Tests.release.xcconfig */;
 			buildSettings = {
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(PLATFORM_DIR)/Developer/Library/Frameworks",

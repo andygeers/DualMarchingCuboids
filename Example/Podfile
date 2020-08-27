@@ -2,10 +2,10 @@ use_frameworks!
 
 platform :ios, '10.0'
 
-target 'AdaptiveSkeletonClimbing_Example' do
-  pod 'AdaptiveSkeletonClimbing', :path => '../'
+target 'DualMarchingCuboids_Example' do
+  pod 'DualMarchingCuboids', :path => '../'
 
-  target 'AdaptiveSkeletonClimbing_Tests' do
+  target 'DualMarchingCuboids_Tests' do
     inherit! :search_paths
 
     pod 'Quick', '~> 1.2.0'

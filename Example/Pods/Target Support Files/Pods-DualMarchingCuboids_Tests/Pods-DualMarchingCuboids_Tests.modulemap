@@ -1,0 +1,6 @@
+framework module Pods_DualMarchingCuboids_Tests {
+  umbrella header "Pods-DualMarchingCuboids_Tests-umbrella.h"
+
+  export *
+  module * { export * }
+}

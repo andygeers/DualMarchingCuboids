@@ -1,12 +1,12 @@
 PODS:
-  - AdaptiveSkeletonClimbing (0.1.0):
+  - DualMarchingCuboids (0.1.0):
     - Euclid (~> 0.3.0)
   - Euclid (0.3.4)
   - Nimble (7.3.4)
   - Quick (1.2.0)
 
 DEPENDENCIES:
-  - AdaptiveSkeletonClimbing (from `../`)
+  - DualMarchingCuboids (from `../`)
   - Nimble (~> 7.0)
   - Quick (~> 1.2.0)
 
@@ -17,15 +17,15 @@ SPEC REPOS:
     - Quick
 
 EXTERNAL SOURCES:
-  AdaptiveSkeletonClimbing:
+  DualMarchingCuboids:
     :path: "../"
 
 SPEC CHECKSUMS:
-  AdaptiveSkeletonClimbing: b2ec15879f16b7de36650c0d01bdd783856641f1
+  DualMarchingCuboids: 2f58062dc3247cc5621b781e4fbb0b3790f2fe93
   Euclid: 94a24caf55d4b251f4d5070c884b3258e6c0fb0a
   Nimble: 051e3d8912d40138fa5591c78594f95fb172af37
   Quick: 58d203b1c5e27fff7229c4c1ae445ad7069a7a08
 
-PODFILE CHECKSUM: d63cffda32d1084c3bdd7d4c48fc6164da13582f
+PODFILE CHECKSUM: 996a763b3883517b4c8363d2fefe688f483999a1
 
 COCOAPODS: 1.9.1
