@@ -1,11 +1,10 @@
-# AdaptiveSkeletonClimbing
+# Dual Marching Cuboids
 
-[![CI Status](https://img.shields.io/travis/admin@voucherpoint.uk/AdaptiveSkeletonClimbing.svg?style=flat)](https://travis-ci.org/admin@voucherpoint.uk/AdaptiveSkeletonClimbing)
-[![Version](https://img.shields.io/cocoapods/v/AdaptiveSkeletonClimbing.svg?style=flat)](https://cocoapods.org/pods/AdaptiveSkeletonClimbing)
-[![License](https://img.shields.io/cocoapods/l/AdaptiveSkeletonClimbing.svg?style=flat)](https://cocoapods.org/pods/AdaptiveSkeletonClimbing)
-[![Platform](https://img.shields.io/cocoapods/p/AdaptiveSkeletonClimbing.svg?style=flat)](https://cocoapods.org/pods/AdaptiveSkeletonClimbing)
+[![Version](https://img.shields.io/cocoapods/v/DualMarchingCuboids.svg?style=flat)](https://cocoapods.org/pods/DualMarchingCuboids)
+[![License](https://img.shields.io/cocoapods/l/DualMarchingCuboids.svg?style=flat)](https://cocoapods.org/pods/DualMarchingCuboids)
+[![Platform](https://img.shields.io/cocoapods/p/DualMarchingCuboids.svg?style=flat)](https://cocoapods.org/pods/DualMarchingCuboids)
 
-Adaptive Skeleton Climbing implementation in Swift based on [the paper](http://www.cse.cuhk.edu.hk/~ttwong/papers/asc/asc.pdf) by Tim Postony, Tien-Tsin Wongz and Pheng-Ann Hengz.
+A dual Marching Cubes method using cuboids, based on greedy meshing. Suitable for use with a uniform grid of data derived from multiple depth maps.
 
 ## Example
 
@@ -13,13 +12,13 @@ To run the example project, clone the repo, and run `pod install` from the Examp
 
 ## Installation
 
-AdaptiveSkeletonClimbing is available through [CocoaPods](https://cocoapods.org). To install
+DualMarchingCuboids is not yet available through [CocoaPods](https://cocoapods.org). To install
 it, simply add the following line to your Podfile:
 
 ```ruby
-pod 'AdaptiveSkeletonClimbing'
+pod 'DualMarchingCuboids', :git => "git@github.com:andygeers/DualMarchingCuboids.git"
 ```
 
 ## License
 
-AdaptiveSkeletonClimbing is available under the MIT license. See the LICENSE file for more info.
+DualMarchingCuboids is available under the MIT license. See the LICENSE file for more info.
