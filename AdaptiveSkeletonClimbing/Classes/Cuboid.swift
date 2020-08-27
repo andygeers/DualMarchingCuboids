@@ -18,6 +18,8 @@ struct Cuboid {
     let height : Int
     let depth : Int
     
+    let marchingCubesCase : Int
+    
     // There can be up to four discreet surfaces
     // in the most complex Marching Cubes case
     let vertex1 : Vector
