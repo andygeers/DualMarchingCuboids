@@ -12,10 +12,6 @@ fileprivate func multiplyVectors(_ v1 : Vector, _ v2 : Vector) -> Vector {
     return Vector(v1.x * v2.x, v1.y * v2.y, v1.z * v2.z)
 }
 
-fileprivate func randomColor() -> UIColor {
-    return UIColor(red: CGFloat.random(in: 0 ... 1.0), green: CGFloat.random(in: 0 ... 1.0), blue: CGFloat.random(in: 0 ... 1.0), alpha: 0.5)
-}
-
 public class Slice : Sequence {
     /*
        5/////2////3
@@ -276,8 +272,6 @@ public class MarchingCubesSlice : Slice {
     let localFaceOffsets : [Int]
     static let visitedFlag = 0x4
     
-    public static var cuboids : Mesh = Mesh([])
-    
     private var octree : Octree
     
     public init?(grid: VoxelGrid) {
@@ -406,19 +400,15 @@ public class MarchingCubesSlice : Slice {
             
             if (neighbours[0] & VoxelAxis.xy.rawValue > 0) {
                 // Grow the cell as far back in the Z axis as we can
-                if (processCell(x: x, y: y, z: z - 1, polygons: &polygons, width: width, height: height, depth: depth + 1, matchCase: cubeIndex)) {
-                    return
-                }
+                //if (processCell(x: x, y: y, z: z - 1, polygons: &polygons, width: width, height: height, depth: depth + 1, matchCase: cubeIndex)) {
+                  //  return
+                //}
             }
         }
         
         
         let corner = Vector(Double(x), Double(y), Double(z))
-        let cellSize = Vector(Double(width), Double(height), Double(depth))
-        
-        let centre = corner + cellSize * 0.5
-        let cuboid = Mesh.cube(center: Vector.zero, size: 1.0, faces: .front, material: randomColor()).scaled(by: cellSize).translated(by: centre)
-        MarchingCubesSlice.cuboids = MarchingCubesSlice.cuboids.merge(cuboid)
+        let cellSize = Vector(Double(width), Double(height), Double(depth))                
         
         //check if its completely inside or outside
         guard MarchingCubes.edgeTable[cubeIndex] != 0 else { return }

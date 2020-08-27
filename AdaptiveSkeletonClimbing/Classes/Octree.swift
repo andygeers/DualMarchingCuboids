@@ -109,7 +109,7 @@ fileprivate struct OctreeNode {
         for child in childNodes {
             let childNode = tree.nodes[child]
             if childNode.marchingCubesCase == OctreeNode.INVALID_NODE ||
-                (childNode.marchingCubesCase != -1 && surfaceCount[Int(childNode.marchingCubesCase)] > 1) {
+                (childNode.marchingCubesCase != -1 && MarchingCubes.surfaceCount[Int(childNode.marchingCubesCase)] > 1) {
                 return false
             }
         }

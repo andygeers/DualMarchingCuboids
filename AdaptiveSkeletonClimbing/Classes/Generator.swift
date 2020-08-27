@@ -81,13 +81,7 @@ public class Generator {
             }
         }
         
-        NSLog("New bounds: %@ to %@", String(describing: bounds.min), String(describing: bounds.max))
-        
-        // Add a bounding box
-        //slice.grid.addBoundingBox(bounds)
-        if (slice.grid.boundingBoxes.count == 0) {
-            slice.grid.addBoundingBox(VoxelBoundingBox(min: VoxelCoordinates.zero, max: VoxelCoordinates(x: slice.grid.width - 1, y: slice.grid.height - 1, z: slice.grid.depth - 1), axis: .multiple))
-        }
+        NSLog("New bounds: %@ to %@", String(describing: bounds.min), String(describing: bounds.max))                
     }        
     
     private func outputHeight(_ height : Double) -> Double {

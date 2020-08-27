@@ -14,7 +14,7 @@ enum VoxelAxis : Int {
     case multiple = 3
 }
 
-public class VoxelGrid : Sequence {
+public class VoxelGrid {
 
     static let G_Threshold = 50.0
     
@@ -27,7 +27,7 @@ public class VoxelGrid : Sequence {
     
     internal var seedCells : Set<Int> = Set([])
     
-    internal var boundingBoxes : [VoxelBoundingBox] = []
+    internal var rootCuboids : [Cuboid] = []
     
     public init(width : Int, height : Int, depth : Int) {
         self.width = width
@@ -68,13 +68,5 @@ public class VoxelGrid : Sequence {
     
     public func generateMesh() -> Mesh {
         return Mesh([])
-    }
-    
-    public func makeIterator() -> SlicesIterator {
-        return SlicesIterator(grid: self)
-    }
-    
-    internal func addBoundingBox(_ bounds: VoxelBoundingBox) {   
-        boundingBoxes.append(bounds)
     }
 }
