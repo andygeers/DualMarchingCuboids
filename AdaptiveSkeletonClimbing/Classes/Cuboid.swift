@@ -26,19 +26,19 @@ struct Cuboid {
     
     // There can be up to four discreet surfaces
     // in the most complex Marching Cubes case
-    let vertex1 : Vector
-    let vertex2 : Vector
-    let vertex3 : Vector
-    let vertex4 : Vector
+    var vertex1 : Vector = Vector.zero
+    var vertex2 : Vector = Vector.zero
+    var vertex3 : Vector = Vector.zero
+    var vertex4 : Vector = Vector.zero
     
     // There may of course be a lot of nodes along each edge, for large cuboids,
     // but we can find all of the others by traversing from the first one on that edge
-    let upNodeIndex : Int
-    let rightNodeIndex : Int
-    let downNodeIndex : Int
-    let leftNodeIndex : Int
-    let forwardsNodeIndex : Int
-    let backwardsNodeIndex : Int
+    var upNodeIndex : Int = -1
+    var rightNodeIndex : Int = -1
+    var downNodeIndex : Int = -1
+    var leftNodeIndex : Int = -1
+    var forwardsNodeIndex : Int = -1
+    var backwardsNodeIndex : Int = -1
     
     func position(grid: VoxelGrid) -> (Int, Int, Int) {
         let z = index / (grid.width * grid.height)

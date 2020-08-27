@@ -53,6 +53,7 @@
 		52A07F5824E97D67004D69A1 /* Octree.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52A07F5724E97D67004D69A1 /* Octree.swift */; };
 		52A07F5B24EA5890004D69A1 /* Queue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52A07F5A24EA5890004D69A1 /* Queue.swift */; };
 		52A07F5D24F781B0004D69A1 /* Cuboid.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52A07F5C24F781B0004D69A1 /* Cuboid.swift */; };
+		52A07F5F24F78999004D69A1 /* DualMarchingCuboids.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52A07F5E24F78999004D69A1 /* DualMarchingCuboids.swift */; };
 		52C36BA124D93ADC0001E9B6 /* Iterators.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52C36BA024D93ADC0001E9B6 /* Iterators.swift */; };
 		52C36BA324D93B2E0001E9B6 /* Slice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52C36BA224D93B2E0001E9B6 /* Slice.swift */; };
 		52D2408424C0855200E8762C /* DoublyLinkedList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52D2408324C0855200E8762C /* DoublyLinkedList.swift */; };
@@ -271,6 +272,7 @@
 		52A07F5724E97D67004D69A1 /* Octree.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Octree.swift; path = AdaptiveSkeletonClimbing/Classes/Octree.swift; sourceTree = "<group>"; };
 		52A07F5A24EA5890004D69A1 /* Queue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Queue.swift; sourceTree = "<group>"; };
 		52A07F5C24F781B0004D69A1 /* Cuboid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Cuboid.swift; path = AdaptiveSkeletonClimbing/Classes/Cuboid.swift; sourceTree = "<group>"; };
+		52A07F5E24F78999004D69A1 /* DualMarchingCuboids.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DualMarchingCuboids.swift; path = AdaptiveSkeletonClimbing/Classes/DualMarchingCuboids.swift; sourceTree = "<group>"; };
 		52C36BA024D93ADC0001E9B6 /* Iterators.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Iterators.swift; path = AdaptiveSkeletonClimbing/Classes/Iterators.swift; sourceTree = "<group>"; };
 		52C36BA224D93B2E0001E9B6 /* Slice.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Slice.swift; path = AdaptiveSkeletonClimbing/Classes/Slice.swift; sourceTree = "<group>"; };
 		52D2408324C0855200E8762C /* DoublyLinkedList.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DoublyLinkedList.swift; sourceTree = "<group>"; };
@@ -663,6 +665,7 @@
 			children = (
 				52A07F5924EA5879004D69A1 /* SwiftAlgorithmClub */,
 				52C36BA224D93B2E0001E9B6 /* Slice.swift */,
+				52A07F5E24F78999004D69A1 /* DualMarchingCuboids.swift */,
 				878C5C131B61CF82F08227DDD934F57C /* VoxelGrid.swift */,
 				52A07F5724E97D67004D69A1 /* Octree.swift */,
 				522054CF24E277D90022185D /* MarchingCubesCases.swift */,
@@ -1066,6 +1069,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				52C36BA324D93B2E0001E9B6 /* Slice.swift in Sources */,
+				52A07F5F24F78999004D69A1 /* DualMarchingCuboids.swift in Sources */,
 				E6DFB15D08A99C03F4020735857741A0 /* AdaptiveSkeletonClimbing-dummy.m in Sources */,
 				52D2408424C0855200E8762C /* DoublyLinkedList.swift in Sources */,
 				52A07F5B24EA5890004D69A1 /* Queue.swift in Sources */,

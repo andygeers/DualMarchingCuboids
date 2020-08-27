@@ -33,7 +33,7 @@ class ViewController: UIViewController {
     private var grid : VoxelGrid!
     private var seedVoxels : [SCNNode] = []
     
-    private var mesher : MarchingCubesSlice!
+    private var mesher : DualMarchingCuboids!
     var polygonCount = 0
     var hasOrientedCamera = false
     var currentVoxelNode : SCNNode?
@@ -97,7 +97,7 @@ class ViewController: UIViewController {
         }
         
         if (!wireframe) {
-            let cuboids = SCNGeometry(MarchingCubesSlice.cuboids, materialLookup: {
+            let cuboids = SCNGeometry(grid.cuboids.map { $0.mesh(grid: grid) }, materialLookup: {
                 let material = SCNMaterial()
                 material.diffuse.contents = $0
                 return material
@@ -157,7 +157,7 @@ class ViewController: UIViewController {
             grid = VoxelGrid(width: width, height: height, depth: depth)
         }
         
-        mesher = MarchingCubesSlice(grid: grid)
+        mesher = DualMarchingCuboids(grid: grid)
     }
     
     private func generateMesh() {
