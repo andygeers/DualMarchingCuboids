@@ -25,7 +25,7 @@ public class VoxelGrid {
     public let height : Int
     public let depth : Int
     
-    internal var seedCells : Set<Int> = Set([])
+    internal var seedCells : [Int: Vector] = [:]
     
     internal var cuboids : [Cuboid] = []
     
@@ -44,9 +44,9 @@ public class VoxelGrid {
         addSeed(cellIndex(x: x, y: y, z: z))
     }
     
-    public func addSeed(_ index : Int) {
+    public func addSeed(_ index : Int, position: Vector) {
         guard index < data.count else { return }
-        seedCells.insert(index)
+        seedCells[index] = position
     }
     
     public func positionFromIndex(_ index: Int) -> (Int, Int, Int) {
@@ -56,15 +56,7 @@ public class VoxelGrid {
         let yRowStart = zLayerStart + y * width
         let x = index - yRowStart
         return (x, y, z)
-    }
-    
-    public var seeds : [(Int, Int, Int)] {
-        var results : [(Int, Int, Int)] = []
-        for index in self.seedCells {
-            results.append(positionFromIndex(index))
-        }
-        return results
-    }
+    }        
     
     public func generateMesh() -> Mesh {
         return Mesh([])
