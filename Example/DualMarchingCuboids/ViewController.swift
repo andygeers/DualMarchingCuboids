@@ -98,16 +98,34 @@ class ViewController: UIViewController {
         
         if (!wireframe) {
             var mesh = Mesh([])
-            for cuboid in grid.cuboids.values.map({ $0.mesh(grid: grid) }) {
-                mesh = mesh.merge(cuboid)
-            }
-            let cuboids = SCNGeometry(mesh, materialLookup: {
-                let material = SCNMaterial()
-                material.diffuse.contents = $0
-                return material
-            })
+            NSLog("Rendering %d cuboid(s)", grid.cuboids.count)
             let node2 = cuboidsNode ?? SCNNode()
-            node2.geometry = cuboids
+            
+            var childNodeIndex = 0
+            for cuboid in grid.cuboids.values.map({ $0.mesh(grid: grid) }) {
+                guard childNodeIndex < 200 else { break }
+                
+                mesh = mesh.merge(cuboid)
+            
+                let cuboid = SCNGeometry(mesh, materialLookup: {
+                    let material = SCNMaterial()
+                    material.diffuse.contents = $0
+                    return material
+                })
+                
+                let cuboidNode : SCNNode
+                if (childNodeIndex < node2.childNodes.count) {
+                    cuboidNode = node2.childNodes[childNodeIndex]
+                    
+                } else {
+                    cuboidNode = SCNNode()
+                    node2.addChildNode(cuboidNode)
+                }
+                
+                cuboidNode.geometry = cuboid
+                childNodeIndex += 1
+            }
+                        
             if (cuboidsNode == nil) {
                 scene.rootNode.addChildNode(node2)
                 self.cuboidsNode = node2

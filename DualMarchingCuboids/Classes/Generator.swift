@@ -52,8 +52,9 @@ public class Generator {
                 var value = 1
                 
                 if !hasSeeded && (slice.axisMask == .xy) {
-                    let topIndex = index + (intDepth - 1) * slice.grid.width * slice.grid.height
-                    slice.grid.addSeed(topIndex)
+                    let topZ = z + (intDepth - 1)
+                    let seed = Cuboid(x: x, y: y, z: topZ, width: 1, height: 1, depth: 1)
+                    slice.grid.addSeed(seed)
                     hasSeeded = true
                 }
                 

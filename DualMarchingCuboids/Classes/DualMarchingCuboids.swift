@@ -13,11 +13,7 @@ public class DualMarchingCuboids : Slice {
     let localFaceOffsets : [Int]
     static let visitedFlag = 0x4
     
-    private var octree : Octree
-    
     public init?(grid: VoxelGrid) {
-        octree = Octree(grid: grid)
-        
         localFaceOffsets = DualMarchingCuboids.calculateFaceOffsets(grid: grid)
         
         super.init(grid: grid, rotation: Rotation.identity, axis: Vector(0.0, 0.0, -1.0))
@@ -31,24 +27,7 @@ public class DualMarchingCuboids : Slice {
     
     override var axisMask : VoxelAxis {
         return .multiple
-    }
-    
-    static func findCellCorners(grid: VoxelGrid, x: Int, y: Int, z: Int, index: Int, width: Int = 1, height: Int = 1, depth: Int = 1) -> [Int] {
-        
-        let nextZ = grid.width * grid.height * depth
-        let nextY = grid.width * height
-        
-        return [
-            grid.data[index],
-            z + depth < grid.depth ? grid.data[index + nextZ] : 0,
-            x + width < grid.width && z + depth < grid.depth ? grid.data[index + nextZ + width] : 0,
-            x + width < grid.width ? grid.data[index + width] : 0,
-            y + height < grid.height ? grid.data[index + nextY] : 0,
-            y + height < grid.height && z + depth < grid.depth ? grid.data[index + nextZ + nextY] : 0,
-            x + width < grid.width && y + height < grid.height && z + depth < grid.depth ? grid.data[index + nextZ + width + nextY] : 0,
-            x + width < grid.width && y + height < grid.height ? grid.data[index + width + nextY] : 0
-        ]
-    }
+    }        
     
     private func interpolatePositions(p1: Vector, p2: Vector, v1: Int, v2: Int) -> Vector {
         
@@ -79,13 +58,10 @@ public class DualMarchingCuboids : Slice {
         
         let before = DispatchTime.now()
         
-        for (currentCell, position) in grid.seedCells {
-            let (x, y, z) = grid.positionFromIndex(currentCell)
+        while !grid.seedCells.isEmpty {
+            let cube = grid.seedCells.dequeue()!
             
-            processCell(x: x, y: y, z: z)
-            
-            // Move to the next seed
-            currentCell = grid.seedCells.first ?? -1
+            processCell(cube)
         }
         
         let after = DispatchTime.now()
@@ -104,77 +80,75 @@ public class DualMarchingCuboids : Slice {
         return cubeIndex
     }
         
-    private func processCell(x: Int, y: Int, z: Int) {
+    private func processCell(_ cell : Cuboid) {
                 
-        var index = grid.cellIndex(x: x, y : y, z: z)
-        
         // Check we haven't already visited this cell
+        let index = cell.index(grid: grid)
         let cellData = grid.data[index]
         guard (cellData & DualMarchingCuboids.visitedFlag == 0) else { return }
         grid.data[index] |= DualMarchingCuboids.visitedFlag
-        
-        var width = 1
-        var height = 1
-        var depth = 1
-        var matchCase = -1
-        
-        let axes : [Int]
-        let cuboid : Cuboid
+                
+        assert(cell.width == 1 && cell.height == 1 && cell.depth == 1)
+        var cuboid = Cuboid(x: cell.x, y: cell.y, z: cell.z, width: cell.width, height: cell.height, depth: cell.depth)
         
         if (cellData & 0x3 == VoxelAxis.xy.rawValue) {
             
-            // Start by growing the cuboid as far in the z direction as we can
+            // Start by growing the cuboid as far in the z axis as we can
             
         } else if (cellData & 0x3 == VoxelAxis.yz.rawValue) {
-            // Start by growing the cuboid as far in the -x direction as we can
-            // TODO: It actually does make a difference which way the wall points as to
-            // the quality of the results
+            // Start by growing the cuboid as far in the x axis as we can
             
         } else {
             // Just output this as a single cuboid for now
         }
             
-        let neighbours = DualMarchingCuboids.findCellCorners(grid: grid, x: x, y: y, z: z, index: index, width: width, height: height, depth: depth)
+        let neighbours = cell.sampleCorners(index: index, grid: grid)
         
         let cubeIndex = caseFromNeighbours(neighbours)
+        cuboid.marchingCubesCase = cubeIndex
             
         //check if its completely inside or outside
         guard MarchingCubes.edgeTable[cubeIndex] != 0 else { return }
         
-        cuboid = Cuboid(index: index, width: width, height: height, depth: depth, marchingCubesCase: cubeIndex)
+//        let corner = Vector(Double(x), Double(y), Double(z))
+//        let cellSize = Vector(Double(width), Double(height), Double(depth))
         
-        let corner = Vector(Double(x), Double(y), Double(z))
-        let cellSize = Vector(Double(width), Double(height), Double(depth))
-        
-        
+        grid.cuboids[index] = cuboid
                 
         //now build the triangles using triTable
         // Keep track of which faces are included
         var touchedFaces = 0
         let edges = MarchingCubes.edgeTable[cubeIndex]
-        let edgeIndices = (0 ..< 12).filter { edges & (1 << $0) > 0 }
-        let positions = edgeIndices.map { (edgeIndex : Int) -> Vector in
-            touchedFaces |= MarchingCubes.edgeFaces[edgeIndex]
-            
-            let edge = MarchingCubes.edgeVertices[edgeIndex]
-            
-            let intersectionPoint = interpolatePositions(p1: MarchingCubes.vertexOffsets[edge.0], p2: MarchingCubes.vertexOffsets[edge.1], v1: neighbours[edge.0], v2: neighbours[edge.1]) + corner
-            
-            return intersectionPoint
+        for edgeIndex in 0 ..< 12 {
+            if (edges & (1 << edgeIndex) > 0) {
+                touchedFaces |= MarchingCubes.edgeFaces[edgeIndex]
+            }
         }
         
-        let plane = Plane(points: positions)
+//        let edgeIndices = (0 ..< 12).filter { edges & (1 << $0) > 0 }
+//        let positions = edgeIndices.map { (edgeIndex : Int) -> Vector in
+//            touchedFaces |= MarchingCubes.edgeFaces[edgeIndex]
+//
+//            let edge = MarchingCubes.edgeVertices[edgeIndex]
+//
+//            let intersectionPoint = interpolatePositions(p1: MarchingCubes.vertexOffsets[edge.0], p2: MarchingCubes.vertexOffsets[edge.1], v1: neighbours[edge.0], v2: neighbours[edge.1]) + corner
+//
+//            return intersectionPoint
+//        }
         
-        if let poly = Polygon(positions.map { Vertex($0, plane?.normal ?? Vector.zero) }, material: UIColor.blue) {
-            polygons.append(poly)
-        }
+//        let plane = Plane(points: positions)
+//
+//        if let poly = Polygon(positions.map { Vertex($0, plane?.normal ?? Vector.zero) }, material: UIColor.blue) {
+//            polygons.append(poly)
+//        }
         
         // Follow the contour into neighbouring cells
-        for (n, offset) in localFaceOffsets.enumerated() {
+        for (n, offset) in MarchingCubes.faceOffsets.enumerated() {
             if (touchedFaces & (1 << n) > 0) {
-                let neighbour = index + offset
-                
-                if (grid.data[neighbour] & DualMarchingCuboids.visitedFlag == 0) {
+                let neighbourIndex = index + localFaceOffsets[n]
+                                
+                if (grid.data[neighbourIndex] & DualMarchingCuboids.visitedFlag == 0) {
+                    let neighbour = Cuboid(x: cell.x + offset.0, y: cell.y + offset.1, z: cell.z + offset.2, width: 1, height: 1, depth: 1)
                     grid.addSeed(neighbour)
                 }
             }

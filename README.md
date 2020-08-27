@@ -27,6 +27,14 @@ It sounds super simple (which is obviously part of its appeal) but there are two
 
 The main downside of Marching Cubes is that it results in a colossal number of polygons - up to five triangles per cell, for every single cell on the surface of your mesh. Given our use case, where we have many very large, flat surfaces, this leads to vastly increased polygon counts compared with the ideal.
 
+### Octrees
+
+Beyond the original Marching Cubes paper, many have attempted to introduce an element of 'adaptivity' - to find areas where you can reduce the sampling rate and merge polygons together. A common approach is that explained in [Octree-Based Decimation of Marching Cubes Surfaces](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.55.9425&rep=rep1&type=pdf) and is based on the concept of an 'octree' - a way of dividing 3D space in half in each of the three dimensions, resulting in 8 subspaces. Each cell can be further subdivided into eight again and again until each cell is the same of one grid cell. The algorithm then centres around merging selected octree nodes and repeating the Marching Cubes algorithm on these larger "cubes". If the distortion caused by sampling at this lower resolution is under some threshold then you proceed, otherwise the higher resolution cells are retained.
+
+The Octree seems to be the favoured data structure in all of the literature, because it allows you to easily reason about which cells neighbour which others at varying resolutions, and for the kinds of meshes usually being considered it produces an adequate degree of adaptivity. However, it is fairly unsatisfactory for our use case because it works best for meshes where the sections of the best that can be combined are fairly evenly distributed between the eight cells. Because you can only merge whole cubes at a time, if there is very high detail in the 'front' part of the mesh and very low detail in the 'back' part of the mesh, you frequently have to choose between over-merging the front of the mesh or under-merging the back of the mesh.
+
+The other main problem with the octree approach is the issue of so-called "cracks" that occur when a low resolution cell (which has been merged) neighbours a high resolution cell (which has not been merged). The original paper uses a form of "crack patching" that attempts to disguise the gaps by moving the higher resolution vertices to line up with the lower resolution edges. However, whilst this might *look* visually correct, it is of no value for our key requirement of water-tightness, since the crack is not actually joined up in any meaningful way. Other approaches involve filling the gap with additional triangles, but this still requires extra effort and is rather unsightly.
+
 ## Example
 
 To run the example project, clone the repo, and run `pod install` from the Example directory first.

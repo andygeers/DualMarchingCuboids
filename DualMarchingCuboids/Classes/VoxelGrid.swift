@@ -25,7 +25,7 @@ public class VoxelGrid {
     public let height : Int
     public let depth : Int
     
-    internal var seedCells : [Int: Vector] = [:]
+    internal var seedCells = Queue<Cuboid>()
     
     public var cuboids : [Int: Cuboid] = [:]
     
@@ -40,13 +40,9 @@ public class VoxelGrid {
         return x + y * width + z * (width * height)
     }
     
-    public func addSeed(x: Int, y: Int, z: Int) {
-        addSeed(cellIndex(x: x, y: y, z: z))
-    }
-    
-    public func addSeed(_ index : Int, position: Vector) {
-        guard index < data.count else { return }
-        seedCells[index] = position
+    public func addSeed(_ cube: Cuboid) {
+        guard cube.x < width && cube.y < height && cube.z < depth else { return }
+        seedCells.enqueue(cube)
     }
     
     public func positionFromIndex(_ index: Int) -> (Int, Int, Int) {
