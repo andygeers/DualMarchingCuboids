@@ -1,5 +1,5 @@
 #
-# Be sure to run `pod lib lint AdaptiveSkeletonClimbing.podspec' to ensure this is a
+# Be sure to run `pod lib lint DualMarchingCuboids.podspec' to ensure this is a
 # valid spec before submitting.
 #
 # Any lines starting with a # are optional, but their use is encouraged
@@ -7,9 +7,9 @@
 #
 
 Pod::Spec.new do |s|
-  s.name             = 'AdaptiveSkeletonClimbing'
+  s.name             = 'DualMarchingCuboids'
   s.version          = '0.1.0'
-  s.summary          = 'Swift implementation of Adaptive Skeleton Climbing.'
+  s.summary          = 'Swift implementation of a dual approach to Marching Cubes using cuboids'
 
 # This description is used to generate tags and improve search results.
 #   * Think: What does it do? Why did you write it? What is the focus?
@@ -18,7 +18,7 @@ Pod::Spec.new do |s|
 #   * Finally, don't worry about the indent, CocoaPods strips it!
 
   s.description      = <<-DESC
-Adaptive Skeleton Climbing implementation in Swift based on the paper by Tim Postony, Tien-Tsin Wongz and Pheng-Ann Hengz. Allows for generating isosurfaces from voxel data. 
+llows for generating isosurfaces from voxel data. 
 DESC
 
   s.homepage         = 'https://github.com/andygeers/AdaptiveSkeletonClimbing'
@@ -30,7 +30,7 @@ DESC
 
   s.ios.deployment_target = '10.0'
 
-  s.source_files = 'AdaptiveSkeletonClimbing/Classes/**/*'
+  s.source_files = 'DualMarchingCubes/Classes/**/*'
   
   # s.resource_bundles = {
   #   'AdaptiveSkeletonClimbing' => ['AdaptiveSkeletonClimbing/Assets/*.png']
