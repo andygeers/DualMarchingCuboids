@@ -59,15 +59,28 @@ public class DualMarchingCuboids : Slice {
         let before = DispatchTime.now()
         
         while !grid.seedCells.isEmpty {
-            let cube = grid.seedCells.dequeue()!
+            let cubeIndex = grid.seedCells.dequeue()!
             
-            processCell(cube)
+            processCell(grid.cuboids[cubeIndex]!)
         }
         
         let after = DispatchTime.now()
         
-        NSLog("Processed grid in %f seconds", polygons.count, Float(after.uptimeNanoseconds - before.uptimeNanoseconds) / Float(1_000_000_000))
+        NSLog("Processed grid in %f seconds", Float(after.uptimeNanoseconds - before.uptimeNanoseconds) / Float(1_000_000_000))
     
+        triangulateCuboids(&polygons)
+        
+        let afterTriangulation = DispatchTime.now()
+        
+        NSLog("Triangulated %d polygon(s) in %f seconds", polygons.count, Float(afterTriangulation.uptimeNanoseconds - after.uptimeNanoseconds) / Float(1_000_000_000))
+    }
+    
+    private func triangulateCuboids(_ polygons : inout [Euclid.Polygon], material: Euclid.Polygon.Material = UIColor.blue) {
+        
+        for (_, cuboid) in grid.cuboids {
+            cuboid.triangulate(grid: grid, polygons: &polygons)
+        }
+        
     }
     
     private func caseFromNeighbours(_ neighbours: [Int]) -> Int {
@@ -89,7 +102,7 @@ public class DualMarchingCuboids : Slice {
         grid.data[index] |= DualMarchingCuboids.visitedFlag
                 
         assert(cell.width == 1 && cell.height == 1 && cell.depth == 1)
-        var cuboid = Cuboid(x: cell.x, y: cell.y, z: cell.z, width: cell.width, height: cell.height, depth: cell.depth)
+        var cuboid = cell
         
         if (cellData & 0x3 == VoxelAxis.xy.rawValue) {
             
@@ -106,14 +119,14 @@ public class DualMarchingCuboids : Slice {
         
         let cubeIndex = caseFromNeighbours(neighbours)
         cuboid.marchingCubesCase = cubeIndex
+        
+        if (cuboid.vertex1 == Vector.zero) {
+            cuboid.vertex1 = cuboid.corner + cuboid.cellSize * 0.5
+        }
             
         //check if its completely inside or outside
         guard MarchingCubes.edgeTable[cubeIndex] != 0 else { return }
         
-//        let corner = Vector(Double(x), Double(y), Double(z))
-//        let cellSize = Vector(Double(width), Double(height), Double(depth))
-        
-        grid.cuboids[index] = cuboid
                 
         //now build the triangles using triTable
         // Keep track of which faces are included
@@ -149,9 +162,38 @@ public class DualMarchingCuboids : Slice {
                                 
                 if (grid.data[neighbourIndex] & DualMarchingCuboids.visitedFlag == 0) {
                     let neighbour = Cuboid(x: cell.x + offset.0, y: cell.y + offset.1, z: cell.z + offset.2, width: 1, height: 1, depth: 1)
-                    grid.addSeed(neighbour)
+                    if var neighbourCell = grid.addSeed(neighbour) {
+                        // Connect neighbours together in a network
+                        if (offset.0 > 0) {
+                            cuboid.rightNodeIndex = neighbourIndex
+                            neighbourCell.leftNodeIndex = index
+                            grid.cuboids[neighbourIndex] = neighbourCell
+                        } else if (offset.0 < 0) {
+                            cuboid.leftNodeIndex = neighbourIndex
+                            neighbourCell.rightNodeIndex = index
+                            grid.cuboids[neighbourIndex] = neighbourCell
+                        } else if (offset.1 > 0) {
+                            cuboid.upNodeIndex = neighbourIndex
+                            neighbourCell.downNodeIndex = index
+                            grid.cuboids[neighbourIndex] = neighbourCell
+                        } else if (offset.1 < 0) {
+                            cuboid.downNodeIndex = neighbourIndex
+                            neighbourCell.upNodeIndex = index
+                            grid.cuboids[neighbourIndex] = neighbourCell
+                        } else if (offset.2 > 0) {
+                            cuboid.forwardsNodeIndex = neighbourIndex
+                            neighbourCell.backwardsNodeIndex = index
+                            grid.cuboids[neighbourIndex] = neighbourCell
+                        } else if (offset.2 < 0) {
+                            cuboid.backwardsNodeIndex = neighbourIndex
+                            neighbourCell.forwardsNodeIndex = index
+                            grid.cuboids[neighbourIndex] = neighbourCell
+                        }
+                    }
                 }
             }
         }
+        
+        grid.cuboids[index] = cuboid
     }
 }

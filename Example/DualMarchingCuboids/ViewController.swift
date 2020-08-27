@@ -103,7 +103,7 @@ class ViewController: UIViewController {
             
             var childNodeIndex = 0
             for cuboid in grid.cuboids.values.map({ $0.mesh(grid: grid) }) {
-                guard childNodeIndex < 200 else { break }
+                guard childNodeIndex < 0 else { break }
                 
                 mesh = mesh.merge(cuboid)
             

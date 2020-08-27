@@ -51,10 +51,18 @@ public class Generator {
                 let distanceFromSurface = Int((depth - Double(intDepth)) * 255)
                 var value = 1
                 
-                if !hasSeeded && (slice.axisMask == .xy) {
-                    let topZ = z + (intDepth - 1)
-                    let seed = Cuboid(x: x, y: y, z: topZ, width: 1, height: 1, depth: 1)
-                    slice.grid.addSeed(seed)
+                if !hasSeeded {
+                    if (slice.axisMask == .xy) {
+                        let topZ = z + (intDepth - 1)
+                        let vertexPosition = Vector(Double(x) + 0.5, Double(y) + 0.5, Double(z) + depth)
+                        let seed = Cuboid(x: x, y: y, z: topZ, width: 1, height: 1, depth: 1, vertex1: vertexPosition)
+                        slice.grid.addSeed(seed)
+                    } else if (slice.axisMask == .yz) {
+                        let topX = x + (intDepth - 1)
+                        let vertexPosition = Vector(Double(x) + depth, Double(y) + 0.5, Double(z) + 0.5)
+                        let seed = Cuboid(x: topX, y: y, z: z, width: 1, height: 1, depth: 1, vertex1: vertexPosition)
+                        slice.grid.addSeed(seed)
+                    }
                     hasSeeded = true
                 }
                 
@@ -64,7 +72,11 @@ public class Generator {
                     
                     // See if this cell is vacant or not
                     let fillValue : Int
-                    if (slice.grid.data[index + k] == 0) {
+                    
+                    if (j == 0 || k == 0) {
+                        // Leave a gap down the left edge and back so that we have a sign change
+                        fillValue = 0
+                    } else if (slice.grid.data[index + k] == 0) {
                         // There are 255 potential depths at the surface,
                         // so that gives us our depth resolution
                         fillValue = value + distanceFromSurface
