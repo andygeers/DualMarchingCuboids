@@ -8,7 +8,7 @@ A dual Marching Cubes method using cuboids, based on greedy meshing. Suitable fo
 
 ## Background
 
-There's an endless amount of literature on converting voxel grids into polygon meshes. Academic papers have to pretend to be serious so all talk about medical imaging, but obviously more often than not it's really about the games. This project is focussed around one fairly narrow use case with some helpful limitations and some important requirementss: constructing 3D buildings out of panels made from depth maps, for 3D printing.
+There's an endless amount of literature on converting voxel grids into polygon meshes. Academic papers have to pretend to be serious so all talk about medical imaging, but obviously more often than not it's really about the games. This project is focussed around one fairly narrow use case with some helpful limitations and some important requirements: constructing 3D buildings out of panels made from depth maps, for 3D printing.
 
 Constraints:
 
