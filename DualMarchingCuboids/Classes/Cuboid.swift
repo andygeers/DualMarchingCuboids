@@ -12,7 +12,7 @@ fileprivate func randomColor() -> UIColor {
     return UIColor(red: CGFloat.random(in: 0 ... 1.0), green: CGFloat.random(in: 0 ... 1.0), blue: CGFloat.random(in: 0 ... 1.0), alpha: 0.5)
 }
 
-struct Cuboid {
+public struct Cuboid {
 //    let x : Int
 //    let y : Int
 //    let z : Int
@@ -47,7 +47,7 @@ struct Cuboid {
         return (x, y, z)
     }
     
-    func mesh(grid: VoxelGrid) -> Mesh {
+    public func mesh(grid: VoxelGrid) -> Mesh {
         let (x, y, z) = position(grid: grid)
         let corner = Vector(Double(x), Double(y), Double(z))
         let cellSize = Vector(Double(width), Double(height), Double(depth))

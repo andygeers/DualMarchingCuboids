@@ -27,7 +27,7 @@ public class VoxelGrid {
     
     internal var seedCells : [Int: Vector] = [:]
     
-    internal var cuboids : [Cuboid] = []
+    public var cuboids : [Int: Cuboid] = [:]
     
     public init(width : Int, height : Int, depth : Int) {
         self.width = width
