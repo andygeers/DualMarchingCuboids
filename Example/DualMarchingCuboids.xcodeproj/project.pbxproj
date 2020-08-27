@@ -42,14 +42,14 @@
 		52D2409324C9D92D00E8762C /* 01_bricks.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 01_bricks.png; sourceTree = "<group>"; };
 		5964F16A125134555814FD75 /* Pods-AdaptiveSkeletonClimbing_Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AdaptiveSkeletonClimbing_Example.debug.xcconfig"; path = "Target Support Files/Pods-AdaptiveSkeletonClimbing_Example/Pods-AdaptiveSkeletonClimbing_Example.debug.xcconfig"; sourceTree = "<group>"; };
 		5E4E517534F59BDE1D03E8D7 /* Pods-AdaptiveSkeletonClimbing_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AdaptiveSkeletonClimbing_Example.release.xcconfig"; path = "Target Support Files/Pods-AdaptiveSkeletonClimbing_Example/Pods-AdaptiveSkeletonClimbing_Example.release.xcconfig"; sourceTree = "<group>"; };
-		607FACD01AFB9204008FA782 /* AdaptiveSkeletonClimbing_Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AdaptiveSkeletonClimbing_Example.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		607FACD01AFB9204008FA782 /* DualMarchingCuboids_Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DualMarchingCuboids_Example.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		607FACD41AFB9204008FA782 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		607FACD51AFB9204008FA782 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		607FACD71AFB9204008FA782 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		607FACDA1AFB9204008FA782 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		607FACDC1AFB9204008FA782 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		607FACDF1AFB9204008FA782 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
-		607FACE51AFB9204008FA782 /* AdaptiveSkeletonClimbing_Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AdaptiveSkeletonClimbing_Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		607FACE51AFB9204008FA782 /* DualMarchingCuboids_Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DualMarchingCuboids_Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		607FACEA1AFB9204008FA782 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		607FACEB1AFB9204008FA782 /* Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tests.swift; sourceTree = "<group>"; };
 		7DCEB3BEF8C8B315C0D819C3 /* AdaptiveSkeletonClimbing.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = AdaptiveSkeletonClimbing.podspec; path = ../AdaptiveSkeletonClimbing.podspec; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
@@ -105,8 +105,8 @@
 		607FACD11AFB9204008FA782 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				607FACD01AFB9204008FA782 /* AdaptiveSkeletonClimbing_Example.app */,
-				607FACE51AFB9204008FA782 /* AdaptiveSkeletonClimbing_Tests.xctest */,
+				607FACD01AFB9204008FA782 /* DualMarchingCuboids_Example.app */,
+				607FACE51AFB9204008FA782 /* DualMarchingCuboids_Tests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -177,9 +177,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		607FACCF1AFB9204008FA782 /* AdaptiveSkeletonClimbing_Example */ = {
+		607FACCF1AFB9204008FA782 /* DualMarchingCuboids_Example */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 607FACEF1AFB9204008FA782 /* Build configuration list for PBXNativeTarget "AdaptiveSkeletonClimbing_Example" */;
+			buildConfigurationList = 607FACEF1AFB9204008FA782 /* Build configuration list for PBXNativeTarget "DualMarchingCuboids_Example" */;
 			buildPhases = (
 				13C53BF868FBDD55CF25FBC5 /* [CP] Check Pods Manifest.lock */,
 				607FACCC1AFB9204008FA782 /* Sources */,
@@ -191,14 +191,14 @@
 			);
 			dependencies = (
 			);
-			name = AdaptiveSkeletonClimbing_Example;
+			name = DualMarchingCuboids_Example;
 			productName = AdaptiveSkeletonClimbing;
-			productReference = 607FACD01AFB9204008FA782 /* AdaptiveSkeletonClimbing_Example.app */;
+			productReference = 607FACD01AFB9204008FA782 /* DualMarchingCuboids_Example.app */;
 			productType = "com.apple.product-type.application";
 		};
-		607FACE41AFB9204008FA782 /* AdaptiveSkeletonClimbing_Tests */ = {
+		607FACE41AFB9204008FA782 /* DualMarchingCuboids_Tests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 607FACF21AFB9204008FA782 /* Build configuration list for PBXNativeTarget "AdaptiveSkeletonClimbing_Tests" */;
+			buildConfigurationList = 607FACF21AFB9204008FA782 /* Build configuration list for PBXNativeTarget "DualMarchingCuboids_Tests" */;
 			buildPhases = (
 				5D4849732A8DE82480AC0CA3 /* [CP] Check Pods Manifest.lock */,
 				607FACE11AFB9204008FA782 /* Sources */,
@@ -211,9 +211,9 @@
 			dependencies = (
 				607FACE71AFB9204008FA782 /* PBXTargetDependency */,
 			);
-			name = AdaptiveSkeletonClimbing_Tests;
+			name = DualMarchingCuboids_Tests;
 			productName = Tests;
-			productReference = 607FACE51AFB9204008FA782 /* AdaptiveSkeletonClimbing_Tests.xctest */;
+			productReference = 607FACE51AFB9204008FA782 /* DualMarchingCuboids_Tests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
@@ -238,7 +238,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 607FACCB1AFB9204008FA782 /* Build configuration list for PBXProject "AdaptiveSkeletonClimbing" */;
+			buildConfigurationList = 607FACCB1AFB9204008FA782 /* Build configuration list for PBXProject "DualMarchingCuboids" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -252,8 +252,8 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				607FACCF1AFB9204008FA782 /* AdaptiveSkeletonClimbing_Example */,
-				607FACE41AFB9204008FA782 /* AdaptiveSkeletonClimbing_Tests */,
+				607FACCF1AFB9204008FA782 /* DualMarchingCuboids_Example */,
+				607FACE41AFB9204008FA782 /* DualMarchingCuboids_Tests */,
 			);
 		};
 /* End PBXProject section */
@@ -393,7 +393,7 @@
 /* Begin PBXTargetDependency section */
 		607FACE71AFB9204008FA782 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 607FACCF1AFB9204008FA782 /* AdaptiveSkeletonClimbing_Example */;
+			target = 607FACCF1AFB9204008FA782 /* DualMarchingCuboids_Example */;
 			targetProxy = 607FACE61AFB9204008FA782 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -577,7 +577,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
 				SWIFT_VERSION = 4.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/AdaptiveSkeletonClimbing_Example.app/AdaptiveSkeletonClimbing_Example";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/DualMarchingCuboids_Example.app/DualMarchingCuboids_Example";
 			};
 			name = Debug;
 		};
@@ -595,14 +595,14 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
 				SWIFT_VERSION = 4.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/AdaptiveSkeletonClimbing_Example.app/AdaptiveSkeletonClimbing_Example";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/DualMarchingCuboids_Example.app/DualMarchingCuboids_Example";
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		607FACCB1AFB9204008FA782 /* Build configuration list for PBXProject "AdaptiveSkeletonClimbing" */ = {
+		607FACCB1AFB9204008FA782 /* Build configuration list for PBXProject "DualMarchingCuboids" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				607FACED1AFB9204008FA782 /* Debug */,
@@ -611,7 +611,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		607FACEF1AFB9204008FA782 /* Build configuration list for PBXNativeTarget "AdaptiveSkeletonClimbing_Example" */ = {
+		607FACEF1AFB9204008FA782 /* Build configuration list for PBXNativeTarget "DualMarchingCuboids_Example" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				607FACF01AFB9204008FA782 /* Debug */,
@@ -620,7 +620,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		607FACF21AFB9204008FA782 /* Build configuration list for PBXNativeTarget "AdaptiveSkeletonClimbing_Tests" */ = {
+		607FACF21AFB9204008FA782 /* Build configuration list for PBXNativeTarget "DualMarchingCuboids_Tests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				607FACF31AFB9204008FA782 /* Debug */,

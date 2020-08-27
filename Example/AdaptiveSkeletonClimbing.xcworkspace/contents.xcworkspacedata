@@ -2,7 +2,7 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:AdaptiveSkeletonClimbing.xcodeproj">
+      location = "group:/Users/andygeers/GitHubForks/AdaptiveSkeletonClimbing/Example/DualMarchingCuboids.xcodeproj">
    </FileRef>
    <FileRef
       location = "group:Pods/Pods.xcodeproj">
