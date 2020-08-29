@@ -84,6 +84,9 @@ public struct Cuboid {
     var cellSize : Vector {
         return Vector(Double(width), Double(height), Double(depth))
     }
+    var centre : Vector {
+        return corner + cellSize * 0.5
+    }
     
     public func mesh(grid: VoxelGrid) -> Mesh {
         let centre = corner + cellSize * 0.5
@@ -106,6 +109,53 @@ public struct Cuboid {
             x + width < grid.width && y + height < grid.height && z + depth < grid.depth ? grid.data[index + nextZ + width + nextY] : 0,
             x + width < grid.width && y + height < grid.height ? grid.data[index + width + nextY] : 0
         ]
+    }
+    
+    func interpolatePositionXY(grid: VoxelGrid, index: Int, faces: Int) -> Vector {
+        var leftZ : Double? = nil
+        var rightZ : Double? = nil
+        if (faces & (1 << 1) > 0) && x + 1 < grid.width {
+            // X+1
+            if let neighbour = grid.findCube(at: index + 1) {
+                rightZ = neighbour.vertex1.z
+            }
+        }
+        if (faces & (1 << 3) > 0) && x > 0 {
+            // X-1
+            if let neighbour = grid.findCube(at: index - 1) {
+                leftZ = neighbour.vertex1.z
+            }
+        }
+        var pos = centre
+        if let leftZ = leftZ {
+            if let rightZ = rightZ {
+                // Interpolate between the two
+                pos.z = (leftZ + rightZ) / 2.0
+            } else {
+                // See if we can go TWO to the left
+                
+            }
+        } else if let rightZ = rightZ {
+            // See if we can go TWO to the right
+            
+        }
+        return pos
+    }
+    
+    func interpolatePositionYZ(grid: VoxelGrid, index: Int, faces: Int) -> Vector {
+        if (faces & (1 << 0) > 0) && z + 1 < grid.depth {
+            // Z+1
+            if let neighbour = grid.findCube(at: index + grid.width * grid.height) {
+                
+            }
+        }
+        if (faces & (1 << 2) > 0) && z > 0 {
+            // Z-1
+            if let neighbour = grid.findCube(at: index - grid.width * grid.height) {
+                
+            }
+        }
+        return centre
     }
     
     func triangulate(grid: VoxelGrid, polygons: inout [Euclid.Polygon]) {

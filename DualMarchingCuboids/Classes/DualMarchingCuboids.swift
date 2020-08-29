@@ -119,10 +119,6 @@ public class DualMarchingCuboids : Slice {
         
         let cubeIndex = caseFromNeighbours(neighbours)
         cuboid.marchingCubesCase = cubeIndex
-        
-        if (cuboid.vertex1 == Vector.zero) {
-            cuboid.vertex1 = cuboid.corner + cuboid.cellSize * 0.5
-        }
             
         //check if its completely inside or outside
         guard MarchingCubes.edgeTable[cubeIndex] != 0 else { return }
@@ -135,6 +131,22 @@ public class DualMarchingCuboids : Slice {
         for edgeIndex in 0 ..< 12 {
             if (edges & (1 << edgeIndex) > 0) {
                 touchedFaces |= MarchingCubes.edgeFaces[edgeIndex]
+            }
+        }
+        
+        if (cuboid.vertex1 == Vector.zero) {
+            if (cellData & 0x3 == VoxelAxis.xy.rawValue) {
+                
+                // Trace the gradient along the X axis
+                cuboid.vertex1 = cuboid.interpolatePositionXY(grid: grid, index: index, faces: touchedFaces)
+                
+            } else if (cellData & 0x3 == VoxelAxis.yz.rawValue) {
+                // Trace the gradient along the Z axis
+                cuboid.vertex1 = cuboid.interpolatePositionYZ(grid: grid, index: index, faces: touchedFaces)
+                
+            } else {
+                // Just use the centre of the cell
+                cuboid.vertex1 = cuboid.centre
             }
         }
         
