@@ -49,29 +49,74 @@ public class Generator {
                 let distanceFromSurface = Int((depth - Double(intDepth)) * 255)
                 var value = 1
                                 
+                var seed : Cuboid
                 if (slice.axisMask == .xy) {
                     let topZ = z + (intDepth - 1)
                     let vertexPosition = Vector(Double(x) + 0.5, Double(y) + 0.5, Double(z) + depth)
-                    let seed = Cuboid(x: x, y: y, z: topZ, width: 1, height: 1, depth: 1, vertex1: vertexPosition)
-                    slice.grid.addSeed(seed)
+                    seed = Cuboid(x: x, y: y, z: topZ, width: 1, height: 1, depth: 1, vertex1: vertexPosition)
                 } else if (slice.axisMask == .yz) {
                     let topX = x + (intDepth - 1)
                     let vertexPosition = Vector(Double(x) + depth, Double(y) + 0.5, Double(z) + 0.5)
-                    let seed = Cuboid(x: topX, y: y, z: z, width: 1, height: 1, depth: 1, vertex1: vertexPosition)
-                    slice.grid.addSeed(seed)
+                    seed = Cuboid(x: topX, y: y, z: z, width: 1, height: 1, depth: 1, vertex1: vertexPosition)
+                } else {
+                    assert(false)
+                    return
                 }
                 
+                var zz = intDepth
                 for k in slice.perpendicularIndices(range: (0 ..< intDepth)).reversed() {
+                    zz -= 1
                     
                     guard index + k < slice.grid.data.count else { continue }
                     
                     // See if this cell is vacant or not
                     let fillValue : Int
                     
+                    let existingData = slice.grid.data[index + k]
+                    let isOccupied = existingData > 0
+                    
+                    if (isOccupied) {
+                        slice.grid.addSeed(seed)
+                        
+                        // There will presumably be an existing seed cuboid that covers this cell
+                        // To find it we'll need to track the axis backwards
+                        if (existingData & 0x3 == VoxelAxis.xy.rawValue) {
+                            var otherIndex = index + k
+                            while (true) {
+                                if let otherCuboid = slice.grid.cuboids[otherIndex] {
+                                    // Split this other cuboid
+                                    
+                                }
+                            }
+                        } else if (existingData & 0x3 == VoxelAxis.yz.rawValue) {
+                            
+                        } else {
+                            // Should be a cube here already, nothing further needs doing
+                            let existingCube = slice.grid.cuboids[index + k]
+                            assert(existingCube != nil && existingCube!.isUnitCube)
+                        }
+                        
+                        if (slice.axisMask == .xy) {
+                            let vertexPosition = Vector(Double(x) + 0.5, Double(y) + 0.5, Double(z + zz) + 0.5)
+                            seed = Cuboid(x: x, y: y, z: z + zz, width: 1, height: 1, depth: 1, vertex1: vertexPosition)
+                        } else if (slice.axisMask == .yz) {
+                            let vertexPosition = Vector(Double(x + zz) + 0.5, Double(y) + 0.5, Double(z) + 0.5)
+                            seed = Cuboid(x: x + zz, y: y, z: z, width: 1, height: 1, depth: 1, vertex1: vertexPosition)
+                        }
+                    } else {
+                        if (slice.axisMask == .xy) {
+                            seed.z -= 1
+                            seed.depth += 1
+                        } else if (slice.axisMask == .yz) {
+                            seed.x -= 1
+                            seed.width += 1
+                        }
+                    }
+                    
                     if (j == 0 || k == 0) {
                         // Leave a gap down the left edge and back so that we have a sign change
                         fillValue = 0
-                    } else if (slice.grid.data[index + k] == 0) {
+                    } else if (!isOccupied) {
                         // There are 255 potential depths at the surface,
                         // so that gives us our depth resolution
                         fillValue = value + distanceFromSurface
@@ -85,7 +130,7 @@ public class Generator {
                     value += 255
                 }
                 
-                //slice.grid.addSeed(index)
+                slice.grid.addSeed(seed)
             }
         }
         

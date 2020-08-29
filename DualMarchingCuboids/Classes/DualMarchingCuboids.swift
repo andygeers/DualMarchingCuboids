@@ -101,19 +101,7 @@ public class DualMarchingCuboids : Slice {
         guard (cellData & DualMarchingCuboids.visitedFlag == 0) else { return }
         grid.data[index] |= DualMarchingCuboids.visitedFlag
                 
-        assert(cell.width == 1 && cell.height == 1 && cell.depth == 1)
         var cuboid = cell
-        
-        if (cellData & 0x3 == VoxelAxis.xy.rawValue) {
-            
-            // Start by growing the cuboid as far in the z axis as we can
-            
-        } else if (cellData & 0x3 == VoxelAxis.yz.rawValue) {
-            // Start by growing the cuboid as far in the x axis as we can
-            
-        } else {
-            // Just output this as a single cuboid for now
-        }
             
         let neighbours = cell.sampleCorners(index: index, grid: grid)
         
