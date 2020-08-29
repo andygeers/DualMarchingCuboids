@@ -35,6 +35,10 @@ public struct Cuboid {
     var height : Int
     var depth : Int
     
+    var isUnitCube : Bool {
+        return width == 1 && height == 1 && depth == 1
+    }
+    
     var marchingCubesCase : Int = -1
     
     // There can be up to four discreet surfaces
