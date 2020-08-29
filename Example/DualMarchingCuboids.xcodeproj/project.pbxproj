@@ -12,6 +12,7 @@
 		522054D624E515610022185D /* 03_tiles.png in Resources */ = {isa = PBXBuildFile; fileRef = 522054D224E515600022185D /* 03_tiles.png */; };
 		522054D724E515610022185D /* 02_wood.png in Resources */ = {isa = PBXBuildFile; fileRef = 522054D324E515600022185D /* 02_wood.png */; };
 		522054D824E515610022185D /* french_tiles.png in Resources */ = {isa = PBXBuildFile; fileRef = 522054D424E515600022185D /* french_tiles.png */; };
+		52A07F6124FA360F004D69A1 /* TexturePickerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52A07F6024FA360E004D69A1 /* TexturePickerViewController.swift */; };
 		52D2409424C9D92D00E8762C /* 01_bricks.png in Resources */ = {isa = PBXBuildFile; fileRef = 52D2409324C9D92D00E8762C /* 01_bricks.png */; };
 		607FACD61AFB9204008FA782 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACD51AFB9204008FA782 /* AppDelegate.swift */; };
 		607FACD81AFB9204008FA782 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACD71AFB9204008FA782 /* ViewController.swift */; };
@@ -39,6 +40,7 @@
 		522054D224E515600022185D /* 03_tiles.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 03_tiles.png; sourceTree = "<group>"; };
 		522054D324E515600022185D /* 02_wood.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 02_wood.png; sourceTree = "<group>"; };
 		522054D424E515600022185D /* french_tiles.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = french_tiles.png; sourceTree = "<group>"; };
+		52A07F6024FA360E004D69A1 /* TexturePickerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TexturePickerViewController.swift; sourceTree = "<group>"; };
 		52D2409324C9D92D00E8762C /* 01_bricks.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 01_bricks.png; sourceTree = "<group>"; };
 		5964F16A125134555814FD75 /* Pods-DualMarchingCuboids_Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DualMarchingCuboids_Example.debug.xcconfig"; path = "Target Support Files/Pods-DualMarchingCuboids_Example/Pods-DualMarchingCuboids_Example.debug.xcconfig"; sourceTree = "<group>"; };
 		5E4E517534F59BDE1D03E8D7 /* Pods-DualMarchingCuboids_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DualMarchingCuboids_Example.release.xcconfig"; path = "Target Support Files/Pods-DualMarchingCuboids_Example/Pods-DualMarchingCuboids_Example.release.xcconfig"; sourceTree = "<group>"; };
@@ -124,6 +126,7 @@
 			children = (
 				607FACD51AFB9204008FA782 /* AppDelegate.swift */,
 				607FACD71AFB9204008FA782 /* ViewController.swift */,
+				52A07F6024FA360E004D69A1 /* TexturePickerViewController.swift */,
 				607FACD91AFB9204008FA782 /* Main.storyboard */,
 				607FACDC1AFB9204008FA782 /* Images.xcassets */,
 				607FACDE1AFB9204008FA782 /* LaunchScreen.xib */,
@@ -384,6 +387,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				607FACD81AFB9204008FA782 /* ViewController.swift in Sources */,
+				52A07F6124FA360F004D69A1 /* TexturePickerViewController.swift in Sources */,
 				607FACD61AFB9204008FA782 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

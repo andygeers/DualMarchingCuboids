@@ -43,9 +43,37 @@ class ViewController: UIViewController {
     var meshNode : SCNNode? = nil
     var cuboidsNode : SCNNode? = nil
     
+    var textureName : String? = nil
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        if (textureName == nil) {
+            self.showTexturePicker()
+        }
+    }
+    
+    func showTexturePicker() {
+        let texturePicker = TexturePickerViewController()
+        
+        texturePicker.callback = { (texture : String) in
+            self.dismiss(animated: true, completion: {
+                self.selectTexture(texture)
+            })            
+        }
+        
+        texturePicker.popoverPresentationController?.sourceView = self.view
+        
+        self.present(texturePicker, animated: true, completion: nil)
+    }
+    
+    func selectTexture(_ textureName: String) {
+        self.textureName = textureName
         loadVoxels()
                 
         initialiseScene()
@@ -146,7 +174,10 @@ class ViewController: UIViewController {
     }
     
     private func loadVoxels() {
-        guard let image = UIImage(named: "french_tiles") else { return }
+        guard let textureName = self.textureName else { return }
+        
+        // french_tiles 01_bricks
+        guard let image = UIImage(named: textureName) else { return }
         
         let brickTexture : VoxelTexture?
         do {
