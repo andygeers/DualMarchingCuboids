@@ -105,6 +105,7 @@ public struct Cuboid {
     }
     
     func triangulate(grid: VoxelGrid, polygons: inout [Euclid.Polygon]) {
+        guard marchingCubesCase >= 0 else { return }
         
         let leftCuboid = leftNodeIndex >= 0 ? grid.cuboids[leftNodeIndex] : nil
         let rightCuboid = rightNodeIndex >= 0 ? grid.cuboids[rightNodeIndex] : nil
