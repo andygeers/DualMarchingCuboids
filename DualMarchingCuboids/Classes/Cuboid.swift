@@ -119,43 +119,46 @@ public struct Cuboid {
     }
     
     func interpolatePositionXY(grid: VoxelGrid, index: Int, faces: Int) -> Vector {
-        var leftZ : Double? = nil
-        var rightZ : Double? = nil
-        var topZ : Double? = nil
-        var bottomZ : Double? = nil
+        // Find the grid of 9 neighbouring cells
+        var neighbours = [Cuboid?](repeating: nil, count: 9)
+        
         if (faces & (1 << 1) > 0) && x + 1 < grid.width {
             // X+1
-            if let neighbour = grid.findCube(at: index + 1), neighbour.vertex1 != Vector.zero {
-                rightZ = neighbour.vertex1.z
+            neighbours[5] = grid.findCube(at: index + 1)
+            
+            if let rightCuboid = neighbours[5] {
+                // See if there's also something right and up
+                neighbours[8] = y + 1 < grid.height ? grid.findCube(at: index + 1 + grid.width) : nil
+                
+                // See if there's also something right and down
+                neighbours[2] = y > 0 ? grid.findCube(at: index + 1 - grid.width) : nil
             }
         }
         if (faces & (1 << 3) > 0) && x > 0 {
             // X-1
-            if let neighbour = grid.findCube(at: index - 1), neighbour.vertex1 != Vector.zero {
-                leftZ = neighbour.vertex1.z
+            neighbours[3] = grid.findCube(at: index - 1)
+            
+            if let leftCuboid = neighbours[3] {
+                // See if there's also something left and up
+                neighbours[6] = y + 1 < grid.height ? grid.findCube(at: index - 1 + grid.width) : nil
+                
+                // See if there's also something left and down
+                neighbours[0] = y > 0 ? grid.findCube(at: index - 1 - grid.width) : nil
             }
         }
         if (faces & (1 << 4) > 0) && x + 1 < grid.width {
             // Y+1
-            if let neighbour = grid.findCube(at: index + grid.width), neighbour.vertex1 != Vector.zero {
-                topZ = neighbour.vertex1.z
-            }
+            neighbours[7] = grid.findCube(at: index + grid.width)
         }
         if (faces & (1 << 5) > 0) && x > 0 {
             // Y-1
-            if let neighbour = grid.findCube(at: index - grid.width), neighbour.vertex1 != Vector.zero {
-                bottomZ = neighbour.vertex1.z
-            }
+            neighbours[1] = grid.findCube(at: index - grid.width)
         }
         var pos = centre
-        if let leftZ = leftZ {
-            pos.z = leftZ
-        } else if let rightZ = rightZ {
-            pos.z = rightZ
-        } else if let topZ = topZ {
-            pos.z = topZ
-        } else if let bottomZ = bottomZ {
-            pos.z = bottomZ
+        if let neighbourIndex = [1,3,5,7].first(where: { neighbours[$0] != nil && neighbours[$0]!.vertex1 != Vector.zero }) {
+            pos.z = neighbours[neighbourIndex]!.vertex1.z
+        } else if let neighbourIndex = [0,2,6,8].first(where: { neighbours[$0] != nil && neighbours[$0]!.vertex1 != Vector.zero }) {
+            pos.z = neighbours[neighbourIndex]!.vertex1.z
         }
         return pos
     }
