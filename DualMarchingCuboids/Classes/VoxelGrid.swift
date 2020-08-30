@@ -66,7 +66,7 @@ public class VoxelGrid {
             
             let cellIndex = gridData >> VoxelGrid.dataBits
             if let cuboid = cuboids[cellIndex] {
-                assert(cuboid.containsIndex(cellIndex))
+                assert(cuboid.containsIndex(cellIndex, grid: self))
                 return cuboid
             } else {
                 return nil

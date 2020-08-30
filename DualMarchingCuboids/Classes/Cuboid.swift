@@ -121,6 +121,8 @@ public struct Cuboid {
     func interpolatePositionXY(grid: VoxelGrid, index: Int, faces: Int) -> Vector {
         var leftZ : Double? = nil
         var rightZ : Double? = nil
+        var topZ : Double? = nil
+        var bottomZ : Double? = nil
         if (faces & (1 << 1) > 0) && x + 1 < grid.width {
             // X+1
             if let neighbour = grid.findCube(at: index + 1), neighbour.vertex1 != Vector.zero {
@@ -133,18 +135,27 @@ public struct Cuboid {
                 leftZ = neighbour.vertex1.z
             }
         }
+        if (faces & (1 << 4) > 0) && x + 1 < grid.width {
+            // Y+1
+            if let neighbour = grid.findCube(at: index + grid.width), neighbour.vertex1 != Vector.zero {
+                topZ = neighbour.vertex1.z
+            }
+        }
+        if (faces & (1 << 5) > 0) && x > 0 {
+            // Y-1
+            if let neighbour = grid.findCube(at: index - grid.width), neighbour.vertex1 != Vector.zero {
+                bottomZ = neighbour.vertex1.z
+            }
+        }
         var pos = centre
         if let leftZ = leftZ {
-            if let rightZ = rightZ {
-                // Interpolate between the two
-                pos.z = (leftZ + rightZ) / 2.0
-            } else {
-                // See if we can go TWO to the left
-                
-            }
+            pos.z = leftZ
         } else if let rightZ = rightZ {
-            // See if we can go TWO to the right
-            
+            pos.z = rightZ
+        } else if let topZ = topZ {
+            pos.z = topZ
+        } else if let bottomZ = bottomZ {
+            pos.z = bottomZ
         }
         return pos
     }
@@ -179,23 +190,18 @@ public struct Cuboid {
         
         let edges = MarchingCubes.edgeTable[marchingCubesCase]
         
-        let solid = marchingCubesCase & (1 << 0) > 0 // f(x, y, z + 0)
-        let solidX1 = marchingCubesCase & (1 << 3) > 0 // f(x + 1, y, z) > 0
-        let solidY1 = marchingCubesCase & (1 << 4) > 0 // f(x, y + 1, z) > 0
-        let solidZ1 = marchingCubesCase & (1 << 1) > 0 // f(x, y, z + 1)
-    
-        
+        let solidXYZ = marchingCubesCase & (1 << 6) > 0 // f(x + 1, y + 1, z + 1)
                 
         if let rightCuboid = rightCuboid {
             if edges & (1 << 6) > 0, let upCuboid = upCuboid {
-                let swap = marchingCubesCase & (1 << 6) > 0 // or 7?
+                let swap = solidXYZ
                 
                 // Triangle me, up and right: XY
                 polyPoints.append([vertex1, rightCuboid.vertex1, upCuboid.vertex1].reversedIf(swap))
             }
         
             if edges & (1 << 10) > 0, let forwardsCuboid = forwardsCuboid {
-                let swap = marchingCubesCase & (1 << 6) > 0 // or 2?
+                let swap = solidXYZ
                 
                 // Triangle me, forwards and right: XZ
                 polyPoints.append([vertex1, forwardsCuboid.vertex1, rightCuboid.vertex1].reversedIf(swap))
@@ -219,7 +225,7 @@ public struct Cuboid {
                 
         if edges & (1 << 5) > 0, let upCuboid = upCuboid {
             if let forwardsCuboid = forwardsCuboid {
-                let swap = marchingCubesCase & (1 << 6) > 0
+                let swap = solidXYZ
                 
                 // Triangle me, up and forwards: YZ
                 polyPoints.append([vertex1, upCuboid.vertex1, forwardsCuboid.vertex1].reversedIf(swap))

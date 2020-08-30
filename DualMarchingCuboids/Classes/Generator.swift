@@ -46,9 +46,7 @@ public class Generator {
                 
                 bounds.merge(VoxelCoordinates(x: x, y: y, z: z), depth: intDepth)
                 
-                let distanceFromSurface = Int((depth - Double(intDepth)) * 255)
-                var value = 1
-                                
+                        
                 if (slice.axisMask == .xy) {
                     let topZ = z + (intDepth - 1)
                     let vertexPosition = Vector(Double(x) + 0.5, Double(y) + 0.5, Double(z) + depth)
