@@ -8,7 +8,7 @@ A dual Marching Cubes method using cuboids, based on greedy meshing. Suitable fo
 
 ## Background
 
-There's an endless amount of literature on converting voxel grids into polygon meshes. Academic papers have to pretend to be serious so all talk about medical imaging, but obviously more often than not it's really about the games. This project is focussed around one fairly narrow use case with some helpful limitations and some important requirements: constructing 3D buildings out of panels made from depth maps, for 3D printing, for the [Little Buildings](https://apps.apple.com/us/app/little-buildings/id1502701232?ls=1) app.
+There's an endless amount of literature on converting voxel grids into polygon meshes. Academic papers have to pretend to be serious so they all talk about medical imaging, but obviously more often than not it's really about the games. This project is focussed around one fairly narrow use case with some helpful limitations and some important requirements: constructing 3D buildings out of panels made from depth maps, for 3D printing, for the [Little Buildings](https://apps.apple.com/us/app/little-buildings/id1502701232?ls=1) app.
 
 Constraints:
 
@@ -46,7 +46,7 @@ The other main problem with the octree approach is the issue of so-called "crack
 
 ### Surface Tracking
 
-The authors of Octree-Based Decimation of Marching Cubes downplay this as a mere aside, but another key concept that they introduce is the notion of "surface tracking". They make the observation that if the surface is continuous, from key "seed" cells you can just track the surface into neighbouring cells, remembering which cells you have visited previously, and very efficiently visit every non-null cell without having to examine any of the dead space around it at all. Since you know which edges the surface intersects for each Marching Cubes case, from that you can easily deduce which faces to track through. 
+The authors of Octree-Based Decimation of Marching Cubes downplay this as a mere aside, but another key concept that they introduce is the notion of "surface tracking". They make the observation that if the surface is continuous, from key "seed" cells you can just track the surface into neighbouring cells, remembering which cells you have visited previously, and **very efficiently visit every non-null cell without having to examine any of the dead space around it at all**. Since you know which edges the surface intersects for each Marching Cubes case, from that you can easily deduce which faces to track through. 
 
 If you had no prior knowledge of your surface then finding those seed cells might be tricky, but since we generated our surface ourself we know exactly which cells to start from. 
 
@@ -62,7 +62,7 @@ Just like with Marching Cubes, you can combine the dual methods with octrees to 
 
 Dual Contouring usually leads to much more natural looking results and can represent sharp corners. They also **correspond well to the kind of depth map data we are using** - equivalent to using one vertex per "pixel" of the depth map. A paper which explores this idea is [Efficient generation of 3-D models out of depth maps](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.24.821&rep=rep1&type=pdf) - although their use case is more about combining depth data from camera images taken from various angles.
 
-The main gotcha with Dual Contouring is that If you use the hermite data you can end up with the vertices being *outside* the cell that they belong to, which can then result in self-intersecting geometry. The fact that there's only one vertex per cell, in certain cell configurations, can also result in non-manifold geometry, where you can more than one surface sharing the same vertex but heading in different directions. Extensions of the original algorithm centre around using more than one vertex in these situations (in Marching Cubes you might have up to four separate surface elements per cell). [Manifold Dual Contouring](https://people.engr.tamu.edu/schaefer/research/dualsimp_tvcg.pdf) is one such effort.
+The main gotcha with Dual Contouring is that if you use the hermite data you can end up with the vertices being *outside* the cell that they belong to, which can then result in self-intersecting geometry. The fact that there's only one vertex per cell, in certain cell configurations, can also result in non-manifold geometry, where you have more than one surface sharing the same vertex but heading in different directions. Extensions of the original algorithm centre around using more than one vertex in these situations (in Marching Cubes you might have up to four separate surface elements per cell). [Manifold Dual Contouring](https://people.engr.tamu.edu/schaefer/research/dualsimp_tvcg.pdf) is one such effort.
 
 ### Greedy Meshing
 
@@ -71,6 +71,17 @@ The final concept which we must explore is that of "Greedy Meshing". Voxel-based
 The result is a complex interlocking pattern of cuboid blocks. **The key observation of our Dual Marching Cuboids algorithm is that by use of surface tracking we can easily build a graph connecting neighbouring cuboid blocks together, and just like with an octree, only one vertex is required per cuboid to construct a surface, with only minor loss of accuracy.**
 
 The challenge with Greedy Meshing is to know which axis to expand into first, since obviously there are many permissable cuboid configurations. Importantly, our particular use case means that for each cell we know which axis the details are oriented along, and we know the maximum typical depth, allowing us to generate a large number of equal sized cuboids that can subsequently be merged with ease.
+
+## Dual Marching Cuboids
+
+For our fairly narrow use case, we can combine the above approaches into a new algorithm referred to here as **Dual Marching Cuboids**. Roughly speaking, the algorithm works like so:
+
+  1. During Voxel generation, keep a list of seed cells with the vertex position and surface gradient at each point (already a massive head start)
+  2. For each uninspected seed cell, grow it as far as possible perpendicular to the surface at that point, according to various merge criteria explained below. By extending into empty space up to the maximum anticipated depth we increase the chances of being able to successfully merge it later.
+  3. Determine the marching cubes case for the resulting cuboid, and use that to perform surface tracking, adding various new seed cells to the queue in the process. Whilst doing this we can also form a graph of how the Cuboids connect together, making triangulation more efficient later on.
+  4. If we don't have a vertex position for the current cuboid we can also examine these same "neighbour" Cuboids and, where possible, interpolate a vertex position from them using the gradient information
+  5. Using the same logic as other greedy meshing algorithms to merge neighbouring Cuboids where appropriate- all the while maintaining just one vertex per cuboid
+  6. We can then triangulate as per Dual Contouring: for each cuboid, look for neighbouring Cuboids in the graph and for each edge included in the Marching Cubes case we will output a quad (two triangles). The winding order is determined by which end of that edge is inside/outside the surface.
 
 ## Example
 
