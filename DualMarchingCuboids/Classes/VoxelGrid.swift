@@ -18,7 +18,9 @@ public class VoxelGrid {
 
     static let G_Threshold = 50.0
     
-    public static let dataBits = 3    
+    static let occupiedFlag = 0x4
+    
+    public static let dataBits = 4 // Two for the axis, occupied & visited
     
     public var data : [Int]
     public let width : Int

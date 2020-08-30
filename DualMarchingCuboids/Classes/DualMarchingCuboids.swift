@@ -11,7 +11,7 @@ import Euclid
 public class DualMarchingCuboids : Slice {
     
     let localFaceOffsets : [Int]
-    static let visitedFlag = 0x4
+    static let visitedFlag = 0x8
     
     public init?(grid: VoxelGrid) {
         localFaceOffsets = DualMarchingCuboids.calculateFaceOffsets(grid: grid)
@@ -27,31 +27,6 @@ public class DualMarchingCuboids : Slice {
     
     override var axisMask : VoxelAxis {
         return .multiple
-    }        
-    
-    private func interpolatePositions(p1: Vector, p2: Vector, v1: Int, v2: Int) -> Vector {
-        
-        // I don't understand where this number 4.0 comes from,
-        // but experimentally it seems to yield the nicest results...
-        let targetValue = 1.0 / 4.5
-        
-        let value1 = v1 >> VoxelGrid.dataBits
-        let value2 = v2 >> VoxelGrid.dataBits
-        
-        assert((value1 == 0 || value2 == 0) && (value1 != 0 || value2 != 0))
-        
-        let diff = Double(value2 - value1) / 255.0
-        let offset : Double
-        if (diff >= 0.0) {
-            offset = Swift.min(targetValue / diff, 1.0)
-        } else {
-            offset = Swift.max(1.0 + targetValue / diff, 0.0)
-        }
-        let direction = p2 - p1
-                
-        assert(offset >= 0.0 && offset <= 1.0)
-        
-        return p1 + direction * offset
     }
     
     override public func generatePolygons(_ polygons : inout [Euclid.Polygon], material: Euclid.Polygon.Material = UIColor.blue) {
@@ -86,7 +61,7 @@ public class DualMarchingCuboids : Slice {
     private func caseFromNeighbours(_ neighbours: [Int]) -> Int {
         var cubeIndex = 0
         for (vertexIndex, value) in neighbours.enumerated() {
-            if (value >> VoxelGrid.dataBits != 0) {
+            if (value & VoxelGrid.occupiedFlag != 0) {
                 cubeIndex |= 1 << vertexIndex
             }
         }
@@ -149,23 +124,6 @@ public class DualMarchingCuboids : Slice {
                 cuboid.vertex1 = cuboid.centre
             }
         }
-        
-//        let edgeIndices = (0 ..< 12).filter { edges & (1 << $0) > 0 }
-//        let positions = edgeIndices.map { (edgeIndex : Int) -> Vector in
-//            touchedFaces |= MarchingCubes.edgeFaces[edgeIndex]
-//
-//            let edge = MarchingCubes.edgeVertices[edgeIndex]
-//
-//            let intersectionPoint = interpolatePositions(p1: MarchingCubes.vertexOffsets[edge.0], p2: MarchingCubes.vertexOffsets[edge.1], v1: neighbours[edge.0], v2: neighbours[edge.1]) + corner
-//
-//            return intersectionPoint
-//        }
-        
-//        let plane = Plane(points: positions)
-//
-//        if let poly = Polygon(positions.map { Vertex($0, plane?.normal ?? Vector.zero) }, material: UIColor.blue) {
-//            polygons.append(poly)
-//        }
         
         // Follow the contour into neighbouring cells
         for (n, offset) in MarchingCubes.faceOffsets.enumerated() {

@@ -78,54 +78,11 @@ public class Slice : Sequence {
     
     public func generatePolygons(_ polygons : inout [Euclid.Polygon], material: Euclid.Polygon.Material = UIColor.blue) {
                 
-        for (x, y, z, _, _, index) in self {
-            
-            let cellData = grid.data[index]
-            let depth = cellData >> VoxelGrid.dataBits
-            let axes = cellData & 0x3
-                
-            // See if we're newly filled
-            if (depth == 1) && (axes == self.axisMask.rawValue) {
-                
-                let neighbouring = findNeighbouringData(x: x, y: y, z: z, index: index)
-                let depths = dataToDepths(neighbouring)
-                let centre = Vector(Double(x), Double(y), Double(z))
-                
-                // We will include a polygon if:
-                //    a) All the corners are present
-                //AND b) The corners are 'after' our vertex
-                // OR c) At least one of the corners is from a previous layer
-                let polyIndices = Slice.polygonIndices.filter { (indices) in
-                    indices.allSatisfy({ depths[$0] > 0 }) &&
-                    indices.contains(where: { $0 <= 3 || depths[$0] > depths[0] })
-                }
-                let vertexPositions = polyIndices.map { (indices) in
-                    applyVertexOrdering(indices.map { centre + Slice.vertexOffsets[$0].rotated(by: self.rotation) - self.axis * (Double(depths[$0] - 1)) })
-                }
-                for positions in vertexPositions {
-                    if let poly = Polygon(positions.map { Vertex($0, Vector.zero) }, material: material) {
-                        polygons.append(poly)
-                    }
-                }
-            }
-        }
+        
     }
     
     fileprivate func findNeighbouringData(x : Int, y : Int, z : Int, index : Int) -> [Int] {
         return []
-    }
-    
-    fileprivate func dataToDepths(_ data : [Int]) -> [Int] {
-        let mask = self.axisMask.rawValue
-        
-        return data.map { (d : Int) in
-            // Only return depths in the same axis
-            if (d & 0x3 == mask) {
-                return d >> VoxelGrid.dataBits
-            } else {
-                return 0
-            }
-        }
     }
 }
 

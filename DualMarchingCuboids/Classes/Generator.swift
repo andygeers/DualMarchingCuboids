@@ -65,24 +65,8 @@ public class Generator {
                     
                     guard index + k < slice.grid.data.count else { continue }
                     
-                    // See if this cell is vacant or not
-                    let fillValue : Int
-                    
-                    if (j == 0 || k == 0) {
-                        // Leave a gap down the left edge and back so that we have a sign change
-                        fillValue = 0
-                    } else if (slice.grid.data[index + k] == 0) {
-                        // There are 255 potential depths at the surface,
-                        // so that gives us our depth resolution
-                        fillValue = value + distanceFromSurface
-                    } else {
-                        // Mixed areas should just be treated as max height
-                        fillValue = 255
-                    }
-                    
                     // Voxel data should be 1 at the surface and count up towards the back
-                    slice.grid.data[index + k] = slice.grid.data[index + k] | (fillValue << VoxelGrid.dataBits) | slice.axisMask.rawValue
-                    value += 255
+                    slice.grid.data[index + k] |= VoxelGrid.occupiedFlag | slice.axisMask.rawValue                    
                 }
                 
                 //slice.grid.addSeed(index)
