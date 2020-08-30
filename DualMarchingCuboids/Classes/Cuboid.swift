@@ -88,6 +88,13 @@ public struct Cuboid {
         return corner + cellSize * 0.5
     }
     
+    func containsIndex(_ index : Int, grid: VoxelGrid) -> Bool {
+        let z = index / (grid.width * grid.height)
+        let y = (index - z * grid.width * grid.height) / grid.width
+        let x = index % grid.width
+        return x >= self.x && x < self.x + self.width && y >= self.y && y < self.y + self.height && z >= self.z && z < self.z + self.depth
+    }
+    
     public func mesh(grid: VoxelGrid) -> Mesh {
         let centre = corner + cellSize * 0.5
         let cuboid = Mesh.cube(center: Vector.zero, size: 1.0, faces: .front, material: randomColor()).scaled(by: cellSize).translated(by: centre)
@@ -116,13 +123,13 @@ public struct Cuboid {
         var rightZ : Double? = nil
         if (faces & (1 << 1) > 0) && x + 1 < grid.width {
             // X+1
-            if let neighbour = grid.findCube(at: index + 1) {
+            if let neighbour = grid.findCube(at: index + 1), neighbour.vertex1 != Vector.zero {
                 rightZ = neighbour.vertex1.z
             }
         }
         if (faces & (1 << 3) > 0) && x > 0 {
             // X-1
-            if let neighbour = grid.findCube(at: index - 1) {
+            if let neighbour = grid.findCube(at: index - 1), neighbour.vertex1 != Vector.zero {
                 leftZ = neighbour.vertex1.z
             }
         }

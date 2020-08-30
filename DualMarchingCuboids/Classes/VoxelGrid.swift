@@ -61,40 +61,16 @@ public class VoxelGrid {
             return cuboid
         } else {
             // See which direction things are aligned at this point
-            let axis = data[index] & 0x3
-            assert(axis != 0)
+            let gridData = data[index]
+            guard gridData & DualMarchingCuboids.visitedFlag > 0 else { return nil }
             
-            if (axis == VoxelAxis.xy.rawValue) {
-                // Move left until we find a cuboid
-                var offset = 1
-                let maxOffset = index % self.width
-                while offset < maxOffset {
-                    if let cuboid = cuboids[index - offset] {
-                        if cuboid.width >= offset {
-                            return cuboid
-                        } else {
-                            return nil
-                        }
-                    }
-                    offset += 1
-                }
-            } else if (axis == VoxelAxis.yz.rawValue) {
-                // Move backwards until we find a cuboid
-                var offset = 1
-                let layerOffset = self.width * self.height
-                let maxOffset = index / layerOffset
-                while offset < maxOffset {
-                    if let cuboid = cuboids[index - offset * layerOffset] {
-                        if cuboid.depth >= offset {
-                            return cuboid
-                        } else {
-                            return nil
-                        }
-                    }
-                    offset += 1
-                }                
+            let cellIndex = gridData >> VoxelGrid.dataBits
+            if let cuboid = cuboids[cellIndex] {
+                assert(cuboid.containsIndex(cellIndex))
+                return cuboid
+            } else {
+                return nil
             }
-            return nil
         }
     }
     
