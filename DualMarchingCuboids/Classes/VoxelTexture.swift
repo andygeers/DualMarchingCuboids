@@ -16,6 +16,10 @@ public class VoxelTexture {
     let image : UIImage
     var heightMap : [[Double]] = []
     var alphaMap : [[Double]] = []
+    var surfaceNormals : [[Vector]] = []
+    
+    private let HOLE_DEPTH = -1000.0
+    private let HOLE_OFFSET = -2.0
     
     public init(image: UIImage) throws {
         self.image = image
@@ -41,6 +45,8 @@ public class VoxelTexture {
         
         // Calculate the histogram
         generateHeightAndAlphaMap(from: ctx)
+        
+        generateSurfaceNormals()
     }
     
     private func generateHeightAndAlphaMap(from bitmap : CGContext) {
@@ -74,7 +80,7 @@ public class VoxelTexture {
                     }
                 } else {
                     // Special case
-                    height = Generator.HOLE_DEPTH
+                    height = HOLE_DEPTH
                     alpha = 0
                 }
                 
@@ -92,6 +98,36 @@ public class VoxelTexture {
         self.alphaMap = alphaMap
     }
     
+    private func generateSurfaceNormals() {
+        let h = height
+        let w = width
+        surfaceNormals = []
+        for x in 0 ..< w {
+            var columnNormals = [Vector](repeating: Vector.zero, count: h)
+            
+            for y in 0 ..< h {
+                
+                // Sample the heights all around
+                var surrounds = [Double](repeating: 0.0, count: 9)
+                var k = 0
+                for yy in y - 1 ..< y + 1 {
+                    for xx in x - 1 ..< x + 1 {
+                        let xx = xx < 0 ? 0 : (xx >= w ? w - 1 : xx)
+                        let yy = yy < 0 ? 0 : (yy >= h ? h - 1 : yy)
+                        surrounds[k] = outputHeight(heightMap[xx][yy])
+                        k += 1
+                    }
+                }
+                
+                // Now form the four overlapping "quads" that share x,y as a vertex
+                
+                
+                columnNormals[y] = Vector.zero
+            }
+            surfaceNormals.append(columnNormals)
+        }
+    }
+    
     public var height : Int {
         get {
             return heightMap.first!.count
@@ -101,6 +137,14 @@ public class VoxelTexture {
     public var width : Int {
         get {
             return heightMap.count
+        }
+    }
+    
+    func outputHeight(_ height : Double, baseHeight: Double = 1.0, modelHeight: Double = 1.0) -> Double {
+        if (height == HOLE_DEPTH) {
+            return 0.0
+        } else {
+            return baseHeight + height * modelHeight
         }
     }
 }

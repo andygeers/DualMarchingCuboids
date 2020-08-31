@@ -12,10 +12,7 @@ import ModelIO
 import SceneKit
 
 public class Generator {
-    
-    internal static let HOLE_DEPTH = -1000.0
-    internal static let HOLE_OFFSET = -2.0
-    
+        
     public let modelHeight : Double
     public let baseHeight : Double
     let texture : VoxelTexture
@@ -41,7 +38,8 @@ public class Generator {
         for (x, y, z, j, i, index) in iterator {
             
             if (!self.isTransparent(x: j, y: i, alphaMap: texture.alphaMap)) {
-                let depth = outputHeight(texture.heightMap[j][i])
+                let depth = texture.outputHeight(texture.heightMap[j][i], baseHeight: baseHeight, modelHeight: modelHeight)
+                let normal = texture.surfaceNormal[j][i]
                 let intDepth = Int(depth)
                 
                 bounds.merge(VoxelCoordinates(x: x, y: y, z: z), depth: intDepth)
@@ -50,12 +48,12 @@ public class Generator {
                 if (slice.axisMask == .xy) {
                     let topZ = z + (intDepth - 1)
                     let vertexPosition = Vector(Double(x) + 0.5, Double(y) + 0.5, Double(z) + depth)
-                    let seed = Cuboid(x: x, y: y, z: topZ, width: 1, height: 1, depth: 1, vertex1: vertexPosition)
+                    let seed = Cuboid(x: x, y: y, z: topZ, width: 1, height: 1, depth: 1, vertex1: vertexPosition, surfaceNormal: normal)
                     slice.grid.addSeed(seed)
                 } else if (slice.axisMask == .yz) {
                     let topX = x + (intDepth - 1)
                     let vertexPosition = Vector(Double(x) + depth, Double(y) + 0.5, Double(z) + 0.5)
-                    let seed = Cuboid(x: topX, y: y, z: z, width: 1, height: 1, depth: 1, vertex1: vertexPosition)
+                    let seed = Cuboid(x: topX, y: y, z: z, width: 1, height: 1, depth: 1, vertex1: vertexPosition, surfaceNormal: normal)
                     slice.grid.addSeed(seed)
                 }
                 
@@ -72,13 +70,5 @@ public class Generator {
         }
         
         NSLog("New bounds: %@ to %@", String(describing: bounds.min), String(describing: bounds.max))                
-    }        
-    
-    private func outputHeight(_ height : Double) -> Double {
-        if (height == Generator.HOLE_DEPTH) {
-            return 0.0
-        } else {
-            return self.baseHeight + height * self.modelHeight
-        }
-    }
+    }                
 }
