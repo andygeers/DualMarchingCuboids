@@ -107,6 +107,9 @@ For our fairly narrow use case, we can combine the above approaches into a new a
   5. Using the same logic as other greedy meshing algorithms to merge neighbouring Cuboids where appropriate- all the while maintaining just one vertex per cuboid
   6. We can then triangulate as per Dual Contouring: for each cuboid, look for neighbouring Cuboids in the graph and for each edge included in the Marching Cubes case we will output a quad (two triangles). The winding order is determined by which end of that edge is inside/outside the surface.
 
+![Dual Marching Cuboids animation](https://github.com/andygeers/DualMarchingCuboids/blob/master/Documentation/dual_marching_cuboids.gif?raw=true)
+*An animation showing the process of forming cuboids in 2D (top-down perspective). First the cuboids are extended as far as they can go towards the 'back' of the mesh (upwards) and the 'front' (downwards). Then cuboids are merged horizontally if the conditions are met.*
+
 ## Example
 
 To run the example project, clone the repo, and run `pod install` from the Example directory first.
