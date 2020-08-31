@@ -54,6 +54,9 @@ The Octree seems to be the favoured data structure in all of the literature, bec
 
 The other main problem with the octree approach is the issue of so-called "cracks" that occur when a low resolution cell (which has been merged) neighbours a high resolution cell (which has not been merged). The original paper uses a form of "crack patching" that attempts to disguise the gaps by moving the higher resolution vertices to line up with the lower resolution edges. However, whilst this might *look* visually correct, it is of no value for our key requirement of water-tightness, since the crack is not actually joined up in any meaningful way. Other approaches involve filling the gap with additional triangles, but this still requires extra effort and is rather unsightly.
 
+![Crack patching](https://github.com/andygeers/DualMarchingCuboids/blob/master/Documentation/crack_patching.png?raw=true)
+*An illustration of when cracks appear when a low-resolution node (the red surface) neighbours higher-resolution nodes (the purple surface). The space between the two lines will form a 'crack'*
+
 **The truth is that octrees are just one possible scheme for merging cells**, although there seems to be very little published literature exploring alternative approaches.
 
 ### Surface Tracking
@@ -68,6 +71,9 @@ If you had no prior knowledge of your surface then finding those seed cells migh
 ### Dual Methods
 
 To overcome several of the deficiencies of Marching Cubes, there is a whole category of solutions known as "dual" methods. Whereas Marching Cubes puts the vertices on the edges of each cube, instead the dual methods put the vertices *inside* each cell. The key observation here, which will become very important for us later on, is that you only ever need **one vertex per cell**. For the relevant groups of four cells that share a common edge you then output a quad, using the vertices from each cell.
+
+![Dual contouring](https://github.com/andygeers/DualMarchingCuboids/blob/master/Documentation/dual_contouring.png?raw=true)
+*A 'dual' contour with one vertex per cell. Note how this way we can have sharp corners*
 
 As with Marching Cubes, the magic is in deciding *where* to position the vertex within each cell. In the most basic SurfaceNets algorithm you might just use the centre of each cell, but with fancy mathematical magic you can do significantly better than that if you know the *gradient* of the surface at each point as well (what they call "hermite data").
 
