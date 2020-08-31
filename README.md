@@ -60,6 +60,9 @@ The other main problem with the octree approach is the issue of so-called "crack
 
 The authors of Octree-Based Decimation of Marching Cubes downplay this as a mere aside, but another key concept that they introduce is the notion of "surface tracking". They make the observation that if the surface is continuous, from key "seed" cells you can just track the surface into neighbouring cells, remembering which cells you have visited previously, and **very efficiently visit every non-null cell without having to examine any of the dead space around it at all**. Since you know which edges the surface intersects for each Marching Cubes case, from that you can easily deduce which faces to track through. 
 
+![Surface tracking](https://github.com/andygeers/DualMarchingCuboids/blob/master/Documentation/surface_tracking.png?raw=true)
+*2D surface tracking: only the grey cells need to be visited at all*
+
 If you had no prior knowledge of your surface then finding those seed cells might be tricky, but since we generated our surface ourself we know exactly which cells to start from. 
 
 ### Dual Methods
