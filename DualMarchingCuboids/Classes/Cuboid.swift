@@ -48,6 +48,8 @@ public struct Cuboid {
     var vertex3 : Vector = Vector.zero
     var vertex4 : Vector = Vector.zero
     
+    var surfaceNormal : Vector = Vector.zero
+    
     mutating func appendVertex(_ vertex: Vector) {
         if (vertex1 == Vector.zero) {
             vertex1 = vertex
@@ -118,6 +120,27 @@ public struct Cuboid {
         ]
     }
     
+    func interpolatePositionXY(from neighbour: Cuboid) -> Vector {
+        assert(neighbour.x != x || neighbour.y != y || neighbour.z != z)
+        assert(neighbour.vertex1 != Vector.zero)
+        
+        var pos = centre
+        
+        guard (neighbour.surfaceNormal != Vector.zero) else {
+            // No serious interpolation possible, just use the same Z
+            pos.z = neighbour.vertex1.z
+            return pos
+        }
+                
+        assert(neighbour.z == z)
+        
+        // Do some linear interpolation of the surface normal
+        // Equation is plane.normal.x * x + plane.normal.y * y + plane.normal.z * z = plane.w
+        let w = neighbour.vertex1.dot(neighbour.surfaceNormal)
+        pos.z = (w - neighbour.surfaceNormal.x * centre.x - neighbour.surfaceNormal.y * centre.y) / neighbour.surfaceNormal.z
+        return pos
+    }
+    
     func interpolatePositionXY(grid: VoxelGrid, index: Int, faces: Int) -> Vector {
         // Find the grid of 9 neighbouring cells
         var neighbours = [Cuboid?](repeating: nil, count: 9)
@@ -154,13 +177,13 @@ public struct Cuboid {
             // Y-1
             neighbours[1] = grid.findCube(at: index - grid.width)
         }
-        var pos = centre
+        
         if let neighbourIndex = [1,3,5,7].first(where: { neighbours[$0] != nil && neighbours[$0]!.vertex1 != Vector.zero }) {
-            pos.z = neighbours[neighbourIndex]!.vertex1.z
+            return interpolatePositionXY(from: neighbours[neighbourIndex]!)
         } else if let neighbourIndex = [0,2,6,8].first(where: { neighbours[$0] != nil && neighbours[$0]!.vertex1 != Vector.zero }) {
-            pos.z = neighbours[neighbourIndex]!.vertex1.z
+            return interpolatePositionXY(from: neighbours[neighbourIndex]!)
         }
-        return pos
+        return centre
     }
     
     func interpolatePositionYZ(grid: VoxelGrid, index: Int, faces: Int) -> Vector {
