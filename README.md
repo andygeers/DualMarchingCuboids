@@ -11,6 +11,7 @@ A dual Marching Cubes method using cuboids, based on greedy meshing. Suitable fo
 There's an endless amount of literature on converting voxel grids into polygon meshes. Academic papers have to pretend to be serious so they all talk about medical imaging, but obviously more often than not it's really about the games. This project is focussed around one fairly narrow use case with some helpful limitations and some important requirements: constructing 3D buildings out of panels made from depth maps, for 3D printing, for the [Little Buildings](https://apps.apple.com/us/app/little-buildings/id1502701232?ls=1) app.
 
 ![Example Little Building](https://github.com/andygeers/DualMarchingCuboids/blob/master/Documentation/building.png?raw=true)
+*An example Little Building*
 
 Constraints:
 
@@ -26,6 +27,7 @@ Constraints:
 Of course the starting point for all adventures in the land of voxel meshing is the original Marching Cubes paper. You divide your space up into cells of uniform size and 'march' through them one by one. You test the corners of each cell to see whether they are 'inside' or 'outside' the mesh, and this gives you a bitmask of 8 binary values - a number between 0 and 255. This can be used as the index in a lookup table to tell you which arrangement of polygons should be output for this cell.
 
 ![Base Marching Cubes cases](https://github.com/andygeers/DualMarchingCuboids/blob/master/Documentation/marcing_cubes_cases.png?raw=true)
+*The original 15 Marching Cubes base configurations*
 
 It sounds super simple (which is obviously part of its appeal) but there are two ingenious aspects to Marching Cubes which make it significantly more powerful than you might anticipate:
 
@@ -33,6 +35,7 @@ It sounds super simple (which is obviously part of its appeal) but there are two
   2. The second, less obvious point, is that you don't just have to place the vertices in each cell at the exact centre of each edge. By use of interpolation you can construct a surprisingly sophisticated mesh - it is certainly not the case that two cells with an identical 'case number' need to result in identical polygons.
 
 ![Some French Tiles interpolated with Marching Cubes](https://github.com/andygeers/DualMarchingCuboids/blob/master/Documentation/03_marching_cubes_curved.png?raw=true)
+*Some curved French Tiles generated with Marching Cubes, demonstrating interpolation*
 
 One of the main downsides of Marching Cubes is that it results in a colossal number of polygons - up to five triangles per cell, for every single cell on the surface of your mesh. Given our use case, where we have many very large, flat surfaces, this leads to vastly increased polygon counts compared with the ideal.
 
