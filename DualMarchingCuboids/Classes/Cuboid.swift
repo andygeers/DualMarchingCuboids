@@ -90,6 +90,10 @@ public struct Cuboid {
         return corner + cellSize * 0.5
     }
     
+    var bounds : Bounds {
+        return Bounds(min: corner, max: corner + cellSize)
+    }
+    
     func containsIndex(_ index : Int, grid: VoxelGrid) -> Bool {
         let z = index / (grid.width * grid.height)
         let y = (index - z * grid.width * grid.height) / grid.width
@@ -138,6 +142,39 @@ public struct Cuboid {
         // Equation is plane.normal.x * x + plane.normal.y * y + plane.normal.z * z = plane.w
         let w = neighbour.vertex1.dot(neighbour.surfaceNormal)
         pos.z = (w - neighbour.surfaceNormal.x * centre.x - neighbour.surfaceNormal.y * centre.y) / neighbour.surfaceNormal.z
+        
+        assert(bounds.containsPoint(pos))
+        return pos
+    }
+    
+    func interpolatePositionYZ(from neighbour: Cuboid) -> Vector {
+        assert(neighbour.x != x || neighbour.y != y || neighbour.z != z)
+        assert(neighbour.vertex1 != Vector.zero)
+        
+        var pos = centre
+        
+        guard (neighbour.surfaceNormal != Vector.zero) else {
+            // No serious interpolation possible, just use the same X
+            pos.x = neighbour.vertex1.x
+            return pos
+        }
+                
+        assert(neighbour.x == x)
+        
+        // Do some linear interpolation of the surface normal
+        // But the normal is as though it's pointing in the z axis - so just use the z coordinate as the x coordinate
+        // Equation is plane.normal.z * x + plane.normal.y * y + plane.normal.x * z = plane.w
+        
+        let w = neighbour.vertex1.x * neighbour.surfaceNormal.z + neighbour.vertex1.y * neighbour.surfaceNormal.y + neighbour.vertex1.z * neighbour.surfaceNormal.x
+        pos.x = (w - neighbour.surfaceNormal.z * centre.z - neighbour.surfaceNormal.y * centre.y) / neighbour.surfaceNormal.z
+        
+//        if pos.x < Double(x) {
+//            pos.x = Double(x)
+//        } else if pos.x > Double(x + width) {
+//            pos.x = Double(x + width)
+//        }
+//
+//        assert(bounds.containsPoint(pos))
         return pos
     }
     
@@ -149,7 +186,7 @@ public struct Cuboid {
             // X+1
             neighbours[5] = grid.findCube(at: index + 1)
             
-            if let rightCuboid = neighbours[5] {
+            if neighbours[5] != nil {
                 // See if there's also something right and up
                 neighbours[8] = y + 1 < grid.height ? grid.findCube(at: index + 1 + grid.width) : nil
                 
@@ -161,7 +198,7 @@ public struct Cuboid {
             // X-1
             neighbours[3] = grid.findCube(at: index - 1)
             
-            if let leftCuboid = neighbours[3] {
+            if neighbours[3] != nil {
                 // See if there's also something left and up
                 neighbours[6] = y + 1 < grid.height ? grid.findCube(at: index - 1 + grid.width) : nil
                 
@@ -187,17 +224,48 @@ public struct Cuboid {
     }
     
     func interpolatePositionYZ(grid: VoxelGrid, index: Int, faces: Int) -> Vector {
+        // Find the grid of 9 neighbouring cells
+        var neighbours = [Cuboid?](repeating: nil, count: 9)
+        
+        let layerOffset = grid.width * grid.height
+        
         if (faces & (1 << 0) > 0) && z + 1 < grid.depth {
             // Z+1
-            if let neighbour = grid.findCube(at: index + grid.width * grid.height) {
+            neighbours[5] = grid.findCube(at: index + layerOffset)
                 
+            if neighbours[5] != nil {
+                // See if there's also something forwards and up
+                neighbours[8] = y + 1 < grid.height ? grid.findCube(at: index + layerOffset + grid.width) : nil
+                
+                // See if there's also something forwards and down
+                neighbours[2] = y > 0 ? grid.findCube(at: index + layerOffset - grid.width) : nil
             }
         }
         if (faces & (1 << 2) > 0) && z > 0 {
             // Z-1
-            if let neighbour = grid.findCube(at: index - grid.width * grid.height) {
+            neighbours[3] = grid.findCube(at: index - layerOffset)
                 
+            if neighbours[3] != nil {
+                // See if there's also something backwards and up
+                neighbours[6] = y + 1 < grid.height ? grid.findCube(at: index - layerOffset + grid.width) : nil
+                
+                // See if there's also something backwards and down
+                neighbours[0] = y > 0 ? grid.findCube(at: index - layerOffset - grid.width) : nil
             }
+        }
+        if (faces & (1 << 4) > 0) && x + 1 < grid.width {
+            // Y+1
+            neighbours[7] = grid.findCube(at: index + grid.width)
+        }
+        if (faces & (1 << 5) > 0) && x > 0 {
+            // Y-1
+            neighbours[1] = grid.findCube(at: index - grid.width)
+        }
+        
+        if let neighbourIndex = [1,3,5,7].first(where: { neighbours[$0] != nil && neighbours[$0]!.vertex1 != Vector.zero }) {
+            return interpolatePositionYZ(from: neighbours[neighbourIndex]!)
+        } else if let neighbourIndex = [0,2,6,8].first(where: { neighbours[$0] != nil && neighbours[$0]!.vertex1 != Vector.zero }) {
+            return interpolatePositionYZ(from: neighbours[neighbourIndex]!)
         }
         return centre
     }
