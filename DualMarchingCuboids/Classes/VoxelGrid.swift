@@ -47,7 +47,7 @@ public class VoxelGrid {
         let index = cube.index(grid: self)
         if var existingCuboid = cuboids[index] {
             existingCuboid.appendVertex(cube.vertex1)
-            existingCuboid.surfaceNormal = Vector.zero
+            //existingCuboid.surfaceNormal = Vector.zero
             cuboids[index] = existingCuboid
             return existingCuboid
         } else {
