@@ -16,6 +16,7 @@ class TexturePickerViewController : UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.title = "Select texture"
+        self.tableView.register(UITableViewCell.self, forCellReuseIdentifier: "CellIdentifier")
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -23,15 +24,13 @@ class TexturePickerViewController : UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        var cell = tableView.dequeueReusableCell(withIdentifier: "CellIdentifier")
-        if (cell == nil) {
-            cell = UITableViewCell(style: .default, reuseIdentifier: "CellIdentifier")
-        }
+        let cell = tableView.dequeueReusableCell(withIdentifier: "CellIdentifier", for: indexPath)
         
-        cell!.textLabel?.text = textures[indexPath.row]
+        cell.textLabel?.text = textures[indexPath.row]
+        cell.selectionStyle = .blue
         
-        return cell!
-    }
+        return cell
+    }        
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         callback?(textures[indexPath.row])

@@ -67,9 +67,11 @@ class ViewController: UIViewController {
             })            
         }
         
-        texturePicker.popoverPresentationController?.sourceView = self.view
+        let nav = UINavigationController(rootViewController: texturePicker)
         
-        self.present(texturePicker, animated: true, completion: nil)
+        nav.popoverPresentationController?.sourceView = self.view
+        
+        self.present(nav, animated: true, completion: nil)
     }
     
     func selectTexture(_ textureName: String) {
