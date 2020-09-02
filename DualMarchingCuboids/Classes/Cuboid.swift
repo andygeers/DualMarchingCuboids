@@ -143,6 +143,12 @@ public struct Cuboid {
         let w = neighbour.vertex1.dot(neighbour.surfaceNormal)
         pos.z = (w - neighbour.surfaceNormal.x * centre.x - neighbour.surfaceNormal.y * centre.y) / neighbour.surfaceNormal.z
         
+        if pos.z < Double(z) {
+            pos.z = Double(z)
+        } else if pos.z > Double(z + depth) {
+            pos.z = Double(z + depth)
+        }
+        
         assert(bounds.containsPoint(pos))
         return pos
     }
@@ -168,13 +174,13 @@ public struct Cuboid {
         let w = neighbour.vertex1.x * neighbour.surfaceNormal.z + neighbour.vertex1.y * neighbour.surfaceNormal.y + neighbour.vertex1.z * neighbour.surfaceNormal.x
         pos.x = (w - neighbour.surfaceNormal.z * centre.z - neighbour.surfaceNormal.y * centre.y) / neighbour.surfaceNormal.z
         
-//        if pos.x < Double(x) {
-//            pos.x = Double(x)
-//        } else if pos.x > Double(x + width) {
-//            pos.x = Double(x + width)
-//        }
-//
-//        assert(bounds.containsPoint(pos))
+        if pos.x < Double(x) {
+            pos.x = Double(x)
+        } else if pos.x > Double(x + width) {
+            pos.x = Double(x + width)
+        }
+
+        assert(bounds.containsPoint(pos))
         return pos
     }
     
