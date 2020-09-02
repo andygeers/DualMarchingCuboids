@@ -277,7 +277,7 @@ public struct Cuboid {
         return centre
     }
     
-    func triangulate(grid: VoxelGrid, polygons: inout [Euclid.Polygon]) {
+    func triangulate(grid: VoxelGrid, polygons: inout [Euclid.Polygon], material: Euclid.Polygon.Material) {
         guard marchingCubesCase >= 0 else { return }
         
         let leftCuboid = leftNodeIndex >= 0 ? grid.cuboids[leftNodeIndex] : nil
@@ -342,7 +342,7 @@ public struct Cuboid {
         
         for points in polyPoints {
             let plane = Plane(points: points)
-            if let polygon = Polygon(points.map({ Vertex($0, plane?.normal ?? Vector.zero) })) {
+            if let polygon = Polygon(points.map({ Vertex($0, plane?.normal ?? Vector.zero) }), material: material) {
                 polygons.append(polygon)
             }
         }

@@ -53,7 +53,7 @@ public class DualMarchingCuboids : Slice {
     private func triangulateCuboids(_ polygons : inout [Euclid.Polygon], material: Euclid.Polygon.Material = UIColor.blue) {
         
         for (_, cuboid) in grid.cuboids {
-            cuboid.triangulate(grid: grid, polygons: &polygons)
+            cuboid.triangulate(grid: grid, polygons: &polygons, material: material)
         }
         
     }
