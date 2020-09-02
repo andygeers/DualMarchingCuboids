@@ -221,12 +221,13 @@ public struct Cuboid {
             neighbours[1] = grid.findCube(at: index - grid.width)
         }
         
-        if let neighbourIndex = [1,3,5,7].first(where: { neighbours[$0] != nil && neighbours[$0]!.vertex1 != Vector.zero }) {
-            return interpolatePositionXY(from: neighbours[neighbourIndex]!)
-        } else if let neighbourIndex = [0,2,6,8].first(where: { neighbours[$0] != nil && neighbours[$0]!.vertex1 != Vector.zero }) {
-            return interpolatePositionXY(from: neighbours[neighbourIndex]!)
+        let neighbourIndices = [1,3,5,7,0,2,6,8].filter({ neighbours[$0] != nil && neighbours[$0]!.vertex1 != Vector.zero && neighbours[$0]!.surfaceNormal != Vector.zero })
+        let interpolated = neighbourIndices.map { interpolatePositionXY(from: neighbours[$0]!) }
+        if !interpolated.isEmpty {
+            return interpolated.reduce(Vector.zero, +) / Double(interpolated.count)
+        } else {
+            return centre
         }
-        return centre
     }
     
     func interpolatePositionYZ(grid: VoxelGrid, index: Int, faces: Int) -> Vector {
