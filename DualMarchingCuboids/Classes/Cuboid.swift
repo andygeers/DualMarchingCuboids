@@ -342,7 +342,7 @@ public struct Cuboid {
         
         for points in polyPoints {
             let plane = Plane(points: points)
-            if let polygon = Polygon(points.map({ Vertex($0, plane?.normal ?? Vector.zero) }), material: material) {
+            if let polygon = Polygon(points.map({ Vertex($0, surfaceNormal != Vector.zero ? surfaceNormal : (plane?.normal ?? Vector.zero)) }), material: material) {
                 polygons.append(polygon)
             }
         }
