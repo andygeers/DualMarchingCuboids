@@ -110,8 +110,8 @@ public class VoxelTexture {
                 // Sample the heights all around
                 var surrounds = [Double](repeating: 0.0, count: 9)
                 var k = 0
-                for yy in y - 1 ..< y + 1 {
-                    for xx in x - 1 ..< x + 1 {
+                for yy in y - 1 ... y + 1 {
+                    for xx in x - 1 ... x + 1 {
                         let xx = xx < 0 ? 0 : (xx >= w ? w - 1 : xx)
                         let yy = yy < 0 ? 0 : (yy >= h ? h - 1 : yy)
                         surrounds[k] = outputHeight(heightMap[xx][yy])
@@ -121,7 +121,7 @@ public class VoxelTexture {
                 
                 // Calculate normal
                 // From https://stackoverflow.com/a/49640606/4397
-                columnNormals[y] = Vector(2.0 * (surrounds[5] - surrounds[3]), 2.0 * (surrounds[1] - surrounds[7]), -4.0).normalized()
+                columnNormals[y] = Vector(2.0 * (surrounds[5] - surrounds[3]), 2.0 * (surrounds[1] - surrounds[7]), 4.0).normalized()
             }
             surfaceNormals.append(columnNormals)
         }
