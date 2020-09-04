@@ -39,7 +39,7 @@ public class Generator {
             
             if (!self.isTransparent(x: j, y: i, alphaMap: texture.alphaMap)) {
                 let depth = texture.outputHeight(texture.heightMap[j][i], baseHeight: baseHeight, modelHeight: modelHeight)
-                let normal = texture.surfaceNormals[j][i]
+                let normal = texture.surfaceNormals[j][i].rotated(by: slice.rotation)
                 let intDepth = Int(depth)
                 
                 bounds.merge(VoxelCoordinates(x: x, y: y, z: z), depth: intDepth)

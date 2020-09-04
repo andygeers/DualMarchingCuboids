@@ -42,7 +42,7 @@ public class Slice : Sequence {
     
     fileprivate let axis : Vector
     public let grid : VoxelGrid
-    fileprivate let rotation : Rotation        
+    let rotation : Rotation        
     
     var bounds : VoxelBoundingBox? = nil
     

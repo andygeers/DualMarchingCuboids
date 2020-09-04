@@ -140,8 +140,10 @@ public struct Cuboid {
         
         // Do some linear interpolation of the surface normal
         // Equation is plane.normal.x * x + plane.normal.y * y + plane.normal.z * z = plane.w
-        let w = neighbour.vertex1.dot(neighbour.surfaceNormal)
-        pos.z = (w - neighbour.surfaceNormal.x * centre.x - neighbour.surfaceNormal.y * centre.y) / neighbour.surfaceNormal.z
+        let normal = neighbour.surfaceNormal
+        let w = neighbour.vertex1.dot(normal)
+        pos.z = (w - normal.x * centre.x - normal.y * centre.y) / normal.z
+        //pos.z = neighbour.vertex1.z
         
         if pos.z < Double(z) {
             pos.z = Double(z)
@@ -171,8 +173,9 @@ public struct Cuboid {
         // But the normal is as though it's pointing in the z axis - so just use the z coordinate as the x coordinate
         // Equation is plane.normal.z * x + plane.normal.y * y + plane.normal.x * z = plane.w
         
-        let w = neighbour.vertex1.x * neighbour.surfaceNormal.z + neighbour.vertex1.y * neighbour.surfaceNormal.y + neighbour.vertex1.z * neighbour.surfaceNormal.x
-        pos.x = (w - neighbour.surfaceNormal.x * centre.z - neighbour.surfaceNormal.y * centre.y) / neighbour.surfaceNormal.z
+        let normal = neighbour.surfaceNormal
+        let w = neighbour.vertex1.dot(normal)
+        pos.x = (w - normal.y * centre.y - normal.z * centre.z) / normal.x
         
         if pos.x < Double(x) {
             pos.x = Double(x)
@@ -267,14 +270,15 @@ public struct Cuboid {
         if (faces & (1 << 5) > 0) && x > 0 {
             // Y-1
             neighbours[1] = grid.findCube(at: index - grid.width)
-        }
+        }        
         
-        if let neighbourIndex = [1,3,5,7].first(where: { neighbours[$0] != nil && neighbours[$0]!.vertex1 != Vector.zero }) {
-            return interpolatePositionYZ(from: neighbours[neighbourIndex]!)
-        } else if let neighbourIndex = [0,2,6,8].first(where: { neighbours[$0] != nil && neighbours[$0]!.vertex1 != Vector.zero }) {
-            return interpolatePositionYZ(from: neighbours[neighbourIndex]!)
+        let neighbourIndices = [1,3,5,7,0,2,6,8].filter({ neighbours[$0] != nil && neighbours[$0]!.vertex1 != Vector.zero && neighbours[$0]!.surfaceNormal != Vector.zero })
+        let interpolated = neighbourIndices.map { interpolatePositionYZ(from: neighbours[$0]!) }
+        if !interpolated.isEmpty {
+            return interpolated.reduce(Vector.zero, +) / Double(interpolated.count)
+        } else {
+            return centre
         }
-        return centre
     }
     
     func triangulate(grid: VoxelGrid, polygons: inout [Euclid.Polygon], material: Euclid.Polygon.Material) {
