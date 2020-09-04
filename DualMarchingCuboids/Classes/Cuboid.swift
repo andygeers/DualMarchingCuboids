@@ -172,7 +172,7 @@ public struct Cuboid {
         // Equation is plane.normal.z * x + plane.normal.y * y + plane.normal.x * z = plane.w
         
         let w = neighbour.vertex1.x * neighbour.surfaceNormal.z + neighbour.vertex1.y * neighbour.surfaceNormal.y + neighbour.vertex1.z * neighbour.surfaceNormal.x
-        pos.x = (w - neighbour.surfaceNormal.z * centre.z - neighbour.surfaceNormal.y * centre.y) / neighbour.surfaceNormal.z
+        pos.x = (w - neighbour.surfaceNormal.x * centre.z - neighbour.surfaceNormal.y * centre.y) / neighbour.surfaceNormal.z
         
         if pos.x < Double(x) {
             pos.x = Double(x)

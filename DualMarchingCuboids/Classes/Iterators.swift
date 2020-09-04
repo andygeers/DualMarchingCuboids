@@ -58,11 +58,11 @@ public class ZIterator : IteratorProtocol, Sequence {
     private var x : Int
     private var y : Int
     private var z : Int
-    private let zRange : Range<Int>
+    private let zRange : ClosedRange<Int>
     private var index : Int
     private let layerOffset : Int
 
-    init(grid: VoxelGrid, x : Int, y : Int, zRange : Range<Int>) {
+    init(grid: VoxelGrid, x : Int, y : Int, zRange : ClosedRange<Int>) {
         self.x = x
         self.y = y
         self.zRange = zRange
@@ -76,7 +76,7 @@ public class ZIterator : IteratorProtocol, Sequence {
     public func next() -> (Int, Int, Int, Int)? {
         z += 1
         index += layerOffset
-        if (z >= zRange.upperBound) {
+        if (z > zRange.upperBound) {
             return nil
         } else {
             return (x, y, z, index)
@@ -130,10 +130,10 @@ public class XIterator : IteratorProtocol, Sequence {
     private var x : Int
     private var y : Int
     private var z : Int
-    private let xRange : Range<Int>
+    private let xRange : ClosedRange<Int>
     private var index : Int
 
-    init(grid: VoxelGrid, xRange : Range<Int>, y : Int, z : Int) {
+    init(grid: VoxelGrid, xRange : ClosedRange<Int>, y : Int, z : Int) {
         self.y = y
         self.z = z
         self.xRange = xRange
@@ -145,7 +145,7 @@ public class XIterator : IteratorProtocol, Sequence {
     public func next() -> (Int, Int, Int, Int)? {
         x += 1
         index += 1
-        if (x >= xRange.upperBound) {
+        if (x > xRange.upperBound) {
             return nil
         } else {
             return (x, y, z, index)

@@ -68,7 +68,7 @@ public class Slice : Sequence {
         return XYIterator(grid: grid, xRange: range1, yRange: yRange, z: 0)
     }
     
-    public func perpendicularIndices(range: Range<Int>) -> [Int] {
+    public func perpendicularIndices(range: ClosedRange<Int>) -> [Int] {
         return []
     }
     
@@ -120,7 +120,7 @@ public class XYSlice : Slice {
         return XYIterator(grid: grid, xRange: range1, yRange: yRange, z: self.z)
     }
     
-    override public func perpendicularIndices(range: Range<Int>) -> [Int] {
+    override public func perpendicularIndices(range: ClosedRange<Int>) -> [Int] {
         return ZIterator(grid: grid, x: 0, y: 0, zRange: range).map { $0.3 }
     }
     
@@ -185,7 +185,7 @@ public class YZSlice : Slice {
         return YZIterator(grid: grid, x: self.x, yRange: yRange, zRange: range1)
     }
     
-    override public func perpendicularIndices(range: Range<Int>) -> [Int] {
+    override public func perpendicularIndices(range: ClosedRange<Int>) -> [Int] {
         return XIterator(grid: grid, xRange: range, y: 0, z: 0).map { $0.3 }
     }
     

@@ -57,7 +57,10 @@ public class Generator {
                     slice.grid.addSeed(seed)
                 }
                 
-                for k in slice.perpendicularIndices(range: (0 ..< (intDepth + 1))).reversed() {
+                // Because the vertices are dual to the grid, don't mark the left or top edge as occupied unless it's protuding at least as much as the neighbour on that side
+                let minDepth = j > 0 && i > 0 ? min(intDepth, Int(texture.outputHeight(texture.heightMap[j - 1][i], baseHeight: baseHeight, modelHeight: modelHeight)), Int(texture.outputHeight(texture.heightMap[j][i - 1], baseHeight: baseHeight, modelHeight: modelHeight))) : 0
+                                
+                for k in slice.perpendicularIndices(range: (0 ... minDepth)).reversed() {
                     
                     guard index + k < slice.grid.data.count else { continue }
                     
