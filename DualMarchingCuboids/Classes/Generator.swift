@@ -48,12 +48,12 @@ public class Generator {
                 if (slice.axisMask == .xy) {
                     let topZ = z + intDepth
                     let vertexPosition = Vector(Double(x) + 0.5, Double(y) + 0.5, Double(z) + depth)
-                    let seed = Cuboid(x: x, y: y, z: topZ, width: 1, height: 1, depth: 1, vertex1: vertexPosition, surfaceNormal: normal)
+                    let seed = Cuboid(x: x, y: y, z: topZ, width: 1, height: 1, depth: 1, axis: slice.axisMask, vertex1: vertexPosition, surfaceNormal: normal)
                     slice.grid.addSeed(seed)
                 } else if (slice.axisMask == .yz) {
                     let topX = x + intDepth
                     let vertexPosition = Vector(Double(x) + depth, Double(y) + 0.5, Double(z) + 0.5)
-                    let seed = Cuboid(x: topX, y: y, z: z, width: 1, height: 1, depth: 1, vertex1: vertexPosition, surfaceNormal: normal)
+                    let seed = Cuboid(x: topX, y: y, z: z, width: 1, height: 1, depth: 1, axis: slice.axisMask, vertex1: vertexPosition, surfaceNormal: normal)
                     slice.grid.addSeed(seed)
                 }
                 

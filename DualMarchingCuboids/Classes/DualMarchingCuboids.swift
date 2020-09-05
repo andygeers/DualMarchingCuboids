@@ -42,12 +42,48 @@ public class DualMarchingCuboids : Slice {
         let after = DispatchTime.now()
         
         NSLog("Processed grid in %f seconds", Float(after.uptimeNanoseconds - before.uptimeNanoseconds) / Float(1_000_000_000))
+        
+        interpolateVertices()
+        
+        let afterInterpolation = DispatchTime.now()
+        
+        NSLog("Interpolated vertices in %f seconds", Float(afterInterpolation.uptimeNanoseconds - after.uptimeNanoseconds) / Float(1_000_000_000))
     
         triangulateCuboids(&polygons)
         
         let afterTriangulation = DispatchTime.now()
         
-        NSLog("Triangulated %d polygon(s) in %f seconds", polygons.count, Float(afterTriangulation.uptimeNanoseconds - after.uptimeNanoseconds) / Float(1_000_000_000))
+        NSLog("Triangulated %d polygon(s) in %f seconds", polygons.count, Float(afterTriangulation.uptimeNanoseconds - afterInterpolation.uptimeNanoseconds) / Float(1_000_000_000))
+    }
+    
+    private func interpolateVertices() {
+        for (index, var cuboid) in grid.cuboids {
+            if (cuboid.vertex1 == Vector.zero) {
+                switch (cuboid.axis) {
+                case .xy:
+                    
+                    // See if there is a cube either in front or behind me
+                    let behind = grid.cuboids[index + grid.width * grid.height]
+                    let infront = grid.cuboids[index - grid.width * grid.height]
+                    NSLog("X Cuboid behind %d in front %d", behind != nil, infront != nil)
+                    
+                    // Trace the gradient along the X axis
+                    (cuboid.vertex1, cuboid.positionSource) = cuboid.interpolatePositionXY(grid: grid, index: index, faces: cuboid.touchedFaces)
+                    
+                case .yz:
+                    // Trace the gradient along the Z axis
+                    cuboid.vertex1 = cuboid.interpolatePositionYZ(grid: grid, index: index, faces: cuboid.touchedFaces)
+                    cuboid.positionSource = "interpolated"
+                    
+                default:
+                    // Just use the centre of the cell
+                    cuboid.vertex1 = cuboid.centre
+                    cuboid.positionSource = "dualaxis"
+                }
+                
+                grid.cuboids[index] = cuboid
+            }
+        }
     }
     
     private func triangulateCuboids(_ polygons : inout [Euclid.Polygon], material: Euclid.Polygon.Material = UIColor.blue) {
@@ -82,12 +118,15 @@ public class DualMarchingCuboids : Slice {
         if (cellData & 0x3 == VoxelAxis.xy.rawValue) {
             
             // Start by growing the cuboid as far in the z axis as we can
+            cuboid.axis = .xy
             
         } else if (cellData & 0x3 == VoxelAxis.yz.rawValue) {
             // Start by growing the cuboid as far in the x axis as we can
+            cuboid.axis = .yz
             
         } else {
             // Just output this as a single cuboid for now
+            cuboid.axis = .multiple
         }
             
         let neighbours = cell.sampleCorners(index: index, grid: grid)
@@ -101,29 +140,7 @@ public class DualMarchingCuboids : Slice {
                 
         //now build the triangles using triTable
         // Keep track of which faces are included
-        var touchedFaces = 0
-        let edges = MarchingCubes.edgeTable[cubeIndex]
-        for edgeIndex in 0 ..< 12 {
-            if (edges & (1 << edgeIndex) > 0) {
-                touchedFaces |= MarchingCubes.edgeFaces[edgeIndex]
-            }
-        }
-        
-        if (cuboid.vertex1 == Vector.zero) {
-            if (cellData & 0x3 == VoxelAxis.xy.rawValue) {
-                
-                // Trace the gradient along the X axis
-                cuboid.vertex1 = cuboid.interpolatePositionXY(grid: grid, index: index, faces: touchedFaces)
-                
-            } else if (cellData & 0x3 == VoxelAxis.yz.rawValue) {
-                // Trace the gradient along the Z axis
-                cuboid.vertex1 = cuboid.interpolatePositionYZ(grid: grid, index: index, faces: touchedFaces)
-                
-            } else {
-                // Just use the centre of the cell
-                cuboid.vertex1 = cuboid.centre
-            }
-        }
+        let touchedFaces = cuboid.touchedFaces
         
         // Follow the contour into neighbouring cells
         for (n, offset) in MarchingCubes.faceOffsets.enumerated() {

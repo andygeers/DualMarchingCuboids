@@ -41,6 +41,21 @@ public struct Cuboid {
     
     var marchingCubesCase : Int = -1
     
+    var touchedFaces : Int {
+        guard marchingCubesCase >= 0 else { return 0 }
+        
+        var touchedFaces = 0
+        let edges = MarchingCubes.edgeTable[marchingCubesCase]
+        for edgeIndex in 0 ..< 12 {
+            if (edges & (1 << edgeIndex) > 0) {
+                touchedFaces |= MarchingCubes.edgeFaces[edgeIndex]
+            }
+        }
+        return touchedFaces
+    }
+    
+    var axis : VoxelAxis = .none
+    
     // There can be up to four discreet surfaces
     // in the most complex Marching Cubes case
     var vertex1 : Vector = Vector.zero
