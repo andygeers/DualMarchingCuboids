@@ -164,7 +164,7 @@ public class YZSlice : Slice {
         
         let axis = Vector(xOffset, 0.0, 0.0).normalized()
         
-        let rotation = Rotation(axis: Vector(0.0, 1.0, 0.0), radians: Double.pi / 2.0)!
+        let rotation = Rotation(axis: Vector(0.0, 1.0, 0.0), radians: -Double.pi / 2.0)!
         
         super.init(grid: grid, rotation: rotation, axis: axis)
     }

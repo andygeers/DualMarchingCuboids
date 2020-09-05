@@ -121,7 +121,7 @@ public class VoxelTexture {
                 
                 // Calculate normal
                 // From https://stackoverflow.com/a/49640606/4397
-                columnNormals[y] = Vector(2.0 * (surrounds[5] - surrounds[3]), 2.0 * (surrounds[1] - surrounds[7]), 4.0).normalized()
+                columnNormals[y] = Vector(2.0 * (surrounds[3] - surrounds[5]), 2.0 * (surrounds[1] - surrounds[7]), 4.0).normalized()
             }
             surfaceNormals.append(columnNormals)
         }
