@@ -58,12 +58,12 @@ public struct Cuboid {
     
     // There can be up to four discreet surfaces
     // in the most complex Marching Cubes case
-    var vertex1 : Vector = Vector.zero
+    public var vertex1 : Vector = Vector.zero
     var vertex2 : Vector = Vector.zero
     var vertex3 : Vector = Vector.zero
     var vertex4 : Vector = Vector.zero
     
-    var surfaceNormal : Vector = Vector.zero
+    public var surfaceNormal : Vector = Vector.zero
     
     mutating func appendVertex(_ vertex: Vector) {
         if (vertex1 == Vector.zero) {

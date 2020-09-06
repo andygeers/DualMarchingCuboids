@@ -40,6 +40,7 @@ class ViewController: UIViewController {
     
     var mesh : Mesh? = nil
     var wireframe : Bool = false
+    var showNormals : Bool = false
     var meshNode : SCNNode? = nil
     var cuboidsNode : SCNNode? = nil
     
@@ -127,21 +128,33 @@ class ViewController: UIViewController {
         }
         
         if (!wireframe) {
-            var mesh = Mesh([])
             NSLog("Rendering %d cuboid(s)", grid.cuboids.count)
             let node2 = cuboidsNode ?? SCNNode()
             
             var childNodeIndex = 0
-            for cuboid in grid.cuboids.values.map({ $0.mesh(grid: grid) }) {
-                guard childNodeIndex < 0 else { break }
+            for (_, theCuboid) in grid.cuboids {
+                guard showNormals || childNodeIndex < 200 else { break }
                 
-                mesh = mesh.merge(cuboid)
-            
-                let cuboid = SCNGeometry(mesh, materialLookup: {
+                let cuboid = theCuboid.mesh(grid: grid)
+                guard !showNormals || theCuboid.surfaceNormal != Vector.zero else { continue }
+                
+                let geometry : SCNGeometry
+                
+                if (showNormals) {
+                    let normal = Path([PathPoint(theCuboid.vertex1, isCurved: false),
+                                       PathPoint(theCuboid.vertex1 + theCuboid.surfaceNormal * 1.5, isCurved: false)])
+                    geometry = SCNGeometry(normal)
                     let material = SCNMaterial()
-                    material.diffuse.contents = $0
-                    return material
-                })
+                    material.diffuse.contents = UIColor.red
+                    geometry.insertMaterial(material, at: 0)
+                } else {
+            
+                    geometry = SCNGeometry(cuboid, materialLookup: {
+                        let material = SCNMaterial()
+                        material.diffuse.contents = $0
+                        return material
+                    })
+                }
                 
                 let cuboidNode : SCNNode
                 if (childNodeIndex < node2.childNodes.count) {
@@ -152,7 +165,7 @@ class ViewController: UIViewController {
                     node2.addChildNode(cuboidNode)
                 }
                 
-                cuboidNode.geometry = cuboid
+                cuboidNode.geometry = geometry
                 childNodeIndex += 1
             }
                         
