@@ -68,17 +68,15 @@ public class DualMarchingCuboids : Slice {
                     NSLog("X Cuboid behind %d in front %d", behind != nil, infront != nil)
                     
                     // Trace the gradient along the X axis
-                    (cuboid.vertex1, cuboid.positionSource) = cuboid.interpolatePositionXY(grid: grid, index: index, faces: cuboid.touchedFaces)
+                    cuboid.vertex1 = cuboid.interpolatePositionXY(grid: grid, index: index, faces: cuboid.touchedFaces)
                     
                 case .yz:
                     // Trace the gradient along the Z axis
                     cuboid.vertex1 = cuboid.interpolatePositionYZ(grid: grid, index: index, faces: cuboid.touchedFaces)
-                    cuboid.positionSource = "interpolated"
                     
                 default:
                     // Just use the centre of the cell
                     cuboid.vertex1 = cuboid.centre
-                    cuboid.positionSource = "dualaxis"
                 }
                 
                 grid.cuboids[index] = cuboid
