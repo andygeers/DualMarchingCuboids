@@ -151,7 +151,7 @@ public struct Cuboid {
             return pos
         }
                 
-        assert(neighbour.z == z)
+        //assert(neighbour.z == z)
         
         // Do some linear interpolation of the surface normal
         // Equation is plane.normal.x * x + plane.normal.y * y + plane.normal.z * z = plane.w
@@ -182,7 +182,7 @@ public struct Cuboid {
             return pos
         }
                 
-        assert(neighbour.x == x)
+        //assert(neighbour.x == x)
         
         // Do some linear interpolation of the surface normal
         // But the normal is as though it's pointing in the z axis - so just use the z coordinate as the x coordinate
@@ -305,12 +305,12 @@ public struct Cuboid {
     func triangulate(grid: VoxelGrid, polygons: inout [Euclid.Polygon], material: Euclid.Polygon.Material) {
         guard marchingCubesCase >= 0 else { return }
         
-        let leftCuboid = leftNodeIndex >= 0 ? grid.cuboids[leftNodeIndex] : nil
-        let rightCuboid = rightNodeIndex >= 0 ? grid.cuboids[rightNodeIndex] : nil
-        let upCuboid = upNodeIndex >= 0 ? grid.cuboids[upNodeIndex] : nil
-        let downCuboid = downNodeIndex >= 0 ? grid.cuboids[downNodeIndex] : nil
-        let forwardsCuboid = forwardsNodeIndex >= 0 ? grid.cuboids[forwardsNodeIndex] : nil
-        let backwardsCuboid = backwardsNodeIndex >= 0 ? grid.cuboids[backwardsNodeIndex] : nil
+        let leftCuboid = leftNodeIndex >= 0 ? grid.findCube(at: leftNodeIndex) : nil
+        let rightCuboid = rightNodeIndex >= 0 ? grid.findCube(at: rightNodeIndex) : nil
+        let upCuboid = upNodeIndex >= 0 ? grid.findCube(at: upNodeIndex) : nil
+        let downCuboid = downNodeIndex >= 0 ? grid.findCube(at: downNodeIndex) : nil
+        let forwardsCuboid = forwardsNodeIndex >= 0 ? grid.findCube(at: forwardsNodeIndex) : nil
+        let backwardsCuboid = backwardsNodeIndex >= 0 ? grid.findCube(at: backwardsNodeIndex) : nil
         
         var polyPoints : [[Vector]] = []
         

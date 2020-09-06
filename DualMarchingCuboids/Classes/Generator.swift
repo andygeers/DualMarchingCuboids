@@ -16,6 +16,7 @@ public class Generator {
     public let modelHeight : Double
     public let baseHeight : Double
     let texture : VoxelTexture
+    static let maxDepth = 8
     
     public init(texture : VoxelTexture, modelHeight : Double = 3.5, baseHeight : Double = 4.0) {
         self.texture = texture
