@@ -40,7 +40,7 @@ class ViewController: UIViewController {
     
     var mesh : Mesh? = nil
     var wireframe : Bool = false
-    var showNormals : Bool = false
+    var showNormals : Bool = true
     var meshNode : SCNNode? = nil
     var cuboidsNode : SCNNode? = nil
     
