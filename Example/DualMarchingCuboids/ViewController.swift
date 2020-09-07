@@ -134,9 +134,8 @@ class ViewController: UIViewController {
             var childNodeIndex = 0
             for (_, theCuboid) in grid.cuboids {
                 guard showNormals || childNodeIndex < 200 else { break }
-                
-                let cuboid = theCuboid.mesh(grid: grid)
-                guard !showNormals || theCuboid.surfaceNormal != Vector.zero else { continue }
+                                
+                guard theCuboid.surfaceNormal != Vector.zero else { continue }
                 
                 let geometry : SCNGeometry
                 
@@ -148,7 +147,7 @@ class ViewController: UIViewController {
                     material.diffuse.contents = UIColor.red
                     geometry.insertMaterial(material, at: 0)
                 } else {
-            
+                    let cuboid = theCuboid.mesh(grid: grid)
                     geometry = SCNGeometry(cuboid, materialLookup: {
                         let material = SCNMaterial()
                         material.diffuse.contents = $0
