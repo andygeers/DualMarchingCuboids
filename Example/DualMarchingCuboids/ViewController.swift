@@ -133,7 +133,7 @@ class ViewController: UIViewController {
             
             var childNodeIndex = 0
             for (_, theCuboid) in grid.cuboids {
-                guard showNormals || childNodeIndex < 200 else { break }
+                //guard showNormals || childNodeIndex < 200 else { break }
                                 
                 guard theCuboid.surfaceNormal != Vector.zero else { continue }
                 
