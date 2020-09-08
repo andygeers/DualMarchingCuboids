@@ -68,13 +68,32 @@ public class DualMarchingCuboids : Slice {
                     NSLog("X Cuboid behind %d in front %d", behind != nil, infront != nil)
                     
                     // Trace the gradient along the X axis
-                    cuboid.vertex1 = cuboid.interpolatePositionXY(grid: grid, index: index, faces: cuboid.touchedFaces)
+                    let neighbours = cuboid.findNeighboursXY(grid: grid, index: index, faces: cuboid.touchedFaces)
+                    cuboid.vertex1 = cuboid.interpolatePositionXY(neighbours: neighbours)
                     
                 case .yz:
                     // Trace the gradient along the Z axis
-                    cuboid.vertex1 = cuboid.interpolatePositionYZ(grid: grid, index: index, faces: cuboid.touchedFaces)
+                    let neighbours = cuboid.findNeighboursYZ(grid: grid, index: index, faces: cuboid.touchedFaces)
+                    cuboid.vertex1 = cuboid.interpolatePositionYZ(neighbours: neighbours)
                     
-                default:
+                case .none:
+                    // See if we can find neighbours to deduce our axis from
+                    let xyNeighbours = cuboid.findNeighboursXY(grid: grid, index: index, faces: cuboid.touchedFaces)
+                    if !xyNeighbours.filter({ $0 != nil }).isEmpty {
+                        // Interpolate from these neighbours
+                        cuboid.vertex1 = cuboid.interpolatePositionXY(neighbours: xyNeighbours)
+                    } else {
+                        let yzNeighbours = cuboid.findNeighboursYZ(grid: grid, index: index, faces: cuboid.touchedFaces)
+                        if !yzNeighbours.filter({ $0 != nil }).isEmpty {
+                            // Interpolate from these neighbours
+                            cuboid.vertex1 = cuboid.interpolatePositionYZ(neighbours: yzNeighbours)
+                        } else {
+                            // Just use the centre of the cell
+                            cuboid.vertex1 = cuboid.centre
+                        }
+                    }
+                    
+                case .multiple:
                     // Just use the centre of the cell
                     cuboid.vertex1 = cuboid.centre
                 }
@@ -121,10 +140,12 @@ public class DualMarchingCuboids : Slice {
         } else if (cellData & 0x3 == VoxelAxis.yz.rawValue) {
             // Start by growing the cuboid as far in the x axis as we can
             cuboid.axis = .yz
-            
-        } else {
+                    
+        } else if (cellData & 0x3 > 0) {
             // Just output this as a single cuboid for now
             cuboid.axis = .multiple
+        } else {
+            cuboid.axis = .none
         }
             
         let neighbours = cell.sampleCorners(index: index, grid: grid)

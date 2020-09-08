@@ -202,7 +202,7 @@ public struct Cuboid {
         return pos
     }
     
-    func interpolatePositionXY(grid: VoxelGrid, index: Int, faces: Int) -> Vector {
+    func findNeighboursXY(grid: VoxelGrid, index: Int, faces: Int) -> [Cuboid?] {
         // Find the grid of 9 neighbouring cells
         var neighbours = [Cuboid?](repeating: nil, count: 9)
         
@@ -238,7 +238,10 @@ public struct Cuboid {
             // Y-1
             neighbours[1] = grid.findCube(at: index - grid.width)
         }
-        
+        return neighbours.map { $0?.axis == .xy ? $0 : nil }
+    }
+    
+    func interpolatePositionXY(neighbours: [Cuboid?]) -> Vector {
         let neighbourIndices = [1,3,5,7,0,2,6,8].filter({ neighbours[$0] != nil && neighbours[$0]!.vertex1 != Vector.zero && neighbours[$0]!.surfaceNormal != Vector.zero })
         let interpolated = neighbourIndices.map { interpolatePositionXY(from: neighbours[$0]!) }
         if !interpolated.isEmpty {
@@ -248,7 +251,17 @@ public struct Cuboid {
         }
     }
     
-    func interpolatePositionYZ(grid: VoxelGrid, index: Int, faces: Int) -> Vector {
+    func interpolatePositionYZ(neighbours: [Cuboid?]) -> Vector {
+        let neighbourIndices = [1,3,5,7,0,2,6,8].filter({ neighbours[$0] != nil && neighbours[$0]!.vertex1 != Vector.zero && neighbours[$0]!.surfaceNormal != Vector.zero })
+        let interpolated = neighbourIndices.map { interpolatePositionYZ(from: neighbours[$0]!) }
+        if !interpolated.isEmpty {
+            return interpolated.reduce(Vector.zero, +) / Double(interpolated.count)
+        } else {
+            return centre
+        }
+    }
+    
+    func findNeighboursYZ(grid: VoxelGrid, index: Int, faces: Int) -> [Cuboid?] {
         // Find the grid of 9 neighbouring cells
         var neighbours = [Cuboid?](repeating: nil, count: 9)
         
@@ -286,14 +299,7 @@ public struct Cuboid {
             // Y-1
             neighbours[1] = grid.findCube(at: index - grid.width)
         }        
-        
-        let neighbourIndices = [1,3,5,7,0,2,6,8].filter({ neighbours[$0] != nil && neighbours[$0]!.vertex1 != Vector.zero && neighbours[$0]!.surfaceNormal != Vector.zero })
-        let interpolated = neighbourIndices.map { interpolatePositionYZ(from: neighbours[$0]!) }
-        if !interpolated.isEmpty {
-            return interpolated.reduce(Vector.zero, +) / Double(interpolated.count)
-        } else {
-            return centre
-        }
+        return neighbours.map { $0?.axis == .yz ? $0 : nil }
     }
     
     func triangulate(grid: VoxelGrid, polygons: inout [Euclid.Polygon], material: Euclid.Polygon.Material) {
