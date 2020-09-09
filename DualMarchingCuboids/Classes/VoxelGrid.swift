@@ -65,11 +65,11 @@ public class VoxelGrid {
         } else {
             // See which direction things are aligned at this point
             let gridData = data[index]
-            guard gridData & DualMarchingCuboids.visitedFlag > 0 else { return nil }
-            
             let cellIndex = gridData >> VoxelGrid.dataBits
+            guard cellIndex > 0 else { return nil }
+            
             if let cuboid = cuboids[cellIndex] {
-                assert(cuboid.containsIndex(cellIndex, grid: self))
+                assert(cuboid.containsIndex(index, grid: self))
                 return cuboid
             } else {
                 return nil

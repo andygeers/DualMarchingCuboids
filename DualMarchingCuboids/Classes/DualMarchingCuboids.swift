@@ -36,7 +36,9 @@ public class DualMarchingCuboids : Slice {
         while !grid.seedCells.isEmpty {
             let cubeIndex = grid.seedCells.dequeue()!
             
-            processCell(grid.cuboids[cubeIndex]!)
+            if let cuboid = grid.cuboids[cubeIndex] {
+                processCell(cuboid)
+            }
         }
         
         let after = DispatchTime.now()
@@ -160,9 +162,10 @@ public class DualMarchingCuboids : Slice {
                 grownNeighbours[7] = cuboid.x + cuboid.width < grid.width && cuboid.y + cuboid.height < grid.height ? grid.data[grownIndex + cuboid.width + nextY - nextZ] : 0
                 
                 guard (grownNeighbours[0] & VoxelGrid.occupiedFlag > 0) || (grownNeighbours[3] & VoxelGrid.occupiedFlag > 0) || (grownNeighbours[4] & VoxelGrid.occupiedFlag > 0) || (grownNeighbours[7] & VoxelGrid.occupiedFlag > 0) else { break }
+                guard grownNeighbours[0] & DualMarchingCuboids.visitedFlag == 0 else { break }
+                guard grid.cuboids[grownIndex - nextZ] == nil else { break }
                 
                 if (grownNeighbours[0] & 0x3 == cellData & 0x3) {
-                    
                     cuboid.z -= 1
                     grownIndex -= nextZ
                     cuboid.depth += 1
@@ -173,7 +176,7 @@ public class DualMarchingCuboids : Slice {
                 }
             }
             
-            let farZ = grid.width * grid.height * cuboid.depth
+            var farZ = grid.width * grid.height * cuboid.depth
             
             while cuboid.z + cuboid.depth + 1 < grid.depth && cuboid.depth < Generator.maxDepth {
                 grownNeighbours[1] = grid.data[grownIndex + farZ + nextZ]
@@ -181,9 +184,12 @@ public class DualMarchingCuboids : Slice {
                 grownNeighbours[5] = cuboid.y + cuboid.height < grid.height ? grid.data[grownIndex + farZ + nextZ + nextY] : 0
                 grownNeighbours[6] = cuboid.x + cuboid.width < grid.width && cuboid.y + cuboid.height < grid.height ? grid.data[grownIndex + farZ + nextZ + cuboid.width + nextY] : 0
                 
+                guard grownNeighbours[1] & DualMarchingCuboids.visitedFlag == 0 else { break }
+                guard grid.cuboids[farZ + nextZ] == nil else { break }
+                
                 if (grownNeighbours[1] & VoxelAxis.yz.rawValue == 0) {
                     cuboid.depth += 1
-                    
+                    farZ += nextZ
                     cuboid.marchingCubesCase = caseFromNeighbours(grownNeighbours)
                 } else {
                     break
@@ -209,9 +215,12 @@ public class DualMarchingCuboids : Slice {
         // Follow the contour into neighbouring cells
         for (n, offset) in MarchingCubes.faceOffsets.enumerated() {
             if (touchedFaces & (1 << n) > 0) {
-                let neighbourIndex = grownIndex + localFaceOffsets[n]
+                let neighbourSurfaceIndex = grownIndex + localFaceOffsets[n]
+                if (cuboid.containsIndex(neighbourSurfaceIndex, grid: grid)) {
+                    continue
+                }
                                 
-                if (grid.data[neighbourIndex] & DualMarchingCuboids.visitedFlag == 0) {
+                if (grid.data[neighbourSurfaceIndex] & DualMarchingCuboids.visitedFlag == 0) {
                     let neighbour = Cuboid(x: cell.x + offset.0, y: cell.y + offset.1, z: cell.z + offset.2, width: 1, height: 1, depth: 1)
                     if var neighbourCell = grid.addSeed(neighbour) {
                         // Connect neighbours together in a network
@@ -247,17 +256,18 @@ public class DualMarchingCuboids : Slice {
         }
         
         // Make all cells within the cuboid point to this index
-        for zz in cuboid.z ... cuboid.z + cuboid.depth {
-            for yy in cuboid.y ... cuboid.y + cuboid.height {
-                for xx in cuboid.x ... cuboid.x + cuboid.width {
+        for zz in cuboid.z ..< cuboid.z + cuboid.depth {
+            for yy in cuboid.y ..< cuboid.y + cuboid.height {
+                for xx in cuboid.x ..< cuboid.x + cuboid.width {
                     if ((xx != 0) || (yy != 0) || (zz != 0)) {
                         let index = xx + yy * grid.width + zz * grid.width * grid.height
+                        grid.cuboids.removeValue(forKey: index)
                         grid.data[index] = (grid.data[index] & VoxelGrid.dataBits) | (grownIndex << VoxelGrid.dataBits) | DualMarchingCuboids.visitedFlag
                     }
                 }
             }
         }
-        
+                
         grid.cuboids[grownIndex] = cuboid
     }
 }
