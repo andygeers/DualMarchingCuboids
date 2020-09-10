@@ -165,12 +165,13 @@ public class DualMarchingCuboids : Slice {
                 guard grownNeighbours[0] & DualMarchingCuboids.visitedFlag == 0 else { break }
                 guard grid.cuboids[grownIndex - nextZ] == nil else { break }
                 
+                let newCubesCase = caseFromNeighbours(grownNeighbours)
+                guard newCubesCase == cubeIndex else { break }
+                
                 if (grownNeighbours[0] & 0x3 == cellData & 0x3) {
                     cuboid.z -= 1
                     grownIndex -= nextZ
                     cuboid.depth += 1
-                    
-                    cuboid.marchingCubesCase = caseFromNeighbours(grownNeighbours)
                 } else {
                     break
                 }
@@ -187,10 +188,12 @@ public class DualMarchingCuboids : Slice {
                 guard grownNeighbours[1] & DualMarchingCuboids.visitedFlag == 0 else { break }
                 guard grid.cuboids[farZ + nextZ] == nil else { break }
                 
+                let newCubesCase = caseFromNeighbours(grownNeighbours)
+                guard newCubesCase == cubeIndex else { break }
+                
                 if (grownNeighbours[1] & VoxelAxis.yz.rawValue == 0) {
                     cuboid.depth += 1
                     farZ += nextZ
-                    cuboid.marchingCubesCase = caseFromNeighbours(grownNeighbours)
                 } else {
                     break
                 }
@@ -215,9 +218,9 @@ public class DualMarchingCuboids : Slice {
         // Follow the contour into neighbouring cells
         for (n, offset) in MarchingCubes.faceOffsets.enumerated() {
             if (touchedFaces & (1 << n) > 0) {
-                let neighbourSurfaceIndex = grownIndex + localFaceOffsets[n]
-                if (cuboid.containsIndex(neighbourSurfaceIndex, grid: grid)) {
-                    continue
+                var neighbourSurfaceIndex = grownIndex + localFaceOffsets[n]
+                while (cuboid.containsIndex(neighbourSurfaceIndex, grid: grid)) {
+                    neighbourSurfaceIndex += localFaceOffsets[n]
                 }
                                 
                 if (grid.data[neighbourSurfaceIndex] & DualMarchingCuboids.visitedFlag == 0) {
