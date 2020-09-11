@@ -66,6 +66,8 @@ public struct Cuboid {
     public var surfaceNormal : Vector = Vector.zero
     
     mutating func appendVertex(_ vertex: Vector) {
+        guard vertex != Vector.zero else { return }
+        
         if (vertex1 == Vector.zero) {
             vertex1 = vertex
         } else if (vertex2 == Vector.zero) {
