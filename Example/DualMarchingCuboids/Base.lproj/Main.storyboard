@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="16097.2" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="vXZ-lx-hvc">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="16097.3" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="vXZ-lx-hvc">
     <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
@@ -20,10 +20,10 @@
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
                             <sceneKitView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="fog-s8-U5a">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="586"/>
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="526"/>
                             </sceneKitView>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="equalSpacing" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="gp6-08-tbe">
-                                <rect key="frame" x="0.0" y="596" width="375" height="71"/>
+                                <rect key="frame" x="0.0" y="536" width="375" height="131"/>
                                 <subviews>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="63c-Gv-pj4">
                                         <rect key="frame" x="0.0" y="0.0" width="375" height="31"/>
@@ -51,8 +51,40 @@
                                             <constraint firstItem="oBH-WS-HuI" firstAttribute="centerY" secondItem="63c-Gv-pj4" secondAttribute="centerY" id="yEG-Yn-pOQ"/>
                                         </constraints>
                                     </view>
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="8oh-D2-EOS">
+                                        <rect key="frame" x="0.0" y="41" width="375" height="50"/>
+                                        <subviews>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" misplaced="YES" text="Cuboids?" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="nuU-ca-mWO">
+                                                <rect key="frame" x="10" y="15" width="90" height="20.5"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                <nil key="textColor"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                            <segmentedControl opaque="NO" contentMode="scaleToFill" ambiguous="YES" misplaced="YES" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="IKA-kb-ozA">
+                                                <rect key="frame" x="129" y="5" width="236" height="41"/>
+                                                <segments>
+                                                    <segment title="No"/>
+                                                    <segment title="Seed"/>
+                                                    <segment title="All"/>
+                                                    <segment title="Normals"/>
+                                                </segments>
+                                                <connections>
+                                                    <action selector="changeCuboidDebugWithSender:" destination="vXZ-lx-hvc" eventType="valueChanged" id="64x-hl-pFJ"/>
+                                                </connections>
+                                            </segmentedControl>
+                                        </subviews>
+                                        <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                                        <constraints>
+                                            <constraint firstItem="IKA-kb-ozA" firstAttribute="trailing" secondItem="8oh-D2-EOS" secondAttribute="trailing" constant="-10" id="Agc-Wt-yFp"/>
+                                            <constraint firstAttribute="height" secondItem="IKA-kb-ozA" secondAttribute="height" constant="10" id="PbO-dn-Rpl"/>
+                                            <constraint firstItem="nuU-ca-mWO" firstAttribute="centerY" secondItem="8oh-D2-EOS" secondAttribute="centerY" id="U1q-IT-CM6"/>
+                                            <constraint firstItem="IKA-kb-ozA" firstAttribute="centerY" secondItem="8oh-D2-EOS" secondAttribute="centerY" id="UP9-du-y84"/>
+                                            <constraint firstItem="nuU-ca-mWO" firstAttribute="leading" secondItem="8oh-D2-EOS" secondAttribute="leading" constant="10" id="giV-Wg-LfF"/>
+                                            <constraint firstItem="nuU-ca-mWO" firstAttribute="trailing" relation="lessThanOrEqual" secondItem="IKA-kb-ozA" secondAttribute="leading" constant="-10" id="wvn-2M-dlO"/>
+                                        </constraints>
+                                    </view>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4WQ-CZ-FZT">
-                                        <rect key="frame" x="0.0" y="41" width="375" height="30"/>
+                                        <rect key="frame" x="0.0" y="101" width="375" height="30"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="30" id="E11-9b-qbD"/>
                                         </constraints>
@@ -76,13 +108,14 @@
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="cuboidsSwitch" destination="IKA-kb-ozA" id="cIU-dG-WqX"/>
                         <outlet property="sceneView" destination="fog-s8-U5a" id="nS6-r7-VCs"/>
                         <outlet property="wireframeSwitch" destination="oBH-WS-HuI" id="kvT-rL-2j8"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="x5A-6p-PRh" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="135" y="134"/>
+            <point key="canvasLocation" x="133.59999999999999" y="133.5832083958021"/>
         </scene>
     </scenes>
 </document>

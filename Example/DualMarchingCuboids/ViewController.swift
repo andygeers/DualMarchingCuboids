@@ -29,6 +29,7 @@ class ViewController: UIViewController {
     
     @IBOutlet var sceneView : SCNView!
     @IBOutlet var wireframeSwitch : UISwitch!
+    @IBOutlet var cuboidsSwitch : UISegmentedControl!
     
     private var grid : VoxelGrid!
     private var seedVoxels : [SCNNode] = []
@@ -41,6 +42,8 @@ class ViewController: UIViewController {
     var mesh : Mesh? = nil
     var wireframe : Bool = false
     var showNormals : Bool = false
+    var showCuboids : Bool = false
+    var showNonSeedCuboids : Bool = false
     var meshNode : SCNNode? = nil
     var cuboidsNode : SCNNode? = nil
     
@@ -127,15 +130,17 @@ class ViewController: UIViewController {
             self.meshNode = node
         }
         
-        if (!wireframe) {
+        if (showNormals || showCuboids) {
             NSLog("Rendering %d cuboid(s)", grid.cuboids.count)
             let node2 = cuboidsNode ?? SCNNode()
             
             var childNodeIndex = 0
             for (_, theCuboid) in grid.cuboids {
                 //guard showNormals || childNodeIndex < 200 else { break }
-                                
-                guard theCuboid.surfaceNormal != Vector.zero else { continue }
+                     
+                if (showNormals || !showNonSeedCuboids) {
+                    guard theCuboid.surfaceNormal != Vector.zero else { continue }
+                }
                 
                 let geometry : SCNGeometry
                 
@@ -167,11 +172,22 @@ class ViewController: UIViewController {
                 cuboidNode.geometry = geometry
                 childNodeIndex += 1
             }
-                        
-            if (cuboidsNode == nil) {
+            
+            if let cuboidsNode = cuboidsNode {
+                let nodesToRemove = (childNodeIndex ..< cuboidsNode.childNodes.count).map { cuboidsNode.childNodes[$0]                    
+                }
+                
+                for childNode in nodesToRemove {
+                    childNode.removeFromParentNode()
+                }
+                
+            } else {
                 scene.rootNode.addChildNode(node2)
                 self.cuboidsNode = node2
             }
+        } else if let cuboidsNode = cuboidsNode {
+            cuboidsNode.removeFromParentNode()
+            self.cuboidsNode = nil
         }
     }
     
@@ -345,6 +361,32 @@ class ViewController: UIViewController {
     
     @IBAction func toggleWireframe(sender: UISwitch) {
         self.wireframe = sender.isOn
+        renderMesh()
+    }
+    
+    @IBAction func changeCuboidDebug(sender: UISegmentedControl) {
+        switch (sender.selectedSegmentIndex) {
+        case 0:
+            showCuboids = false
+            showNormals = false
+            
+        case 1:
+            showCuboids = true
+            showNonSeedCuboids = false
+            showNormals = false
+            
+        case 2:
+            showCuboids = true
+            showNonSeedCuboids = true
+            
+        case 3:
+            showCuboids = false
+            showNormals = true
+            
+        default:
+            break
+        }
+        
         renderMesh()
     }
 }
