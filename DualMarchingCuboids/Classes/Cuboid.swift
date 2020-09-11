@@ -210,35 +210,35 @@ public struct Cuboid {
         
         if (faces & (1 << 1) > 0) && x + 1 < grid.width {
             // X+1
-            neighbours[5] = grid.findCube(at: index + 1)
+            neighbours[5] = grid.findCuboid(at: index + 1)
             
             if neighbours[5] != nil {
                 // See if there's also something right and up
-                neighbours[8] = y + 1 < grid.height ? grid.findCube(at: index + 1 + grid.width) : nil
+                neighbours[8] = y + 1 < grid.height ? grid.findCuboid(at: index + 1 + grid.width) : nil
                 
                 // See if there's also something right and down
-                neighbours[2] = y > 0 ? grid.findCube(at: index + 1 - grid.width) : nil
+                neighbours[2] = y > 0 ? grid.findCuboid(at: index + 1 - grid.width) : nil
             }
         }
         if (faces & (1 << 3) > 0) && x > 0 {
             // X-1
-            neighbours[3] = grid.findCube(at: index - 1)
+            neighbours[3] = grid.findCuboid(at: index - 1)
             
             if neighbours[3] != nil {
                 // See if there's also something left and up
-                neighbours[6] = y + 1 < grid.height ? grid.findCube(at: index - 1 + grid.width) : nil
+                neighbours[6] = y + 1 < grid.height ? grid.findCuboid(at: index - 1 + grid.width) : nil
                 
                 // See if there's also something left and down
-                neighbours[0] = y > 0 ? grid.findCube(at: index - 1 - grid.width) : nil
+                neighbours[0] = y > 0 ? grid.findCuboid(at: index - 1 - grid.width) : nil
             }
         }
         if (faces & (1 << 4) > 0) && x + 1 < grid.width {
             // Y+1
-            neighbours[7] = grid.findCube(at: index + grid.width)
+            neighbours[7] = grid.findCuboid(at: index + grid.width)
         }
         if (faces & (1 << 5) > 0) && x > 0 {
             // Y-1
-            neighbours[1] = grid.findCube(at: index - grid.width)
+            neighbours[1] = grid.findCuboid(at: index - grid.width)
         }
         return neighbours.map { $0?.axis == .xy ? $0 : nil }
     }
@@ -271,35 +271,35 @@ public struct Cuboid {
         
         if (faces & (1 << 0) > 0) && z + 1 < grid.depth {
             // Z+1
-            neighbours[5] = grid.findCube(at: index + layerOffset)
+            neighbours[5] = grid.findCuboid(at: index + layerOffset)
                 
             if neighbours[5] != nil {
                 // See if there's also something forwards and up
-                neighbours[8] = y + 1 < grid.height ? grid.findCube(at: index + layerOffset + grid.width) : nil
+                neighbours[8] = y + 1 < grid.height ? grid.findCuboid(at: index + layerOffset + grid.width) : nil
                 
                 // See if there's also something forwards and down
-                neighbours[2] = y > 0 ? grid.findCube(at: index + layerOffset - grid.width) : nil
+                neighbours[2] = y > 0 ? grid.findCuboid(at: index + layerOffset - grid.width) : nil
             }
         }
         if (faces & (1 << 2) > 0) && z > 0 {
             // Z-1
-            neighbours[3] = grid.findCube(at: index - layerOffset)
+            neighbours[3] = grid.findCuboid(at: index - layerOffset)
                 
             if neighbours[3] != nil {
                 // See if there's also something backwards and up
-                neighbours[6] = y + 1 < grid.height ? grid.findCube(at: index - layerOffset + grid.width) : nil
+                neighbours[6] = y + 1 < grid.height ? grid.findCuboid(at: index - layerOffset + grid.width) : nil
                 
                 // See if there's also something backwards and down
-                neighbours[0] = y > 0 ? grid.findCube(at: index - layerOffset - grid.width) : nil
+                neighbours[0] = y > 0 ? grid.findCuboid(at: index - layerOffset - grid.width) : nil
             }
         }
         if (faces & (1 << 4) > 0) && x + 1 < grid.width {
             // Y+1
-            neighbours[7] = grid.findCube(at: index + grid.width)
+            neighbours[7] = grid.findCuboid(at: index + grid.width)
         }
         if (faces & (1 << 5) > 0) && x > 0 {
             // Y-1
-            neighbours[1] = grid.findCube(at: index - grid.width)
+            neighbours[1] = grid.findCuboid(at: index - grid.width)
         }        
         return neighbours.map { $0?.axis == .yz ? $0 : nil }
     }
@@ -307,12 +307,12 @@ public struct Cuboid {
     func triangulate(grid: VoxelGrid, polygons: inout [Euclid.Polygon], material: Euclid.Polygon.Material) {
         guard marchingCubesCase >= 0 else { return }
         
-        let leftCuboid = leftNodeIndex >= 0 ? grid.findCube(at: leftNodeIndex) : nil
-        let rightCuboid = rightNodeIndex >= 0 ? grid.findCube(at: rightNodeIndex) : nil
-        let upCuboid = upNodeIndex >= 0 ? grid.findCube(at: upNodeIndex) : nil
-        let downCuboid = downNodeIndex >= 0 ? grid.findCube(at: downNodeIndex) : nil
-        let forwardsCuboid = forwardsNodeIndex >= 0 ? grid.findCube(at: forwardsNodeIndex) : nil
-        let backwardsCuboid = backwardsNodeIndex >= 0 ? grid.findCube(at: backwardsNodeIndex) : nil
+        let leftCuboid = leftNodeIndex >= 0 ? grid.findCuboid(at: leftNodeIndex) : nil
+        let rightCuboid = rightNodeIndex >= 0 ? grid.findCuboid(at: rightNodeIndex) : nil
+        let upCuboid = upNodeIndex >= 0 ? grid.findCuboid(at: upNodeIndex) : nil
+        let downCuboid = downNodeIndex >= 0 ? grid.findCuboid(at: downNodeIndex) : nil
+        let forwardsCuboid = forwardsNodeIndex >= 0 ? grid.findCuboid(at: forwardsNodeIndex) : nil
+        let backwardsCuboid = backwardsNodeIndex >= 0 ? grid.findCuboid(at: backwardsNodeIndex) : nil
         
         var polyPoints : [[Vector]] = []
         

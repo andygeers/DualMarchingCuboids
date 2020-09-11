@@ -45,7 +45,7 @@ public class VoxelGrid {
     public func addSeed(_ cube: Cuboid) -> Cuboid? {
         guard cube.x < width && cube.y < height && cube.z < depth else { return nil }
         let index = cube.index(grid: self)
-        if var existingCuboid = findCube(at: index) {
+        if var existingCuboid = findCuboid(at: index) {
             existingCuboid.appendVertex(cube.vertex1)
             existingCuboid.axis = .multiple
             //existingCuboid.surfaceNormal = Vector.zero
@@ -59,7 +59,7 @@ public class VoxelGrid {
         }
     }
     
-    func findCube(at index: Int) -> Cuboid? {
+    func findCuboid(at index: Int) -> Cuboid? {
         if let cuboid = cuboids[index] {
             return cuboid
         } else {

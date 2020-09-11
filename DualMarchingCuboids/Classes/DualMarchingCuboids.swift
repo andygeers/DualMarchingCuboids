@@ -163,7 +163,7 @@ public class DualMarchingCuboids : Slice {
                 
                 guard (grownNeighbours[0] & VoxelGrid.occupiedFlag > 0) || (grownNeighbours[3] & VoxelGrid.occupiedFlag > 0) || (grownNeighbours[4] & VoxelGrid.occupiedFlag > 0) || (grownNeighbours[7] & VoxelGrid.occupiedFlag > 0) else { break }
                 guard grownNeighbours[0] & DualMarchingCuboids.visitedFlag == 0 else { break }
-                guard grid.cuboids[grownIndex - nextZ] == nil else { break }
+                guard grid.findCuboid(at: grownIndex - nextZ) == nil else { break }
                 
                 let newCubesCase = caseFromNeighbours(grownNeighbours)
                 guard newCubesCase == cubeIndex else { break }
