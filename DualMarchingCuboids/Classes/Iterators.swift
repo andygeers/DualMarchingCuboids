@@ -33,7 +33,7 @@ public class XYIterator : SliceAxisIterator {
         x = xRange.lowerBound - 1
         y = yRange.lowerBound
         self.z = z
-        index = x + y * grid.width + z * (grid.width * grid.height)
+        index = grid.cellIndex(x: x, y: y, z: z)
     }
     
     override public func next() -> (Int, Int, Int, Int, Int, Int)? {
@@ -104,7 +104,7 @@ public class YZIterator : SliceAxisIterator {
         y = yRange.lowerBound
         z = zRange.lowerBound - 1
         
-        index = x + y * grid.width + z * (grid.width * grid.height)
+        index = grid.cellIndex(x: x, y: y, z: z)
     }
     
     override public func next() -> (Int, Int, Int, Int, Int, Int)? {
@@ -118,7 +118,7 @@ public class YZIterator : SliceAxisIterator {
                 return nil
             }
             
-            index = x + y * grid.width + z * (grid.width * grid.height)
+            index = grid.cellIndex(x: x, y: y, z: z)
         }
         
         return (x, y, z, z, y, index)
@@ -139,7 +139,7 @@ public class XIterator : IteratorProtocol, Sequence {
         self.xRange = xRange
         
         x = xRange.lowerBound - 1
-        index = x + y * grid.width + z * (grid.width * grid.height)
+        index = grid.cellIndex(x: x, y: y, z: z)
     }
 
     public func next() -> (Int, Int, Int, Int)? {

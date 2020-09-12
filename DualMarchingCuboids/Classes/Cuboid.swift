@@ -112,9 +112,7 @@ public struct Cuboid {
     }
     
     func containsIndex(_ index : Int, grid: VoxelGrid) -> Bool {
-        let z = index / (grid.width * grid.height)
-        let y = (index - z * grid.width * grid.height) / grid.width
-        let x = index % grid.width
+        let (x, y, z) = grid.positionFromIndex(index)        
         return x >= self.x && x < self.x + self.width && y >= self.y && y < self.y + self.height && z >= self.z && z < self.z + self.depth
     }
     
@@ -373,5 +371,12 @@ public struct Cuboid {
                 polygons.append(polygon)
             }
         }
+    }
+}
+
+extension Cuboid {
+    init(grid: VoxelGrid, index: Int, width: Int, height: Int, depth: Int) {
+        let (x, y, z) = grid.positionFromIndex(index)        
+        self.init(x: x, y: y, z: z, width: width, height: height, depth: depth)
     }
 }

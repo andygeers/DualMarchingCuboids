@@ -163,6 +163,8 @@ public class DualMarchingCuboids : Slice {
                 
                 guard (grownNeighbours[0] & VoxelGrid.occupiedFlag > 0) || (grownNeighbours[3] & VoxelGrid.occupiedFlag > 0) || (grownNeighbours[4] & VoxelGrid.occupiedFlag > 0) || (grownNeighbours[7] & VoxelGrid.occupiedFlag > 0) else { break }
                 guard grownNeighbours[0] & DualMarchingCuboids.visitedFlag == 0 else { break }
+                
+                // TODO: In future we might want to merge rather than just ignore
                 guard grid.findCuboid(at: grownIndex - nextZ) == nil else { break }
                 
                 let newCubesCase = caseFromNeighbours(grownNeighbours)
@@ -224,7 +226,7 @@ public class DualMarchingCuboids : Slice {
                 }
                                 
                 if (grid.data[neighbourSurfaceIndex] & DualMarchingCuboids.visitedFlag == 0) {
-                    let neighbour = Cuboid(x: cell.x + offset.0, y: cell.y + offset.1, z: cell.z + offset.2, width: 1, height: 1, depth: 1)
+                    let neighbour = Cuboid(grid: grid, index: neighbourSurfaceIndex, width: 1, height: 1, depth: 1)
                     if var neighbourCell = grid.addSeed(neighbour) {
                         // Connect neighbours together in a network
                         let neighbourIndex = neighbourCell.index(grid: grid)
@@ -263,7 +265,7 @@ public class DualMarchingCuboids : Slice {
             for yy in cuboid.y ..< cuboid.y + cuboid.height {
                 for xx in cuboid.x ..< cuboid.x + cuboid.width {
                     if ((xx != 0) || (yy != 0) || (zz != 0)) {
-                        let index = xx + yy * grid.width + zz * grid.width * grid.height
+                        let index = grid.cellIndex(x: xx, y: yy, z: zz)
                         grid.cuboids.removeValue(forKey: index)
                         grid.data[index] = (grid.data[index] & VoxelGrid.dataBits) | (grownIndex << VoxelGrid.dataBits) | DualMarchingCuboids.visitedFlag
                     }

@@ -243,29 +243,6 @@ class ViewController: UIViewController {
         mesher = DualMarchingCuboids(grid: grid)
     }
     
-    private func generateMesh() {
-        NSLog("Generating mesh")
-        
-        let mesh = grid.generateMesh()
-        
-        NSLog("Generated mesh with %d polygon(s)", mesh.polygons.count)
-        
-        let scene = SCNScene()
-        
-        let geometry = SCNGeometry(mesh, materialLookup: {
-            let material = SCNMaterial()
-            material.diffuse.contents = $0
-            return material
-        })
-        let node = SCNNode(geometry: geometry)
-        scene.rootNode.addChildNode(node)
-        
-        self.sceneView.scene = scene
-        
-        self.sceneView.allowsCameraControl = true
-        self.sceneView.showsStatistics = true
-    }
-    
     private func generateVoxel(x : Int, y : Int, z : Int, particle : SCNGeometry, colour: UIColor = .red) -> SCNNode {
         let voxelNode = SCNNode(geometry: (particle.copy() as! SCNGeometry))
         voxelNode.position = SCNVector3Make(Float(x) + rnd(), Float(y), Float(z) + rnd())
