@@ -71,33 +71,33 @@ public class DualMarchingCuboids : Slice {
                     
                     // Trace the gradient along the X axis
                     let neighbours = cuboid.findNeighboursXY(grid: grid, index: index, faces: cuboid.touchedFaces)
-                    cuboid.vertex1 = cuboid.interpolatePositionXY(neighbours: neighbours)
+                    cuboid.vertex1 = cuboid.interpolatePositionXY(neighbours: neighbours, grid: grid)
                     
                 case .yz:
                     // Trace the gradient along the Z axis
                     let neighbours = cuboid.findNeighboursYZ(grid: grid, index: index, faces: cuboid.touchedFaces)
-                    cuboid.vertex1 = cuboid.interpolatePositionYZ(neighbours: neighbours)
+                    cuboid.vertex1 = cuboid.interpolatePositionYZ(neighbours: neighbours, grid: grid)
                     
                 case .none:
                     // See if we can find neighbours to deduce our axis from
                     let xyNeighbours = cuboid.findNeighboursXY(grid: grid, index: index, faces: cuboid.touchedFaces)
                     if !xyNeighbours.filter({ $0 != nil }).isEmpty {
                         // Interpolate from these neighbours
-                        cuboid.vertex1 = cuboid.interpolatePositionXY(neighbours: xyNeighbours)
+                        cuboid.vertex1 = cuboid.interpolatePositionXY(neighbours: xyNeighbours, grid: grid)
                     } else {
                         let yzNeighbours = cuboid.findNeighboursYZ(grid: grid, index: index, faces: cuboid.touchedFaces)
                         if !yzNeighbours.filter({ $0 != nil }).isEmpty {
                             // Interpolate from these neighbours
-                            cuboid.vertex1 = cuboid.interpolatePositionYZ(neighbours: yzNeighbours)
+                            cuboid.vertex1 = cuboid.interpolatePositionYZ(neighbours: yzNeighbours, grid: grid)
                         } else {
                             // Just use the centre of the cell
-                            cuboid.vertex1 = cuboid.centre
+                            cuboid.vertex1 = cuboid.surfaceCentre(grid: grid)
                         }
                     }
                     
                 case .multiple:
                     // Just use the centre of the cell
-                    cuboid.vertex1 = cuboid.centre
+                    cuboid.vertex1 = cuboid.surfaceCentre(grid: grid)
                 }
                 
                 grid.cuboids[index] = cuboid
@@ -140,6 +140,9 @@ public class DualMarchingCuboids : Slice {
         cuboid.marchingCubesCase = cubeIndex
         
         var grownIndex = index
+        
+        // Keep track of where the actual surface is, for when we generate vertices
+        cuboid.seedIndex = index
         
         //check if its completely inside or outside
         guard MarchingCubes.edgeTable[cubeIndex] != 0 else { return }
@@ -211,7 +214,6 @@ public class DualMarchingCuboids : Slice {
         } else {
             cuboid.axis = .none
         }
-        
                 
         //now build the triangles using triTable
         // Keep track of which faces are included
@@ -220,7 +222,7 @@ public class DualMarchingCuboids : Slice {
         // Follow the contour into neighbouring cells
         for (n, offset) in MarchingCubes.faceOffsets.enumerated() {
             if (touchedFaces & (1 << n) > 0) {
-                var neighbourSurfaceIndex = grownIndex + localFaceOffsets[n]
+                var neighbourSurfaceIndex = index + localFaceOffsets[n]
                 while (cuboid.containsIndex(neighbourSurfaceIndex, grid: grid)) {
                     neighbourSurfaceIndex += localFaceOffsets[n]
                 }
@@ -231,26 +233,38 @@ public class DualMarchingCuboids : Slice {
                         // Connect neighbours together in a network
                         let neighbourIndex = neighbourCell.index(grid: grid)
                         if (offset.0 > 0) {
+                            assert(neighbourCell.leftNodeIndex == -1 || cuboid.containsIndex(neighbourCell.leftNodeIndex, grid:     grid))
+                            
                             cuboid.rightNodeIndex = neighbourIndex
                             neighbourCell.leftNodeIndex = grownIndex
                             grid.cuboids[neighbourIndex] = neighbourCell
                         } else if (offset.0 < 0) {
+                            assert(neighbourCell.rightNodeIndex == -1 || cuboid.containsIndex(neighbourCell.rightNodeIndex, grid:     grid))
+                            
                             cuboid.leftNodeIndex = neighbourIndex
                             neighbourCell.rightNodeIndex = grownIndex
                             grid.cuboids[neighbourIndex] = neighbourCell
                         } else if (offset.1 > 0) {
+                            assert(neighbourCell.downNodeIndex == -1 || cuboid.containsIndex(neighbourCell.downNodeIndex, grid:     grid))
+                            
                             cuboid.upNodeIndex = neighbourIndex
                             neighbourCell.downNodeIndex = grownIndex
                             grid.cuboids[neighbourIndex] = neighbourCell
                         } else if (offset.1 < 0) {
+                            assert(neighbourCell.upNodeIndex == -1 || cuboid.containsIndex(neighbourCell.upNodeIndex, grid:     grid))
+                            
                             cuboid.downNodeIndex = neighbourIndex
                             neighbourCell.upNodeIndex = grownIndex
                             grid.cuboids[neighbourIndex] = neighbourCell
                         } else if (offset.2 > 0) {
+                            assert(neighbourCell.backwardsNodeIndex == -1 || cuboid.containsIndex(neighbourCell.backwardsNodeIndex, grid:     grid))
+                            
                             cuboid.forwardsNodeIndex = neighbourIndex
                             neighbourCell.backwardsNodeIndex = grownIndex
                             grid.cuboids[neighbourIndex] = neighbourCell
                         } else if (offset.2 < 0) {
+                            assert(neighbourCell.forwardsNodeIndex == -1 || cuboid.containsIndex(neighbourCell.forwardsNodeIndex, grid:     grid))
+                            
                             cuboid.backwardsNodeIndex = neighbourIndex
                             neighbourCell.forwardsNodeIndex = grownIndex
                             grid.cuboids[neighbourIndex] = neighbourCell

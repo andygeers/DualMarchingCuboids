@@ -35,6 +35,8 @@ public struct Cuboid {
     var height : Int
     var depth : Int
     
+    var seedIndex : Int = -1
+    
     var isUnitCube : Bool {
         return width == 1 && height == 1 && depth == 1
     }
@@ -107,6 +109,15 @@ public struct Cuboid {
         return corner + cellSize * 0.5
     }
     
+    func surfaceCentre(grid: VoxelGrid) -> Vector {
+        guard seedIndex != -1 else {
+            assert(width == 1 && height == 1 && depth == 1)
+            return centre
+        }
+        let (x, y, z) = grid.positionFromIndex(seedIndex)
+        return Vector(Double(x) + 0.5, Double(y) + 0.5, Double(z) + 0.5)
+    }
+    
     var bounds : Bounds {
         return Bounds(min: corner, max: corner + cellSize)
     }
@@ -139,31 +150,34 @@ public struct Cuboid {
         ]
     }
     
-    func interpolatePositionXY(from neighbour: Cuboid) -> Vector {
+    func interpolatePositionXY(from neighbour: Cuboid, grid: VoxelGrid) -> Vector {
         assert(neighbour.x != x || neighbour.y != y || neighbour.z != z)
         assert(neighbour.vertex1 != Vector.zero)
         
         var pos = centre
         
-        guard (neighbour.surfaceNormal != Vector.zero) else {
+        if (neighbour.surfaceNormal == Vector.zero) {
             // No serious interpolation possible, just use the same Z
             pos.z = neighbour.vertex1.z
-            return pos
-        }
+        } else {
                 
-        //assert(neighbour.z == z)
+            //assert(neighbour.z == z)
+            
+            // Do some linear interpolation of the surface normal
+            // Equation is plane.normal.x * x + plane.normal.y * y + plane.normal.z * z = plane.w
+            let normal = neighbour.surfaceNormal
+            let w = neighbour.vertex1.dot(normal)
+            pos.z = (w - normal.x * pos.x - normal.y * pos.y) / normal.z
+            //pos.z = neighbour.vertex1.z
+        }
         
-        // Do some linear interpolation of the surface normal
-        // Equation is plane.normal.x * x + plane.normal.y * y + plane.normal.z * z = plane.w
-        let normal = neighbour.surfaceNormal
-        let w = neighbour.vertex1.dot(normal)
-        pos.z = (w - normal.x * centre.x - normal.y * centre.y) / normal.z
-        //pos.z = neighbour.vertex1.z
+        assert(seedIndex != -1 || (width == 1 && height == 1 && depth == 1))
+        let z = seedIndex != -1 ? seedIndex / (grid.width * grid.height) : self.z
         
         if pos.z < Double(z) {
             pos.z = Double(z)
-        } else if pos.z > Double(z + depth) {
-            pos.z = Double(z + depth)
+        } else if pos.z > Double(z + 1) {
+            pos.z = Double(z + 1)
         }
         
         assert(bounds.containsPoint(pos))
@@ -190,7 +204,7 @@ public struct Cuboid {
         
         let normal = neighbour.surfaceNormal
         let w = neighbour.vertex1.dot(normal)
-        pos.x = (w - normal.y * centre.y - normal.z * centre.z) / normal.x
+        pos.x = (w - normal.y * pos.y - normal.z * pos.z) / normal.x
         
         if pos.x < Double(x) {
             pos.x = Double(x)
@@ -241,23 +255,23 @@ public struct Cuboid {
         return neighbours.map { $0?.axis == .xy ? $0 : nil }
     }
     
-    func interpolatePositionXY(neighbours: [Cuboid?]) -> Vector {
+    func interpolatePositionXY(neighbours: [Cuboid?], grid: VoxelGrid) -> Vector {
         let neighbourIndices = [1,3,5,7,0,2,6,8].filter({ neighbours[$0] != nil && neighbours[$0]!.vertex1 != Vector.zero && neighbours[$0]!.surfaceNormal != Vector.zero })
-        let interpolated = neighbourIndices.map { interpolatePositionXY(from: neighbours[$0]!) }
+        let interpolated = neighbourIndices.map { interpolatePositionXY(from: neighbours[$0]!, grid: grid) }
         if !interpolated.isEmpty {
             return interpolated.reduce(Vector.zero, +) / Double(interpolated.count)
         } else {
-            return centre
+            return surfaceCentre(grid: grid)
         }
     }
     
-    func interpolatePositionYZ(neighbours: [Cuboid?]) -> Vector {
+    func interpolatePositionYZ(neighbours: [Cuboid?], grid: VoxelGrid) -> Vector {
         let neighbourIndices = [1,3,5,7,0,2,6,8].filter({ neighbours[$0] != nil && neighbours[$0]!.vertex1 != Vector.zero && neighbours[$0]!.surfaceNormal != Vector.zero })
         let interpolated = neighbourIndices.map { interpolatePositionYZ(from: neighbours[$0]!) }
         if !interpolated.isEmpty {
             return interpolated.reduce(Vector.zero, +) / Double(interpolated.count)
         } else {
-            return centre
+            return surfaceCentre(grid: grid)
         }
     }
     
