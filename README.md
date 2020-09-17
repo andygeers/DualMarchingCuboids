@@ -110,6 +110,16 @@ For our fairly narrow use case, we can combine the above approaches into a new a
 ![Dual Marching Cuboids animation](https://github.com/andygeers/DualMarchingCuboids/blob/master/Documentation/dual_marching_cuboids.gif?raw=true)
 *An animation showing the process of forming cuboids in 2D (top-down perspective). First the cuboids are extended as far as they can go towards the 'back' of the mesh (upwards) and the 'front' (downwards). Then cuboids are merged horizontally if the conditions are met.*
 
+### Triangulation
+
+In the basic case where we have a uniform grid of cubes, the way we handle triangulation is to look at each cube in turn and look for pairs of neighbours. In the 2D example below, considering the cube containing the red vertex, there is a red triangle using the neighbours above and to the right, and a cyan triangle using the neighbours below and to the left.
+
+![Basic triangulation of uniform cubes in 2D](https://github.com/andygeers/DualMarchingCuboids/blob/master/Documentation/tesselation_basic.png?raw=true)
+
+Obviously this gets a little more complicated for a non-uniform grid, but it's actually still surprisingly similar. For each cuboid, look for a single "right" neighbour and "up" neighbour pair, and also a "left" neighbour and "down" neighbour pair. A cuboid may have multiple cuboids that touch its right hand edge - the "right" neighbour is the topmost of these. Similarly, the "left" neighbour is the lowest cuboid that touches its left edge:
+
+![Advanced triangulation of cuboids in 2D](https://github.com/andygeers/DualMarchingCuboids/blob/master/Documentation/tesselation_cuboids.png?raw=true)
+
 ## Example
 
 To run the example project, clone the repo, and run `pod install` from the Example directory first.
