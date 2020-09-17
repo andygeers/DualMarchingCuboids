@@ -43,6 +43,10 @@ public struct Cuboid {
     
     var marchingCubesCase : Int = -1
     
+    var zeroEdges : Int {
+        return MarchingCubes.edgeTable[marchingCubesCase]
+    }
+    
     var touchedFaces : Int {
         guard marchingCubesCase >= 0 else { return 0 }
         
@@ -314,77 +318,6 @@ public struct Cuboid {
             neighbours[1] = grid.findCuboid(at: index - grid.width)
         }        
         return neighbours.map { $0?.axis == .yz ? $0 : nil }
-    }
-    
-    func triangulate(grid: VoxelGrid, polygons: inout [Euclid.Polygon], material: Euclid.Polygon.Material) {
-        guard marchingCubesCase >= 0 else { return }
-        
-        let leftCuboid = leftNodeIndex >= 0 ? grid.findCuboid(at: leftNodeIndex) : nil
-        let rightCuboid = rightNodeIndex >= 0 ? grid.findCuboid(at: rightNodeIndex) : nil
-        let upCuboid = upNodeIndex >= 0 ? grid.findCuboid(at: upNodeIndex) : nil
-        let downCuboid = downNodeIndex >= 0 ? grid.findCuboid(at: downNodeIndex) : nil
-        let forwardsCuboid = forwardsNodeIndex >= 0 ? grid.findCuboid(at: forwardsNodeIndex) : nil
-        let backwardsCuboid = backwardsNodeIndex >= 0 ? grid.findCuboid(at: backwardsNodeIndex) : nil
-        
-        var polyPoints : [[Vector]] = []
-        
-        let edges = MarchingCubes.edgeTable[marchingCubesCase]
-        
-        let solidXYZ = marchingCubesCase & (1 << 6) > 0 // f(x + 1, y + 1, z + 1)
-                
-        if let rightCuboid = rightCuboid {
-            if edges & (1 << 6) > 0, let upCuboid = upCuboid {
-                let swap = solidXYZ
-                
-                // Triangle me, up and right: XY
-                polyPoints.append([vertex1, rightCuboid.vertex1, upCuboid.vertex1].reversedIf(swap))
-            }
-        
-            if edges & (1 << 10) > 0, let forwardsCuboid = forwardsCuboid {
-                let swap = solidXYZ
-                
-                // Triangle me, forwards and right: XZ
-                polyPoints.append([vertex1, forwardsCuboid.vertex1, rightCuboid.vertex1].reversedIf(swap))
-            }
-        }
-        
-        if let leftCuboid = leftCuboid {
-            if edges & (1 << 0) > 0, let downCuboid = downCuboid {
-                let swap = marchingCubesCase & (1 << 1) > 0
-                
-                // Triangle me, down and left: XY
-                polyPoints.append([downCuboid.vertex1, vertex1, leftCuboid.vertex1].reversedIf(swap))
-            }
-            if edges & (1 << 8) > 0, let backwardsCuboid = backwardsCuboid {
-                let swap = marchingCubesCase & (1 << 4) > 0
-                
-                // Triangle me, left and backwards: XZ
-                polyPoints.append([vertex1, backwardsCuboid.vertex1, leftCuboid.vertex1].reversedIf(swap))
-            }
-        }
-                
-        if edges & (1 << 5) > 0, let upCuboid = upCuboid {
-            if let forwardsCuboid = forwardsCuboid {
-                let swap = solidXYZ
-                
-                // Triangle me, up and forwards: YZ
-                polyPoints.append([vertex1, upCuboid.vertex1, forwardsCuboid.vertex1].reversedIf(swap))
-            }
-        }
-        
-        if edges & (1 << 3) > 0, let downCuboid = downCuboid, let backwardsCuboid = backwardsCuboid {
-            let swap = marchingCubesCase & (1 << 3) > 0
-            
-            // Triangle me, down and backwards: YZ
-            polyPoints.append([downCuboid.vertex1, backwardsCuboid.vertex1, vertex1].reversedIf(swap))
-        }
-        
-        for points in polyPoints {
-            let plane = Plane(points: points)
-            if let polygon = Polygon(points.map({ Vertex($0, surfaceNormal != Vector.zero ? surfaceNormal : (plane?.normal ?? Vector.zero)) }), material: material) {
-                polygons.append(polygon)
-            }
-        }
     }
 }
 
