@@ -137,6 +137,16 @@ public struct Cuboid {
         return cuboid
     }
     
+    internal static func caseFromNeighbours(_ neighbours: [Int]) -> Int {
+        var cubeIndex = 0
+        for (vertexIndex, value) in neighbours.enumerated() {
+            if (value & VoxelGrid.occupiedFlag != 0) {
+                cubeIndex |= 1 << vertexIndex
+            }
+        }
+        return cubeIndex
+    }
+    
     func sampleCorners(index: Int, grid: VoxelGrid) -> [Int] {
         
         let nextZ = grid.width * grid.height * depth

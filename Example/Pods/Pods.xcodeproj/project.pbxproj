@@ -55,6 +55,7 @@
 		5259DAE0138ACB5E91FE00799A0B3B84 /* CoreText.swift in Sources */ = {isa = PBXBuildFile; fileRef = 856EDF7848BC7A34AB30483D4667B5AB /* CoreText.swift */; };
 		5282EDA32513F7E8002A7E2B /* Triangulation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5282EDA22513F7E8002A7E2B /* Triangulation.swift */; };
 		5282EDA52514022C002A7E2B /* Interpolation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5282EDA42514022C002A7E2B /* Interpolation.swift */; };
+		5282EDA725140670002A7E2B /* Merge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5282EDA625140670002A7E2B /* Merge.swift */; };
 		53B30596B1EA5F0845A886843FB9E859 /* CwlCatchException.swift in Sources */ = {isa = PBXBuildFile; fileRef = A045C37EAD0682BBDD4C513553DAC8F2 /* CwlCatchException.swift */; settings = {COMPILER_FLAGS = "-DPRODUCT_NAME=Nimble/Nimble"; }; };
 		543967CB633CDE86DFD53581EAE1A35D /* BeEmpty.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C45C484738A0F1B793E58F953275C5D /* BeEmpty.swift */; settings = {COMPILER_FLAGS = "-DPRODUCT_NAME=Nimble/Nimble"; }; };
 		54A61062B9FB72C6BA0054B2A685ED0E /* Equal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 629D6F05E5B7EB2FB73DD7A2117595F9 /* Equal.swift */; settings = {COMPILER_FLAGS = "-DPRODUCT_NAME=Nimble/Nimble"; }; };
@@ -279,6 +280,7 @@
 		525BBAD79F145A4055C76E975F2789B9 /* Rotation.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Rotation.swift; path = Sources/Rotation.swift; sourceTree = "<group>"; };
 		5282EDA22513F7E8002A7E2B /* Triangulation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Triangulation.swift; path = DualMarchingCuboids/Classes/Triangulation.swift; sourceTree = "<group>"; };
 		5282EDA42514022C002A7E2B /* Interpolation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Interpolation.swift; path = DualMarchingCuboids/Classes/Interpolation.swift; sourceTree = "<group>"; };
+		5282EDA625140670002A7E2B /* Merge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Merge.swift; path = DualMarchingCuboids/Classes/Merge.swift; sourceTree = "<group>"; };
 		5595E853545760D27E8DEC47EAA982AD /* Pods-DualMarchingCuboids_Example-acknowledgements.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-DualMarchingCuboids_Example-acknowledgements.plist"; sourceTree = "<group>"; };
 		55BAA2C18078300D28AA54D2ACB41FFB /* Functional.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Functional.swift; path = Sources/Nimble/Utils/Functional.swift; sourceTree = "<group>"; };
 		5891E35D297FD33B20A63F013A75A0E4 /* QuickConfiguration.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = QuickConfiguration.h; path = Sources/QuickObjectiveC/Configuration/QuickConfiguration.h; sourceTree = "<group>"; };
@@ -592,6 +594,7 @@
 			isa = PBXGroup;
 			children = (
 				E4E85BDDC5C6E88E202E7022351BCB3D /* Cuboid.swift */,
+				5282EDA625140670002A7E2B /* Merge.swift */,
 				5282EDA42514022C002A7E2B /* Interpolation.swift */,
 				5282EDA22513F7E8002A7E2B /* Triangulation.swift */,
 				4398A23F32AEC178A2E970E2A718A22D /* DualMarchingCuboids.swift */,
@@ -1098,6 +1101,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5282EDA725140670002A7E2B /* Merge.swift in Sources */,
 				FB0E6F529A919031F654A3727BEDB545 /* Cuboid.swift in Sources */,
 				57824CB07097568EB6467CA81A7164A8 /* DoublyLinkedList.swift in Sources */,
 				07CBA5BF1F749029134C930C7111C6CF /* DualMarchingCuboids-dummy.m in Sources */,
