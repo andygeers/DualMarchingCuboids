@@ -40,11 +40,12 @@ class ViewController: UIViewController {
     var currentVoxelNode : SCNNode?
     
     var mesh : Mesh? = nil
-    var wireframe : Bool = false
+    var wireframe : Bool = true
     var showNormals : Bool = false
     var showCuboids : Bool = false
     var showNonSeedCuboids : Bool = false
     var meshNode : SCNNode? = nil
+    var wireframeNode : SCNNode? = nil
     var cuboidsNode : SCNNode? = nil
     
     var textureName : String? = nil
@@ -52,6 +53,7 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
+        self.wireframeSwitch.isOn = wireframe
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -112,16 +114,27 @@ class ViewController: UIViewController {
         guard let mesh = self.mesh else { return }
         
         //sceneView.pointOfView?.look(at: SCNVector3(mesh.bounds.center))
-        let geom : SCNGeometry
         if (self.wireframe) {
-            geom = SCNGeometry(wireframe: mesh)
-        } else {
-            geom = SCNGeometry(mesh, materialLookup: {
-                let material = SCNMaterial()
-                material.diffuse.contents = $0
-                return material
-            })
+            let geom = SCNGeometry(wireframe: mesh)
+            
+            let node = wireframeNode ?? SCNNode()
+            node.geometry = geom
+            
+            if (wireframeNode == nil) {
+                scene.rootNode.addChildNode(node)
+                self.wireframeNode = node
+            }
+        } else if let wireframeNode = wireframeNode {
+            wireframeNode.removeFromParentNode()
+            self.wireframeNode = nil
         }
+        
+        let geom = SCNGeometry(mesh, materialLookup: {
+            let material = SCNMaterial()
+            material.diffuse.contents = $0
+            return material
+        })
+        
         let node = meshNode ?? SCNNode()
         node.geometry = geom
         
