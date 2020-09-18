@@ -71,6 +71,15 @@ public struct Cuboid {
     
     public var surfaceNormal : Vector = Vector.zero
     
+    func sampleMarchingCubesCaseIfMissing(grid: VoxelGrid) -> Int {
+        guard marchingCubesCase < 0 else { return marchingCubesCase }
+        
+        let index = self.index(grid: grid)
+        let neighbours = sampleCorners(index: index, grid: grid)
+        
+        return Cuboid.caseFromNeighbours(neighbours)
+    }
+    
     mutating func appendVertex(_ vertex: Vector) {
         guard vertex != Vector.zero else { return }
         

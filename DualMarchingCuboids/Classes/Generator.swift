@@ -61,12 +61,15 @@ public class Generator {
                 // Because the vertices are dual to the grid, don't mark the left or top edge as occupied unless it's protuding at least as much as the neighbour on that side
                 let minDepth = j > 0 && i > 0 ? min(intDepth, Int(texture.outputHeight(texture.heightMap[j - 1][i], baseHeight: baseHeight, modelHeight: modelHeight)), Int(texture.outputHeight(texture.heightMap[j][i - 1], baseHeight: baseHeight, modelHeight: modelHeight))) : 0
                                 
-                for k in slice.perpendicularIndices(range: (0 ... minDepth)).reversed() {
+                var d = 0
+                for k in slice.perpendicularIndices(range: (0 ... intDepth)) {
                     
                     guard index + k < slice.grid.data.count else { continue }
                     
-                    // Voxel data should be 1 at the surface and count up towards the back
-                    slice.grid.data[index + k] |= VoxelGrid.occupiedFlag | slice.axisMask.rawValue                    
+                    let occupied = d <= minDepth ? VoxelGrid.occupiedFlag : 0
+                    slice.grid.data[index + k] |= occupied | slice.axisMask.rawValue
+                    
+                    d += 1
                 }
                 
                 //slice.grid.addSeed(index)

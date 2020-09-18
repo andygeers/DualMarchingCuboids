@@ -45,11 +45,17 @@ public class DualMarchingCuboids : Slice {
         
         NSLog("Processed grid in %f seconds", Float(after.uptimeNanoseconds - before.uptimeNanoseconds) / Float(1_000_000_000))
         
+        grid.mergeCuboids()
+        
+        let afterMerge = DispatchTime.now()
+        
+        NSLog("Merged cuboids in %f seconds", Float(afterMerge.uptimeNanoseconds - after.uptimeNanoseconds) / Float(1_000_000_000))
+        
         interpolateVertices()
         
         let afterInterpolation = DispatchTime.now()
         
-        NSLog("Interpolated vertices in %f seconds", Float(afterInterpolation.uptimeNanoseconds - after.uptimeNanoseconds) / Float(1_000_000_000))
+        NSLog("Interpolated vertices in %f seconds", Float(afterInterpolation.uptimeNanoseconds - afterMerge.uptimeNanoseconds) / Float(1_000_000_000))
     
         triangulateCuboids(&polygons)
         
@@ -214,18 +220,6 @@ public class DualMarchingCuboids : Slice {
         }
         
         // Make all cells within the cuboid point to this index
-        for zz in cuboid.z ..< cuboid.z + cuboid.depth {
-            for yy in cuboid.y ..< cuboid.y + cuboid.height {
-                for xx in cuboid.x ..< cuboid.x + cuboid.width {
-                    if ((xx != 0) || (yy != 0) || (zz != 0)) {
-                        let index = grid.cellIndex(x: xx, y: yy, z: zz)
-                        grid.cuboids.removeValue(forKey: index)
-                        grid.data[index] = (grid.data[index] & VoxelGrid.dataBits) | (grownIndex << VoxelGrid.dataBits) | DualMarchingCuboids.visitedFlag
-                    }
-                }
-            }
-        }
-                
-        grid.cuboids[grownIndex] = cuboid
+        cuboid.markGridIndices(grid: grid)        
     }
 }
