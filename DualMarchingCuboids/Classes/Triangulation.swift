@@ -31,6 +31,18 @@ extension Cuboid {
         return grid.findCuboid(at: index)
     }
     
+    func findForwardsCuboid(grid: VoxelGrid) -> Cuboid? {
+        // Find the forwards neighbour nearest the left
+        let index = grid.cellIndex(x: self.x, y: self.y, z: self.z + self.depth)
+        return grid.findCuboid(at: index)
+    }
+    
+    func findBackwardsCuboid(grid: VoxelGrid) -> Cuboid? {
+        // Find the backwards neighbour nearest the right
+        let index = grid.cellIndex(x: self.x + self.width - 1, y: self.y, z: self.z - 1)
+        return grid.findCuboid(at: index)
+    }
+    
     func findDownCuboid(grid: VoxelGrid) -> Cuboid? {
         // Find the down neighbour nearest the back
         let index = grid.cellIndex(x: self.x, y: y - 1, z: self.z)
@@ -62,7 +74,7 @@ extension Cuboid {
             }
         }
         
-        if edges & (1 << 10) > 0, let forwardsCuboid = forwardsCuboid, let rightCuboid = findRightCuboid(grid: grid) {
+        if edges & (1 << 10) > 0, let forwardsCuboid = findForwardsCuboid(grid: grid), let rightCuboid = findRightCuboid(grid: grid) {
             let swap = solidXYZ
             
             // Triangle me, forwards and right: XZ
@@ -78,14 +90,14 @@ extension Cuboid {
             }
         }
         
-        if edges & (1 << 8) > 0, let backwardsCuboid = backwardsCuboid, let leftCuboid = findLeftCuboid(grid: grid) {
+        if edges & (1 << 8) > 0, let backwardsCuboid = findBackwardsCuboid(grid: grid), let leftCuboid = findLeftCuboid(grid: grid) {
             let swap = marchingCubesCase & (1 << 4) > 0
             
             // Triangle me, left and backwards: XZ
             polyPoints.append(([vertex1, backwardsCuboid.vertex1, leftCuboid.vertex1].reversedIf(swap), material))
         }
                 
-        if edges & (1 << 5) > 0, let upCuboid = findUpCuboid(grid: grid), let forwardsCuboid = forwardsCuboid {
+        if edges & (1 << 5) > 0, let upCuboid = findUpCuboid(grid: grid), let forwardsCuboid = findForwardsCuboid(grid: grid) {
             let swap = solidXYZ
             
             // Triangle me, up and forwards: YZ
