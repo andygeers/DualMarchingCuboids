@@ -9,6 +9,8 @@ import Foundation
 import Euclid
 
 extension Cuboid {
+    static let DISTORTION_THRESHOLD = 0.2
+    
     func canMerge(with other: Cuboid, grid: VoxelGrid) -> Bool {
         // Conditions for merging:
         // 1. They are in the same axis and share the same MC case
@@ -42,9 +44,23 @@ extension Cuboid {
             return false
         }
         
-        // ?5. Max size?
+        // 5. Measure what the distortion would be
+        guard measureDistortion(neighbour: other) <= Cuboid.DISTORTION_THRESHOLD else {
+            return false
+        }
+        
+        // ?6. Max size?
         
         return true
+    }
+    
+    func measureDistortion(neighbour: Cuboid) -> Double {
+        // Make a plane based on our position and surface normal
+        guard self.surfaceNormal != Vector.zero && self.vertex1 != Vector.zero && neighbour.vertex1 != Vector.zero else { return 0.0 }
+        guard let plane = Plane(normal: self.surfaceNormal, pointOnPlane: self.vertex1) else { return 0.0 }
+        
+        // The distortion is the distance between the neighbour's vertex and this plane
+        return abs(neighbour.vertex1.distance(from: plane))
     }
     
     func merge(with other: Cuboid, grid: VoxelGrid) -> Cuboid {
@@ -68,6 +84,10 @@ extension Cuboid {
             result.seedIndex = self.seedIndex
         } else if (other.seedIndex != -1) {
             result.seedIndex = other.seedIndex
+        }
+        let normals = [self.surfaceNormal, other.surfaceNormal].filter({ $0 != Vector.zero })
+        if (normals.count > 0) {
+            result.surfaceNormal = normals.reduce(Vector.zero, +) / Double(normals.count)
         }
         
         result.markGridIndices(grid: grid)
