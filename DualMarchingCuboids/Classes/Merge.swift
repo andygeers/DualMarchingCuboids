@@ -22,11 +22,40 @@ extension Cuboid {
         guard MarchingCubes.surfaceCount[myCase] <= 1 && MarchingCubes.surfaceCount[otherCase] <= 1 else { return false }
         
         // 3. They line up & share same dimensions (except in the direction we are merging)
-        // TODO: Allow merging in other axes too
-        guard self.x == other.x && self.y == other.y && self.width == other.width && self.height == other.height else { return false }
+        guard (self.x == other.x && self.y == other.y && self.width == other.width && self.height == other.height) ||
+            (self.x == other.x && self.z == other.z && self.width == other.width && self.depth == other.depth) ||
+            (self.y == other.y && self.z == other.z && self.height == other.height && self.depth == other.depth) else { return false }
                 
         // 4. Merging would leave it with the same Marching Cubes case
-        if (self.z == other.z + other.depth) {
+        if (self.x == other.x + other.width) {
+            let fromOther = otherCase & ((1 << 0) | (1 << 1) | (1 << 4) | (1 << 5))
+            let fromSelf = myCase & ((1 << 3) | (1 << 2) | (1 << 7) | (1 << 6))
+            let combinedCase = fromSelf | fromOther
+            // Test: Is it in fact theoretically impossible for it to change it?
+            assert(combinedCase == myCase)
+            guard combinedCase == myCase else { return false }
+        } else if (other.x == self.x + self.width) {
+            let fromSelf = myCase & ((1 << 0) | (1 << 1) | (1 << 4) | (1 << 5))
+            let fromOther = otherCase & ((1 << 3) | (1 << 2) | (1 << 7) | (1 << 6))
+            let combinedCase = fromSelf | fromOther
+            // Test: Is it in fact theoretically impossible for it to change it?
+            assert(combinedCase == myCase)
+            guard combinedCase == myCase else { return false }
+        } else if (self.y == other.y + other.height) {
+            let fromOther = otherCase & ((1 << 0) | (1 << 3) | (1 << 1) | (1 << 2))
+            let fromSelf = myCase & ((1 << 4) | (1 << 7) | (1 << 5) | (1 << 6))
+            let combinedCase = fromSelf | fromOther
+            // Test: Is it in fact theoretically impossible for it to change it?
+            assert(combinedCase == myCase)
+            guard combinedCase == myCase else { return false }
+        } else if (other.y == self.y + self.height) {
+            let fromSelf = myCase & ((1 << 0) | (1 << 3) | (1 << 1) | (1 << 2))
+            let fromOther = otherCase & ((1 << 4) | (1 << 7) | (1 << 5) | (1 << 6))
+            let combinedCase = fromSelf | fromOther
+            // Test: Is it in fact theoretically impossible for it to change it?
+            assert(combinedCase == myCase)
+            guard combinedCase == myCase else { return false }
+        } else if (self.z == other.z + other.depth) {
             let fromOther = otherCase & ((1 << 0) | (1 << 3) | (1 << 4) | (1 << 7))
             let fromSelf = myCase & ((1 << 1) | (1 << 2) | (1 << 5) | (1 << 6))
             let combinedCase = fromSelf | fromOther
@@ -65,7 +94,19 @@ extension Cuboid {
     
     func merge(with other: Cuboid, grid: VoxelGrid) -> Cuboid {
         var result : Cuboid
-        if (self.z == other.z + other.depth) {
+        if (self.x == other.x + other.width) {
+            result = other
+            result.width += self.width
+        } else if (other.x == self.x + self.width) {
+            result = self
+            result.width += other.width
+        } else if (self.y == other.y + other.height) {
+            result = other
+            result.height += self.height
+        } else if (other.y == self.y + self.height) {
+            result = self
+            result.height += other.height
+        } else if (self.z == other.z + other.depth) {
             result = other
             result.depth += self.depth
         } else if (other.z == self.z + self.depth) {
@@ -203,23 +244,25 @@ extension Cuboid {
 
 extension VoxelGrid {
     func mergeCuboids() {
-        // Iterate over all the cuboid indices that currently exist
-        let indices = cuboids.keys.sorted()
-        for index in indices {
-            // Look up this cuboid and see if we've merged it already
-            guard var cuboid = findCuboid(at: index), cuboid.index(grid: self) == index else { continue }
-            
-            let directions : [Direction]
-            if cuboid.axis == .yz {
-                directions = [.x, .z, .y]
-            } else {
-                directions = [.z, .x, .y]
-            }
-            
-            for direction in directions {
-                // Find the neighbouring cube in this direction
-                while let neighbour = cuboid.findNeighbour(direction: direction, grid: self), cuboid.canMerge(with: neighbour, grid: self) {
-                    cuboid = cuboid.merge(with: neighbour, grid: self)
+        (1...2).forEach { _ in
+            // Iterate over all the cuboid indices that currently exist
+            let indices = cuboids.keys.sorted()
+            for index in indices {
+                // Look up this cuboid and see if we've merged it already
+                guard var cuboid = findCuboid(at: index), cuboid.index(grid: self) == index else { continue }
+                
+                let directions : [Direction]
+                if cuboid.axis == .yz {
+                    directions = [.x, .z, .y]
+                } else {
+                    directions = [.z, .x, .y]
+                }
+                
+                for direction in directions {
+                    // Find the neighbouring cube in this direction
+                    while let neighbour = cuboid.findNeighbour(direction: direction, grid: self), cuboid.canMerge(with: neighbour, grid: self) {
+                        cuboid = cuboid.merge(with: neighbour, grid: self)
+                    }
                 }
             }
         }

@@ -63,6 +63,8 @@ public class VoxelGrid {
         if let cuboid = cuboids[index] {
             return cuboid
         } else {
+            guard index >= 0 && index < data.count else { return nil }
+            
             // See which direction things are aligned at this point
             let gridData = data[index]
             let cellIndex = gridData >> VoxelGrid.dataBits
