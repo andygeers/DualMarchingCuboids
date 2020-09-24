@@ -66,7 +66,7 @@ public class Generator {
                     
                     guard index + k < slice.grid.data.count else { continue }
                     
-                    let occupied = d <= minDepth ? VoxelGrid.occupiedFlag : 0
+                    let occupied = x > 1 && y > 1 && d > 0 && d <= minDepth ? VoxelGrid.occupiedFlag : 0
                     slice.grid.data[index + k] |= occupied | slice.axisMask.rawValue
                     
                     d += 1
