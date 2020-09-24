@@ -72,8 +72,7 @@ public class DualMarchingCuboids : Slice {
                     
                     // See if there is a cube either in front or behind me
                     let behind = grid.cuboids[index + grid.width * grid.height]
-                    let infront = grid.cuboids[index - grid.width * grid.height]
-                    NSLog("X Cuboid behind %d in front %d", behind != nil, infront != nil)
+                    let infront = grid.cuboids[index - grid.width * grid.height]                    
                     
                     // Trace the gradient along the X axis
                     let neighbours = cuboid.findNeighboursXY(grid: grid, index: index, faces: cuboid.touchedFaces)
