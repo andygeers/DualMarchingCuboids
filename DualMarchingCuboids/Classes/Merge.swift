@@ -25,53 +25,9 @@ extension Cuboid {
         guard (self.x == other.x && self.y == other.y && self.width == other.width && self.height == other.height) ||
             (self.x == other.x && self.z == other.z && self.width == other.width && self.depth == other.depth) ||
             (self.y == other.y && self.z == other.z && self.height == other.height && self.depth == other.depth) else { return false }
-                
-        // 4. Merging would leave it with the same Marching Cubes case
-        if (self.x == other.x + other.width) {
-            let fromOther = otherCase & ((1 << 0) | (1 << 1) | (1 << 4) | (1 << 5))
-            let fromSelf = myCase & ((1 << 3) | (1 << 2) | (1 << 7) | (1 << 6))
-            let combinedCase = fromSelf | fromOther
-            // Test: Is it in fact theoretically impossible for it to change it?
-            assert(combinedCase == myCase)
-            guard combinedCase == myCase else { return false }
-        } else if (other.x == self.x + self.width) {
-            let fromSelf = myCase & ((1 << 0) | (1 << 1) | (1 << 4) | (1 << 5))
-            let fromOther = otherCase & ((1 << 3) | (1 << 2) | (1 << 7) | (1 << 6))
-            let combinedCase = fromSelf | fromOther
-            // Test: Is it in fact theoretically impossible for it to change it?
-            assert(combinedCase == myCase)
-            guard combinedCase == myCase else { return false }
-        } else if (self.y == other.y + other.height) {
-            let fromOther = otherCase & ((1 << 0) | (1 << 3) | (1 << 1) | (1 << 2))
-            let fromSelf = myCase & ((1 << 4) | (1 << 7) | (1 << 5) | (1 << 6))
-            let combinedCase = fromSelf | fromOther
-            // Test: Is it in fact theoretically impossible for it to change it?
-            assert(combinedCase == myCase)
-            guard combinedCase == myCase else { return false }
-        } else if (other.y == self.y + self.height) {
-            let fromSelf = myCase & ((1 << 0) | (1 << 3) | (1 << 1) | (1 << 2))
-            let fromOther = otherCase & ((1 << 4) | (1 << 7) | (1 << 5) | (1 << 6))
-            let combinedCase = fromSelf | fromOther
-            // Test: Is it in fact theoretically impossible for it to change it?
-            assert(combinedCase == myCase)
-            guard combinedCase == myCase else { return false }
-        } else if (self.z == other.z + other.depth) {
-            let fromOther = otherCase & ((1 << 0) | (1 << 3) | (1 << 4) | (1 << 7))
-            let fromSelf = myCase & ((1 << 1) | (1 << 2) | (1 << 5) | (1 << 6))
-            let combinedCase = fromSelf | fromOther
-            // Test: Is it in fact theoretically impossible for it to change it?
-            assert(combinedCase == myCase)
-            guard combinedCase == myCase else { return false }
-        } else if (other.z == self.z + self.depth) {
-            let fromSelf = myCase & ((1 << 0) | (1 << 3) | (1 << 4) | (1 << 7))
-            let fromOther = otherCase & ((1 << 1) | (1 << 2) | (1 << 5) | (1 << 6))
-            let combinedCase = fromSelf | fromOther
-            // Test: Is it in fact theoretically impossible for it to change it?
-            assert(combinedCase == myCase)
-            guard combinedCase == myCase else { return false }
-        } else {
-            return false
-        }
+        
+        // 4. Only merge along the surface - keep the Marching Cubes case the same
+        guard self.marchingCubesCase == other.marchingCubesCase else { return false }
         
         // 5. Measure what the distortion would be
         guard measureDistortion(neighbour: other) <= Cuboid.DISTORTION_THRESHOLD else {
@@ -252,10 +208,13 @@ extension VoxelGrid {
                 guard var cuboid = findCuboid(at: index), cuboid.index(grid: self) == index else { continue }
                 
                 let directions : [Direction]
-                if cuboid.axis == .yz {
-                    directions = [.x, .z, .y]
-                } else {
+                switch (cuboid.axis) {
+                case .xy:
                     directions = [.z, .x, .y]
+                case .yz:
+                    directions = [.x, .z, .y]
+                default:
+                    directions = [.x, .y, .z]
                 }
                 
                 for direction in directions {

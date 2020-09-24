@@ -143,22 +143,7 @@ public class DualMarchingCuboids : Slice {
         //check if its completely inside or outside
         guard MarchingCubes.edgeTable[cubeIndex] != 0 else { return }
         
-        if (cellData & 0x3 == VoxelAxis.xy.rawValue) {
-            
-            // Start by growing the cuboid as far in the z axis as we can
-            cuboid = cuboid.growAlongZAxis(grid: grid, neighbours: neighbours)
-            grownIndex = cuboid.index(grid: grid)
-            
-        } else if (cellData & 0x3 == VoxelAxis.yz.rawValue) {
-            // Start by growing the cuboid as far in the x axis as we can
-            cuboid.axis = .yz
-                    
-        } else if (cellData & 0x3 > 0) {
-            // Just output this as a single cuboid for now
-            cuboid.axis = .multiple
-        } else {
-            cuboid.axis = .none
-        }
+        cuboid.axis = VoxelAxis(rawValue: cellData & 0x3)!
                 
         //now build the triangles using triTable
         // Keep track of which faces are included
