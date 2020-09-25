@@ -62,6 +62,8 @@ public class DualMarchingCuboids : Slice {
         let afterTriangulation = DispatchTime.now()
         
         NSLog("Triangulated %d polygon(s) in %f seconds", polygons.count, Float(afterTriangulation.uptimeNanoseconds - afterInterpolation.uptimeNanoseconds) / Float(1_000_000_000))
+        
+        NSLog("Total time %f seconds", Float(afterTriangulation.uptimeNanoseconds - before.uptimeNanoseconds) / Float(1_000_000_000))
     }
     
     private func interpolateVertices() {

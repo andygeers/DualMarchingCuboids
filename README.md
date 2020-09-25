@@ -101,11 +101,10 @@ The challenge with Greedy Meshing is to know which axis to expand into first, si
 For our fairly narrow use case, we can combine the above approaches into a new algorithm referred to here as **Dual Marching Cuboids**. Roughly speaking, the algorithm works like so:
 
   1. During Voxel generation, keep a list of seed cells with the vertex position and surface gradient at each point (already a massive head start)
-  2. For each uninspected seed cell, grow it as far as possible perpendicular to the surface at that point, according to various merge criteria explained below. By extending into empty space up to the maximum anticipated depth we increase the chances of being able to successfully merge it later.
-  3. Determine the marching cubes case for the resulting cuboid, and use that to perform surface tracking, adding various new seed cells to the queue in the process. Whilst doing this we can also form a graph of how the Cuboids connect together, making triangulation more efficient later on.
-  4. If we don't have a vertex position for the current cuboid we can also examine these same "neighbour" Cuboids and, where possible, interpolate a vertex position from them using the gradient information
-  5. Using the same logic as other greedy meshing algorithms to merge neighbouring Cuboids where appropriate- all the while maintaining just one vertex per cuboid
-  6. We can then triangulate as per Dual Contouring: for each cuboid, look for neighbouring Cuboids in the graph and for each edge included in the Marching Cubes case we will output a quad (two triangles). The winding order is determined by which end of that edge is inside/outside the surface.
+  2. For each seed cube, determine the marching cubes case and use that to perform surface tracking, adding various new seed cells to the queue in the process. Stop when all seed cubes have been examined.
+  3. Use the same logic as other greedy meshing algorithms to merge neighbouring Cuboids where appropriate- all the while maintaining just one vertex per cuboid. We can use the "axis" information to decide which way to grow first.
+  4. For any cubes that we don't have a vertex position for, where possible interpolate a vertex position from its surface neighbours. There will be certain "ugly corners" that we need to collapse in to the vertex 'in front' - equivalent to "sliver elimination" in the Dual Marching Cubes algorithm.
+  5. We can then triangulate as per Dual Contouring: for each cuboid, look for neighbouring Cuboids in the graph and for each edge included in the Marching Cubes case we will output a quad (two triangles). The winding order is determined by which end of that edge is inside/outside the surface.
 
 ![Dual Marching Cuboids animation](https://github.com/andygeers/DualMarchingCuboids/blob/master/Documentation/dual_marching_cuboids.gif?raw=true)
 *An animation showing the process of forming cuboids in 2D (top-down perspective). First the cuboids are extended as far as they can go towards the 'back' of the mesh (upwards) and the 'front' (downwards). Then cuboids are merged horizontally if the conditions are met.*
@@ -119,6 +118,16 @@ In the basic case where we have a uniform grid of cubes, the way we handle trian
 Obviously this gets a little more complicated for a non-uniform grid, but it's actually still surprisingly similar. For each cuboid, look for a single "right" neighbour and "up" neighbour pair, and also a "left" neighbour and "down" neighbour pair. A cuboid may have multiple cuboids that touch its right hand edge - the "right" neighbour is the topmost of these. Similarly, the "left" neighbour is the lowest cuboid that touches its left edge:
 
 ![Advanced triangulation of cuboids in 2D](https://github.com/andygeers/DualMarchingCuboids/blob/master/Documentation/tesselation_cuboids.png?raw=true)
+
+### Results
+
+Here is the same "French Tiles" grid as shown in the "Marching Cubes" explanation above, but with Dual Marching Cuboids instead. Instead of 25,020 polygons it outputs just 4,302. On my relatively ancient 2014 MacBook Pro it build took just 0.1 seconds to run:
+
+![](https://github.com/andygeers/DualMarchingCuboids/blob/master/Documentation/results1.png?raw=true)
+
+Here is the underlying cuboid structure:
+
+![](https://github.com/andygeers/DualMarchingCuboids/blob/master/Documentation/results2.png?raw=true)
 
 ## Example
 
