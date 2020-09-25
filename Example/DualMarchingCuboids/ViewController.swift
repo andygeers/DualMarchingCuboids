@@ -328,12 +328,15 @@ class ViewController: UIViewController {
     }
 
     private func exportMesh(sender: UIView) {
+        return
         guard let scene = self.sceneView.scene else { return }
         
         // Export to STL
         let outputFile = "marching_cubes.usdz"
         let documentsPath = UIApplication.cacheDirectory()
         let fileURL: URL = documentsPath.appendingPathComponent(outputFile)
+        
+        NSLog("Saving file to %@", String(describing: fileURL))
                     
         if (scene.write(to: fileURL, options: [:], delegate: nil, progressHandler: nil)) {
             
