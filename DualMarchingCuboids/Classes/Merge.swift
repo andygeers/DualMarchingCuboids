@@ -12,23 +12,21 @@ extension Cuboid {
     static let DISTORTION_THRESHOLD = 0.2
     
     func canMerge(with other: Cuboid, grid: VoxelGrid) -> Bool {
-        if grid.uglyCubes.contains(self.index(grid: grid)) || grid.uglyCubes.contains(other.index(grid: grid)) {
-            return false
-        }
+        guard (self.x == other.x && self.y == other.y && self.width == other.width && self.height == other.height) ||
+            (self.x == other.x && self.z == other.z && self.width == other.width && self.depth == other.depth) ||
+            (self.y == other.y && self.z == other.z && self.height == other.height && self.depth == other.depth) else { return false }
         
-        // Conditions for merging:
-        // 1. They are in the same axis and share the same MC case
+        return true
+    }
+     
+    func shouldMerge(with other: Cuboid, grid: VoxelGrid) -> Bool {
+        // 2. They are in the same axis and share the same MC case
         let myCase = self.sampleMarchingCubesCaseIfMissing(grid: grid)
         let otherCase = other.sampleMarchingCubesCaseIfMissing(grid: grid)
         guard myCase == otherCase else { return false }
         
-        // 2. They are both 'simple' cases
+        // 3. They are both 'simple' cases
         guard MarchingCubes.surfaceCount[myCase] <= 1 && MarchingCubes.surfaceCount[otherCase] <= 1 else { return false }
-        
-        // 3. They line up & share same dimensions (except in the direction we are merging)
-        guard (self.x == other.x && self.y == other.y && self.width == other.width && self.height == other.height) ||
-            (self.x == other.x && self.z == other.z && self.width == other.width && self.depth == other.depth) ||
-            (self.y == other.y && self.z == other.z && self.height == other.height && self.depth == other.depth) else { return false }
         
         // 4. Only merge along the surface - keep the Marching Cubes case the same
         guard self.marchingCubesCase == other.marchingCubesCase else { return false }
@@ -52,6 +50,7 @@ extension Cuboid {
         return abs(neighbour.vertex1.distance(from: plane))
     }
     
+    @discardableResult
     func merge(with other: Cuboid, grid: VoxelGrid) -> Cuboid {
         var result : Cuboid
         if (self.x == other.x + other.width) {
@@ -89,6 +88,13 @@ extension Cuboid {
         let normals = [self.surfaceNormal, other.surfaceNormal].filter({ $0 != Vector.zero })
         if (normals.count > 0) {
             result.surfaceNormal = normals.reduce(Vector.zero, +) / Double(normals.count)
+        }
+        
+        let myCase = self.sampleMarchingCubesCaseIfMissing(grid: grid)
+        let otherCase = other.sampleMarchingCubesCaseIfMissing(grid: grid)
+        if (myCase != otherCase) {
+            let neighbours = result.sampleCorners(index: result.index(grid: grid), grid: grid)
+            result.marchingCubesCase = Cuboid.caseFromNeighbours(neighbours)
         }
         
         result.markGridIndices(grid: grid)
@@ -204,6 +210,31 @@ extension Cuboid {
 
 extension VoxelGrid {
     func mergeCuboids() {
+        
+        // Start by merging the ugly cuboids
+        for index in uglyCubes {
+            if let cuboid = cuboids[index] {
+                switch (cuboid.axis) {
+                case .xy:
+                    if cuboid.forwardsNodeIndex >= 0, let frontCuboid = findCuboid(at: cuboid.forwardsNodeIndex) {
+                        if (cuboid.canMerge(with: frontCuboid, grid: self)) {
+                            cuboid.merge(with: frontCuboid, grid: self)
+                        }
+                    }
+                    
+                case .yz:
+                    if cuboid.rightNodeIndex >= 0, let rightCuboid = findCuboid(at: cuboid.rightNodeIndex) {
+                        if (cuboid.canMerge(with: rightCuboid, grid: self)) {
+                            cuboid.merge(with: rightCuboid, grid: self)
+                        }
+                    }
+                    
+                default:
+                    break
+                }
+            }
+        }
+        
         (1...2).forEach { _ in
             // Iterate over all the cuboid indices that currently exist
             let indices = cuboids.keys.sorted()
@@ -223,7 +254,7 @@ extension VoxelGrid {
                 
                 for direction in directions {
                     // Find the neighbouring cube in this direction
-                    while let neighbour = cuboid.findNeighbour(direction: direction, grid: self), cuboid.canMerge(with: neighbour, grid: self) {
+                    while let neighbour = cuboid.findNeighbour(direction: direction, grid: self), cuboid.canMerge(with: neighbour, grid: self), cuboid.shouldMerge(with: neighbour, grid: self) {
                         cuboid = cuboid.merge(with: neighbour, grid: self)
                     }
                 }

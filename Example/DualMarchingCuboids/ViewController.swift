@@ -148,10 +148,7 @@ class ViewController: UIViewController {
             let node2 = cuboidsNode ?? SCNNode()
             
             var childNodeIndex = 0
-            //for (_, theCuboid) in grid.cuboids {
-            for cuboidIndex in grid.uglyCubes {
-                let theCuboid = grid.cuboids[cuboidIndex]!
-                
+            for (_, theCuboid) in grid.cuboids {
                 //guard showNormals || childNodeIndex < 200 else { break }
                      
                 if (showNormals || !showNonSeedCuboids) {

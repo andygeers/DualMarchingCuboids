@@ -184,13 +184,6 @@ public class DualMarchingCuboids : Slice {
                         if (offset.0 > 0) {
                             assert(neighbourCell.leftNodeIndex == -1 || cuboid.containsIndex(neighbourCell.leftNodeIndex, grid:     grid))
                             
-                            if (cuboid.axis == .yz) {
-                                // This might form an ugly corner - let's see
-                                if (isUglyCorner(cuboid: cuboid, frontCell: neighbourCell, touchedFaces: touchedFaces)) {
-                                    grid.uglyCubes.append(index)
-                                }
-                            }
-                            
                             cuboid.rightNodeIndex = neighbourIndex
                             neighbourCell.leftNodeIndex = grownIndex
                             grid.cuboids[neighbourIndex] = neighbourCell
@@ -214,14 +207,7 @@ public class DualMarchingCuboids : Slice {
                             grid.cuboids[neighbourIndex] = neighbourCell
                         } else if (offset.2 > 0) {
                             assert(neighbourCell.backwardsNodeIndex == -1 || cuboid.containsIndex(neighbourCell.backwardsNodeIndex, grid:     grid))
-                            
-                            if (cuboid.axis == .xy) {
-                                // This might form an ugly corner - let's see
-                                if (isUglyCorner(cuboid: cuboid, frontCell: neighbourCell, touchedFaces: touchedFaces)) {
-                                    grid.uglyCubes.append(index)
-                                }
-                            }
-                            
+                                                        
                             cuboid.forwardsNodeIndex = neighbourIndex
                             neighbourCell.backwardsNodeIndex = grownIndex
                             grid.cuboids[neighbourIndex] = neighbourCell
@@ -234,6 +220,18 @@ public class DualMarchingCuboids : Slice {
                         }
                     }
                 }
+            }
+        }
+        
+        if ((cuboid.axis == .xy) && (cuboid.forwardsNodeIndex >= 0)) {
+            // This might form an ugly corner - let's see
+            if let frontCuboid = grid.findCuboid(at: cuboid.forwardsNodeIndex), isUglyCorner(cuboid: cuboid, frontCell: frontCuboid, touchedFaces: touchedFaces) {
+                grid.uglyCubes.append(index)
+            }
+        } else if ((cuboid.axis == .yz) && (cuboid.rightNodeIndex >= 0)) {
+            // This might form an ugly corner - let's see
+            if let frontCuboid = grid.findCuboid(at: cuboid.rightNodeIndex), isUglyCorner(cuboid: cuboid, frontCell: frontCuboid, touchedFaces: touchedFaces) {
+                grid.uglyCubes.append(index)
             }
         }
         
