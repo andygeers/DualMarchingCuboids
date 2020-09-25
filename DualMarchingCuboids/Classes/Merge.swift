@@ -90,13 +90,6 @@ extension Cuboid {
             result.surfaceNormal = normals.reduce(Vector.zero, +) / Double(normals.count)
         }
         
-        let myCase = self.sampleMarchingCubesCaseIfMissing(grid: grid)
-        let otherCase = other.sampleMarchingCubesCaseIfMissing(grid: grid)
-        if (myCase != otherCase) {
-            let neighbours = result.sampleCorners(index: result.index(grid: grid), grid: grid)
-            result.marchingCubesCase = Cuboid.caseFromNeighbours(neighbours)
-        }
-        
         result.markGridIndices(grid: grid)
         
         return result
@@ -213,20 +206,18 @@ extension VoxelGrid {
         
         // Start by merging the ugly cuboids
         for index in uglyCubes {
-            if let cuboid = cuboids[index] {
+            if var cuboid = cuboids[index] {
                 switch (cuboid.axis) {
                 case .xy:
                     if cuboid.forwardsNodeIndex >= 0, let frontCuboid = findCuboid(at: cuboid.forwardsNodeIndex) {
-                        if (cuboid.canMerge(with: frontCuboid, grid: self)) {
-                            cuboid.merge(with: frontCuboid, grid: self)
-                        }
+                        cuboid.vertex1 = frontCuboid.vertex1
+                        self.cuboids[index] = cuboid
                     }
                     
                 case .yz:
                     if cuboid.rightNodeIndex >= 0, let rightCuboid = findCuboid(at: cuboid.rightNodeIndex) {
-                        if (cuboid.canMerge(with: rightCuboid, grid: self)) {
-                            cuboid.merge(with: rightCuboid, grid: self)
-                        }
+                        cuboid.vertex1 = rightCuboid.vertex1
+                        self.cuboids[index] = cuboid
                     }
                     
                 default:
