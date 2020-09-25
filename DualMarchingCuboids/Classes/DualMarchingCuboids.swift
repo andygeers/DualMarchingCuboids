@@ -117,6 +117,26 @@ public class DualMarchingCuboids : Slice {
         }
         
     }
+    
+    private func isUglyCorner(cuboid: Cuboid, frontCell: Cuboid, touchedFaces: Int) -> Bool {
+        // The ugly corners are the ones where:
+        // 1. They have a seed cube 'in front'
+        guard frontCell.vertex1 != Vector.zero else { return false }
+                
+        // 2. They are a corner - i.e. they go either up-down or side-side from here
+        switch (cuboid.axis) {
+        case .xy:
+            // 1 3 4 5
+            return (touchedFaces & (1 << 1) > 0) || (touchedFaces & (1 << 3) > 0) ||
+                (touchedFaces & (1 << 4) > 0) || (touchedFaces & (1 << 5) > 0)
+        case .yz:
+            // 0 2 4 5
+            return (touchedFaces & (1 << 0) > 0) || (touchedFaces & (1 << 2) > 0) ||
+                (touchedFaces & (1 << 4) > 0) || (touchedFaces & (1 << 5) > 0)
+        default:
+            return false
+        }
+    }
         
     private func processCell(_ cell : Cuboid) {
                 
@@ -164,6 +184,13 @@ public class DualMarchingCuboids : Slice {
                         if (offset.0 > 0) {
                             assert(neighbourCell.leftNodeIndex == -1 || cuboid.containsIndex(neighbourCell.leftNodeIndex, grid:     grid))
                             
+                            if (cuboid.axis == .yz) {
+                                // This might form an ugly corner - let's see
+                                if (isUglyCorner(cuboid: cuboid, frontCell: neighbourCell, touchedFaces: touchedFaces)) {
+                                    grid.uglyCubes.append(index)
+                                }
+                            }
+                            
                             cuboid.rightNodeIndex = neighbourIndex
                             neighbourCell.leftNodeIndex = grownIndex
                             grid.cuboids[neighbourIndex] = neighbourCell
@@ -187,6 +214,13 @@ public class DualMarchingCuboids : Slice {
                             grid.cuboids[neighbourIndex] = neighbourCell
                         } else if (offset.2 > 0) {
                             assert(neighbourCell.backwardsNodeIndex == -1 || cuboid.containsIndex(neighbourCell.backwardsNodeIndex, grid:     grid))
+                            
+                            if (cuboid.axis == .xy) {
+                                // This might form an ugly corner - let's see
+                                if (isUglyCorner(cuboid: cuboid, frontCell: neighbourCell, touchedFaces: touchedFaces)) {
+                                    grid.uglyCubes.append(index)
+                                }
+                            }
                             
                             cuboid.forwardsNodeIndex = neighbourIndex
                             neighbourCell.backwardsNodeIndex = grownIndex

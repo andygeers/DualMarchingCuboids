@@ -30,6 +30,8 @@ public class VoxelGrid {
     internal var seedCells = Queue<Int>()
     public var cuboids : [Int: Cuboid] = [:]
     
+    public var uglyCubes : [Int] = []
+    
     public init(width : Int, height : Int, depth : Int) {
         self.width = width
         self.height = height

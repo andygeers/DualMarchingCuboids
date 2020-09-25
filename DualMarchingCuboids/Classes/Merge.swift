@@ -12,6 +12,10 @@ extension Cuboid {
     static let DISTORTION_THRESHOLD = 0.2
     
     func canMerge(with other: Cuboid, grid: VoxelGrid) -> Bool {
+        if grid.uglyCubes.contains(self.index(grid: grid)) || grid.uglyCubes.contains(other.index(grid: grid)) {
+            return false
+        }
+        
         // Conditions for merging:
         // 1. They are in the same axis and share the same MC case
         let myCase = self.sampleMarchingCubesCaseIfMissing(grid: grid)
