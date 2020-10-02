@@ -104,15 +104,6 @@ public struct Cuboid {
         }
     }
     
-    // There may of course be a lot of nodes along each edge, for large cuboids,
-    // but we can find all of the others by traversing from the first one on that edge
-    var upNodeIndex : Int = -1
-    var rightNodeIndex : Int = -1
-    var downNodeIndex : Int = -1
-    var leftNodeIndex : Int = -1
-    var forwardsNodeIndex : Int = -1
-    var backwardsNodeIndex : Int = -1
-    
     var corner : Vector {
         return Vector(Double(x), Double(y), Double(z))
     }

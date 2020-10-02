@@ -229,13 +229,13 @@ extension VoxelGrid {
             if var cuboid = cuboids[index] {
                 switch (cuboid.axis) {
                 case .xy:
-                    if cuboid.forwardsNodeIndex >= 0, let frontCuboid = findCuboid(at: cuboid.forwardsNodeIndex) {
+                    if let frontCuboid = cuboid.findNeighbour(direction: .z, grid: self) {
                         cuboid.vertex1 = frontCuboid.vertex1
                         self.cuboids[index] = cuboid
                     }
                     
                 case .yz:
-                    if cuboid.rightNodeIndex >= 0, let rightCuboid = findCuboid(at: cuboid.rightNodeIndex) {
+                    if let rightCuboid = cuboid.findNeighbour(direction: .x, grid: self) {
                         cuboid.vertex1 = rightCuboid.vertex1
                         self.cuboids[index] = cuboid
                     }

@@ -181,59 +181,19 @@ public class DualMarchingCuboids : Slice {
                                 
                 if (grid.data[neighbourSurfaceIndex] & DualMarchingCuboids.visitedFlag == 0) {
                     let neighbour = Cuboid(grid: grid, index: neighbourSurfaceIndex, width: 1, height: 1, depth: 1)
-                    if var neighbourCell = grid.addSeed(neighbour) {
-                        // Connect neighbours together in a network
-                        let neighbourIndex = neighbourCell.index(grid: grid)
-                        if (offset.0 > 0) {
-                            assert(neighbourCell.leftNodeIndex == -1 || cuboid.containsIndex(neighbourCell.leftNodeIndex, grid:     grid))
-                            
-                            cuboid.rightNodeIndex = neighbourIndex
-                            neighbourCell.leftNodeIndex = grownIndex
-                            grid.cuboids[neighbourIndex] = neighbourCell
-                        } else if (offset.0 < 0) {
-                            assert(neighbourCell.rightNodeIndex == -1 || cuboid.containsIndex(neighbourCell.rightNodeIndex, grid:     grid))
-                            
-                            cuboid.leftNodeIndex = neighbourIndex
-                            neighbourCell.rightNodeIndex = grownIndex
-                            grid.cuboids[neighbourIndex] = neighbourCell
-                        } else if (offset.1 > 0) {
-                            assert(neighbourCell.downNodeIndex == -1 || cuboid.containsIndex(neighbourCell.downNodeIndex, grid:     grid))
-                            
-                            cuboid.upNodeIndex = neighbourIndex
-                            neighbourCell.downNodeIndex = grownIndex
-                            grid.cuboids[neighbourIndex] = neighbourCell
-                        } else if (offset.1 < 0) {
-                            assert(neighbourCell.upNodeIndex == -1 || cuboid.containsIndex(neighbourCell.upNodeIndex, grid:     grid))
-                            
-                            cuboid.downNodeIndex = neighbourIndex
-                            neighbourCell.upNodeIndex = grownIndex
-                            grid.cuboids[neighbourIndex] = neighbourCell
-                        } else if (offset.2 > 0) {
-                            assert(neighbourCell.backwardsNodeIndex == -1 || cuboid.containsIndex(neighbourCell.backwardsNodeIndex, grid:     grid))
-                                                        
-                            cuboid.forwardsNodeIndex = neighbourIndex
-                            neighbourCell.backwardsNodeIndex = grownIndex
-                            grid.cuboids[neighbourIndex] = neighbourCell
-                        } else if (offset.2 < 0) {
-                            assert(neighbourCell.forwardsNodeIndex == -1 || cuboid.containsIndex(neighbourCell.forwardsNodeIndex, grid:     grid))
-                            
-                            cuboid.backwardsNodeIndex = neighbourIndex
-                            neighbourCell.forwardsNodeIndex = grownIndex
-                            grid.cuboids[neighbourIndex] = neighbourCell
-                        }
-                    }
+                    grid.addSeed(neighbour)
                 }
             }
         }
         
-        if ((cuboid.axis == .xy) && (cuboid.forwardsNodeIndex >= 0)) {
+        if (cuboid.axis == .xy), let frontCuboid = cuboid.findNeighbour(direction: .z, grid: grid) {
             // This might form an ugly corner - let's see
-            if let frontCuboid = grid.findCuboid(at: cuboid.forwardsNodeIndex), isUglyCorner(cuboid: cuboid, frontCell: frontCuboid, touchedFaces: touchedFaces) {
+            if isUglyCorner(cuboid: cuboid, frontCell: frontCuboid, touchedFaces: touchedFaces) {
                 grid.uglyCubes.append(index)
             }
-        } else if ((cuboid.axis == .yz) && (cuboid.rightNodeIndex >= 0)) {
+        } else if (cuboid.axis == .yz), let frontCuboid = cuboid.findNeighbour(direction: .x, grid: grid) {
             // This might form an ugly corner - let's see
-            if let frontCuboid = grid.findCuboid(at: cuboid.rightNodeIndex), isUglyCorner(cuboid: cuboid, frontCell: frontCuboid, touchedFaces: touchedFaces) {
+            if isUglyCorner(cuboid: cuboid, frontCell: frontCuboid, touchedFaces: touchedFaces) {
                 grid.uglyCubes.append(index)
             }
         }
