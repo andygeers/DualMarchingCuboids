@@ -160,6 +160,7 @@ public class DualMarchingCuboids : Slice {
         
         // Keep track of where the actual surface is, for when we generate vertices
         cuboid.seedIndex = index
+        cuboid.seedIndexMax = index
         
         //check if its completely inside or outside
         guard MarchingCubes.edgeTable[cubeIndex] != 0 else { return }

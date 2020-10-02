@@ -50,6 +50,19 @@ extension Cuboid {
         return abs(neighbour.vertex1.distance(from: plane))
     }
     
+    private static func mergeSeedIndices(_ cuboid1: Cuboid, _ cuboid2: Cuboid, grid: VoxelGrid) -> (Int, Int) {
+        
+        let (xmin1, ymin1, zmin1) = grid.positionFromIndex(cuboid1.seedIndex)
+        let (xmin2, ymin2, zmin2) = grid.positionFromIndex(cuboid2.seedIndex)
+        let minIndex = grid.cellIndex(x: min(xmin1, xmin2), y: min(ymin1, ymin2), z: min(zmin1, zmin2))
+        
+        let (xmax1, ymax1, zmax1) = grid.positionFromIndex(cuboid1.seedIndex)
+        let (xmax2, ymax2, zmax2) = grid.positionFromIndex(cuboid2.seedIndex)
+        let maxIndex = grid.cellIndex(x: max(xmax1, xmax2), y: max(ymax1, ymax2), z: max(zmax1, zmax2))
+        
+        return (minIndex, maxIndex)
+    }
+    
     @discardableResult
     func merge(with other: Cuboid, grid: VoxelGrid) -> Cuboid {
         var result : Cuboid
@@ -81,9 +94,16 @@ extension Cuboid {
             result.vertex1 = other.vertex1
         }
         if (self.seedIndex != -1) {
-            result.seedIndex = self.seedIndex
+            if (other.seedIndex != -1) {
+                // Merge seed indices
+                (result.seedIndex, result.seedIndexMax) = Cuboid.mergeSeedIndices(self, other, grid: grid)
+            } else {
+                result.seedIndex = self.seedIndex
+                result.seedIndexMax = self.seedIndexMax
+            }
         } else if (other.seedIndex != -1) {
             result.seedIndex = other.seedIndex
+            result.seedIndexMax = other.seedIndexMax
         }
         let normals = [self.surfaceNormal, other.surfaceNormal].filter({ $0 != Vector.zero })
         if (normals.count > 0) {

@@ -36,6 +36,7 @@ public struct Cuboid {
     var depth : Int
     
     var seedIndex : Int = -1
+    var seedIndexMax : Int = -1
     
     var isUnitCube : Bool {
         return width == 1 && height == 1 && depth == 1
@@ -127,8 +128,9 @@ public struct Cuboid {
             assert(width == 1 && height == 1 && depth == 1)
             return centre
         }
-        let (x, y, z) = grid.positionFromIndex(seedIndex)
-        return Vector(Double(x) + 0.5, Double(y) + 0.5, Double(z) + 0.5)
+        let (x1, y1, z1) = grid.positionFromIndex(seedIndex)
+        let (x2, y2, z2) = grid.positionFromIndex(seedIndexMax)
+        return Vector((Double(x1) + Double(x2 + 1)) / 2.0, (Double(y1) + Double(y2 + 1)) / 2.0, (Double(z1) + Double(z2 + 1)) / 2.0)
     }
     
     var bounds : Bounds {
