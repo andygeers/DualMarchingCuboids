@@ -60,7 +60,7 @@ extension Cuboid {
     func triangulate(grid: VoxelGrid, polygons: inout [Euclid.Polygon], material: Euclid.Polygon.Material) {
         guard marchingCubesCase >= 0 else { return }
         
-        var polyPoints : [([Vector], Polygon.Material)] = []
+        var polyPoints : [([Vector], Euclid.Polygon.Material)] = []
         
         let edges = MarchingCubes.edgeTable[marchingCubesCase]
         
