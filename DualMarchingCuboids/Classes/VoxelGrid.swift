@@ -49,27 +49,6 @@ public class VoxelGrid {
                   depth: Int(bounds.size.z * VoxelGrid.SCALE_FACTOR) + 2)
     }
     
-    public extension Plane {
-        var pointOnPlane : Vector {
-            if (self.normal.z != 0.0) {
-                let x = 0.0
-                let y = 0.0
-                let z = self.w / self.normal.z
-                return Vector(x, y, z)
-            } else if (self.normal.y != 0.0) {
-                let x = 0.0
-                let y = self.w / self.normal.y
-                let z = 0.0
-                return Vector(x, y, z)
-            } else {
-                let x = self.w / self.normal.x
-                let y = 0.0
-                let z = 0.0
-                return Vector(x, y, z)
-            }
-        }
-    }
-    
     public func slice(plane: Plane, bounds: Bounds) -> Slice? {
         // See what kind of slice we want
         if (abs(plane.normal.y) < epsilon) {
@@ -151,7 +130,13 @@ public class VoxelGrid {
         return (x, y, z)
     }        
     
-    public func generateMesh() -> Mesh {
-        return Mesh([])
+    public func generateMesh(material: Euclid.Polygon.Material = UIColor.blue) -> Mesh {
+        
+        var polygons : [Euclid.Polygon] = []
+        if let dmc = DualMarchingCuboids(grid: self) {
+            dmc.generatePolygons(&polygons, material: material)
+        }
+        
+        return Mesh(polygons).scaled(by: VoxelGrid.SCALE_FACTOR)
     }
 }
