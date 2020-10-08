@@ -137,6 +137,6 @@ public class VoxelGrid {
             dmc.generatePolygons(&polygons, material: material)
         }
         
-        return Mesh(polygons).scaled(by: VoxelGrid.SCALE_FACTOR)
+        return Mesh(polygons).scaled(by: 1.0 / VoxelGrid.SCALE_FACTOR)
     }
 }
