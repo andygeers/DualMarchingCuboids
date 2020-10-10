@@ -30,22 +30,19 @@ public class Generator {
     
     public func generateSurface(on slice: Slice) {
                 
-        let iterator = slice.iterator(range1: 1 ..< texture.width, yRange: 1 ..< texture.height)
+        let width = texture.width
+        let height = texture.height
         
-        var bounds = VoxelBoundingBox(min: VoxelCoordinates.max, max: VoxelCoordinates.zero, axis: slice.axisMask)
-        
-        //let maxDepth = self.baseHeight + self.modelHeight
-                
-        for (x, y, z, j, i, index) in iterator {
+        for (x, y, z, jj, ii, index) in slice {
+            
+            let j = jj % width
+            let i = ii % height
             
             if (!self.isTransparent(x: j, y: i, alphaMap: texture.alphaMap)) {
                 let depth = texture.outputHeight(texture.heightMap[j][i], baseHeight: baseHeight, modelHeight: modelHeight)
                 let normal = texture.surfaceNormals[j][i].rotated(by: slice.rotation)
                 let intDepth = Int(depth)
                 
-                bounds.merge(VoxelCoordinates(x: x, y: y, z: z), depth: intDepth)
-                
-                        
                 if (slice.axisMask == .xy) {
                     let topZ = z + intDepth
                     let vertexPosition = Vector(Double(x) + 0.5, Double(y) + 0.5, Double(z) + depth)
@@ -75,7 +72,5 @@ public class Generator {
                 //slice.grid.addSeed(index)
             }
         }
-        
-        NSLog("New bounds: %@ to %@", String(describing: bounds.min), String(describing: bounds.max))                
     }                
 }
