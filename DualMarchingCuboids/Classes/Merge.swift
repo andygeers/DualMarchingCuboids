@@ -193,36 +193,40 @@ extension Cuboid {
         switch direction {
         case .x:
             let x = self.x + width
+            guard x < grid.width else { return nil }
             let index = grid.cellIndex(x: x, y: self.y, z: self.z)
             return grid.findCuboid(at: index)
         case .y:
             let y = self.y + height
+            guard y < grid.height else { return nil }
             let index = grid.cellIndex(x: self.x, y: y, z: self.z)
             return grid.findCuboid(at: index)
         case .z:
             let z = self.z + depth
+            guard z < grid.depth else { return nil }
             let index = grid.cellIndex(x: self.x, y: self.y, z: z)
             return grid.findCuboid(at: index)
-        }
+        }                
     }
     
     /// Make all cells within the cuboid point to this index
     func markGridIndices(grid: VoxelGrid) {
         let myIndex = index(grid: grid)
+        grid.cuboids[myIndex] = self
         
         for zz in z ..< z + depth {
             for yy in y ..< y + height {
                 for xx in x ..< x + width {
-                    if ((xx != 0) || (yy != 0) || (zz != 0)) {
+                    guard xx < grid.width && yy < grid.height && zz < grid.depth else { continue }
+                    
+                    if ((xx != x) || (yy != y) || (zz != z)) {
                         let index = grid.cellIndex(x: xx, y: yy, z: zz)
                         grid.cuboids.removeValue(forKey: index)
-                        grid.data[index] = (grid.data[index] & VoxelGrid.dataBits) | (myIndex << VoxelGrid.dataBits) | DualMarchingCuboids.visitedFlag
+                        grid.data[index] = (grid.data[index] & ((1 << VoxelGrid.dataBits) - 1)) | (myIndex << VoxelGrid.dataBits) | DualMarchingCuboids.visitedFlag
                     }
                 }
             }
         }
-                
-        grid.cuboids[myIndex] = self
     }
 }
 
