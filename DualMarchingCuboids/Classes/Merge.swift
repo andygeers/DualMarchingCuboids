@@ -105,9 +105,14 @@ extension Cuboid {
             result.seedIndex = other.seedIndex
             result.seedIndexMax = other.seedIndexMax
         }
-        let normals = [self.surfaceNormal, other.surfaceNormal].filter({ $0 != Vector.zero })
-        if (normals.count > 0) {
-            result.surfaceNormal = normals.reduce(Vector.zero, +) / Double(normals.count)
+        if self.surfaceNormal != Vector.zero {
+            if (other.surfaceNormal != Vector.zero) {
+                result.surfaceNormal = (self.surfaceNormal + other.surfaceNormal) / 2.0
+            } else {
+                result.surfaceNormal = self.surfaceNormal
+            }
+        } else {
+            result.surfaceNormal = other.surfaceNormal
         }
         
         result.markGridIndices(grid: grid)
