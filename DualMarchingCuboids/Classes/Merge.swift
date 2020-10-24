@@ -258,7 +258,10 @@ extension VoxelGrid {
         (1...2).forEach { _ in
             // Iterate over all the cuboid indices that currently exist
             let indices = cuboids.keys.sorted()
-            for index in indices {
+            for (iteration, index) in indices.enumerated() {
+                if (iteration % 100 == 0) {
+                    NSLog("Merged %d of %d", iteration, indices.count)
+                }
                 // Look up this cuboid and see if we've merged it already
                 guard var cuboid = findCuboid(at: index), cuboid.index(grid: self) == index else { continue }
                 
@@ -271,11 +274,14 @@ extension VoxelGrid {
                 default:
                     directions = [.x, .y, .z]
                 }
-                
+                                
+                let maxDimension = max(self.width, self.height, self.depth)
                 for direction in directions {
                     // Find the neighbouring cube in this direction
+                    var iterations = 0
                     while let neighbour = cuboid.findNeighbour(direction: direction, grid: self), cuboid.canMerge(with: neighbour, grid: self), cuboid.shouldMerge(with: neighbour, grid: self) {
                         cuboid = cuboid.merge(with: neighbour, grid: self)
+                        iterations += 1
                     }
                 }
             }
