@@ -21,12 +21,12 @@ public class VoxelTexture {
     private let HOLE_DEPTH = -1000.0
     private let HOLE_OFFSET = -2.0
     
-    public init(image: UIImage) throws {
+    public init(image: UIImage, tileImage: Bool = false) throws {
         self.image = image
-        processImage()
+        processImage(tileImage: tileImage)
     }
     
-    private func processImage() {
+    private func processImage(tileImage: Bool) {
         let imageSize = image.size
         let imageRect = CGRect(x: 0, y: 0, width: imageSize.width, height: imageSize.height)
 
@@ -44,17 +44,20 @@ public class VoxelTexture {
         ctx.draw(image.cgImage!, in: imageRect)
         
         // Calculate the histogram
-        generateHeightAndAlphaMap(from: ctx)
+        generateHeightAndAlphaMap(from: ctx, tileImage: tileImage)
         
         generateSurfaceNormals()
     }
     
-    private func generateHeightAndAlphaMap(from bitmap : CGContext) {
+    private func generateHeightAndAlphaMap(from bitmap : CGContext, tileImage: Bool) {
         
         NSLog("Bitmap dimensions: %d x %d (%d)", bitmap.width, bitmap.height, bitmap.bytesPerRow)
         
-        var heightMap = Array(repeating: Array(repeating: 0.0, count: (bitmap.height)), count: bitmap.width)
-        var alphaMap = Array(repeating: Array(repeating: 0.0, count: (bitmap.height)), count: bitmap.width)
+        let height = bitmap.height + (tileImage ? 1 : 0)
+        let width = bitmap.width + (tileImage ? 1 : 0)
+        
+        var heightMap = Array(repeating: Array(repeating: 0.0, count: height), count: width)
+        var alphaMap = Array(repeating: Array(repeating: 0.0, count: height), count: width)
         
         var pixel = bitmap.data!
         
@@ -89,9 +92,21 @@ public class VoxelTexture {
                 
                 pixel += 4
             }
+            
+            if (tileImage) {
+                heightMap[bitmap.width][y] = heightMap[0][y]
+                alphaMap[bitmap.width][y] = alphaMap[0][y]
+            }
                         
             // Sometimes there is padding beyond the edge of the image that we need to skip past
             pixel += bitmap.bytesPerRow - bitmap.width * 4
+        }
+        
+        if (tileImage) {
+            for x in 0 ..< width {
+                heightMap[x][bitmap.height] = heightMap[x][0]
+                alphaMap[x][bitmap.height] = alphaMap[x][0]
+            }
         }
         
         self.heightMap = heightMap
