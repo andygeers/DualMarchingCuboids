@@ -29,7 +29,7 @@ public class DualMarchingCuboids : Slice {
         return .multiple
     }
     
-    override public func generatePolygons(_ polygons : inout [Euclid.Polygon], material: Euclid.Polygon.Material = UIColor.blue) {
+    override public func generatePolygons(_ polygons : inout [Euclid.Polygon], material: Euclid.Polygon.Material = UIColor.blue, progressCallback: ((Double) -> Void)? = nil) {
         
         let before = DispatchTime.now()
         
@@ -45,7 +45,7 @@ public class DualMarchingCuboids : Slice {
         
         NSLog("Processed grid in %f seconds", Float(after.uptimeNanoseconds - before.uptimeNanoseconds) / Float(1_000_000_000))
         
-        grid.mergeCuboids()
+        grid.mergeCuboids(progressCallback: progressCallback)
         
         let afterMerge = DispatchTime.now()
         

@@ -231,7 +231,7 @@ extension Cuboid {
 }
 
 extension VoxelGrid {
-    func mergeCuboids() {
+    func mergeCuboids(progressCallback: ((Double) -> Void)? = nil) {
         
         // Start by merging the ugly cuboids
         for index in uglyCubes {
@@ -255,12 +255,17 @@ extension VoxelGrid {
             }
         }
         
-        (1...2).forEach { _ in
+        (1...2).forEach { (loopCount) in
             // Iterate over all the cuboid indices that currently exist
             let indices = cuboids.keys.sorted()
             for (iteration, index) in indices.enumerated() {
                 if (iteration % 100 == 0) {
-                    NSLog("Merged %d of %d", iteration, indices.count)
+                    let iterationProgress = Double(iteration) / Double(indices.count)
+                    let progress = iterationProgress * 0.5 + (Double(loopCount - 1) * 0.5)
+                    if let callback = progressCallback {
+                        callback(progress)
+                    }
+                    
                 }
                 // Look up this cuboid and see if we've merged it already
                 guard var cuboid = findCuboid(at: index), cuboid.index(grid: self) == index else { continue }

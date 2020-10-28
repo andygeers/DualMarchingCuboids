@@ -76,7 +76,7 @@ public class Slice : Sequence {
         return vertexPositions
     }
     
-    public func generatePolygons(_ polygons : inout [Euclid.Polygon], material: Euclid.Polygon.Material = UIColor.blue) {
+    public func generatePolygons(_ polygons : inout [Euclid.Polygon], material: Euclid.Polygon.Material = UIColor.blue, progressCallback: ((Double) -> Void)? = nil) {
                 
         
     }
